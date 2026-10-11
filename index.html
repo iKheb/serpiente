@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Serpiente Neón</title>
+<style>
+  html,body{margin:0;height:100%;background:#0a0a14;color:#0ff;font-family:"Courier New",monospace;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none;user-select:none}
+  h1{margin:0 0 8px;font-size:22px;letter-spacing:4px;text-shadow:0 0 10px #0ff}
+  #hud{display:flex;gap:24px;margin-bottom:8px;font-size:16px}
+  canvas{border:2px solid #0ff;box-shadow:0 0 25px #0ff8;background:#05050c;max-width:95vw;max-height:70vh}
+  p{margin:8px;color:#8ff;font-size:13px;opacity:.8}
+</style>
+</head>
+<body>
+<h1>SERPIENTE NEÓN</h1>
+<div id="hud"><span>Puntos: <b id="score">0</b></span><span>Récord: <b id="best">0</b></span></div>
+<canvas id="c" width="400" height="400"></canvas>
+<p>Flechas / WASD o desliza el dedo · Espacio = pausa / reiniciar</p>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),N=20,S=c.width/N;
+const $=id=>document.getElementById(id);
+let best=0;try{best=+localStorage.getItem('snakeBest')||0}catch(e){}
+$('best').textContent=best;
+let snake,dir,next,food,score,speed,timer,state; // state: ready | run | pause | over
+
+function reset(){
+  snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir=next={x:1,y:0};
+  score=0;speed=130;$('score').textContent=0;placeFood();state='ready';draw();
+}
+function placeFood(){
+  do{food={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}
+  while(snake.some(s=>s.x===food.x&&s.y===food.y));
+}
+function start(){state='run';clearInterval(timer);timer=setInterval(tick,speed)}
+function tick(){
+  dir=next;
+  const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(s=>s.x===h.x&&s.y===h.y)){return gameOver()}
+  snake.unshift(h);
+  if(h.x===food.x&&h.y===food.y){
+    score++;$('score').textContent=score;placeFood();
+    speed=Math.max(55,speed-4);start();
+  } else snake.pop();
+  draw();
+}
+function gameOver(){
+  clearInterval(timer);state='over';
+  if(score>best){best=score;$('best').textContent=best;try{localStorage.setItem('snakeBest',best)}catch(e){}}
+  draw();
+}
+function draw(){
+  x.fillStyle='#05050c';x.fillRect(0,0,c.width,c.height);
+  x.strokeStyle='#0ff1';x.lineWidth=1;
+  for(let i=1;i<N;i++){x.beginPath();x.moveTo(i*S,0);x.lineTo(i*S,c.height);x.moveTo(0,i*S);x.lineTo(c.width,i*S);x.stroke()}
+  x.shadowBlur=14;
+  x.fillStyle=x.shadowColor='#f0f';
+  x.beginPath();x.arc(food.x*S+S/2,food.y*S+S/2,S/2-3,0,7);x.fill();
+  snake.forEach((s,i)=>{
+    x.fillStyle=x.shadowColor=i?'#0f8':'#fff';
+    x.fillRect(s.x*S+2,s.y*S+2,S-4,S-4);
+  });
+  x.shadowBlur=0;
+  const msg={ready:['Pulsa una flecha o toca para empezar'],pause:['PAUSA'],over:['GAME OVER','Espacio o toca para reiniciar']}[state];
+  if(msg){
+    x.fillStyle='#000a';x.fillRect(0,0,c.width,c.height);
+    x.fillStyle='#0ff';x.textAlign='center';x.font='bold 20px Courier New';
+    msg.forEach((t,i)=>x.fillText(t,c.width/2,c.height/2+i*30-(msg.length-1)*12));
+  }
+}
+function turn(d){
+  if(state==='over')return;
+  if(d.x===-dir.x&&d.y===-dir.y)return;
+  next=d;
+  if(state==='ready'||state==='pause')start();
+}
+const keys={ArrowUp:[0,-1],w:[0,-1],ArrowDown:[0,1],s:[0,1],ArrowLeft:[-1,0],a:[-1,0],ArrowRight:[1,0],d:[1,0]};
+addEventListener('keydown',e=>{
+  if(e.key===' '){e.preventDefault();
+    if(state==='over')reset();
+    else if(state==='run'){clearInterval(timer);state='pause';draw()}
+    else if(state==='pause')start();
+    return}
+  const k=keys[e.key]||keys[e.key.toLowerCase()];
+  if(k){e.preventDefault();turn({x:k[0],y:k[1]})}
+});
+let t0;
+c.addEventListener('touchstart',e=>{t0=e.touches[0];if(state==='over')reset()},{passive:true});
+c.addEventListener('touchend',e=>{
+  const t=e.changedTouches[0],dx=t.clientX-t0.clientX,dy=t.clientY-t0.clientY;
+  if(Math.max(Math.abs(dx),Math.abs(dy))<20)return;
+  turn(Math.abs(dx)>Math.abs(dy)?{x:Math.sign(dx),y:0}:{x:0,y:Math.sign(dy)});
+});
+reset();
+</script>
+</body>
+</html>
