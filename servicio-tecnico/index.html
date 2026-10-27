@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Mi Taller</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--line:#334155;--txt:#f1f5f9;--mut:#94a3b8;--acc:#38bdf8;--ok:#4ade80;--warn:#facc15;--bad:#f87171}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.4 system-ui,sans-serif;padding-bottom:90px}
+header{position:sticky;top:0;background:var(--bg);padding:12px 14px calc(8px);z-index:5;border-bottom:1px solid var(--line)}
+h1{font-size:20px;margin:0 0 8px}
+input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);font:inherit}
+textarea{min-height:70px;resize:vertical}
+label{display:block;font-size:13px;color:var(--mut);margin:12px 0 4px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px}
+.chip{flex:none;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--mut);font:inherit;font-size:14px}
+.chip.on{background:var(--acc);color:#04202e;border-color:var(--acc);font-weight:600}
+main{padding:12px 14px}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;border-left:5px solid var(--mut)}
+.card .top{display:flex;justify-content:space-between;gap:8px;align-items:start}
+.card b{font-size:17px}.card small{color:var(--mut)}
+.badge{font-size:12px;padding:3px 9px;border-radius:99px;font-weight:600;white-space:nowrap;color:#0f172a}
+.s-Recibido{border-color:var(--acc)}.s-Recibido .badge{background:var(--acc)}
+.s-Reparando{border-color:var(--warn)}.s-Reparando .badge{background:var(--warn)}
+.s-Listo{border-color:var(--ok)}.s-Listo .badge{background:var(--ok)}
+.s-Entregado{border-color:var(--mut)}.s-Entregado .badge{background:var(--mut)}
+.row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:10px 14px;border-radius:10px;border:0;background:var(--line);color:var(--txt);font:inherit;font-size:14px;text-decoration:none;display:inline-block}
+.btn.p{background:var(--acc);color:#04202e;font-weight:700}
+.btn.d{color:var(--bad)}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:50%;border:0;background:var(--acc);color:#04202e;font-size:32px;box-shadow:0 4px 14px #0008}
+.modal{position:fixed;inset:0;background:var(--bg);overflow-y:auto;padding:14px 14px 40px;display:none;z-index:10}
+.modal.open{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.empty{text-align:center;color:var(--mut);padding:40px 10px}
+.stats{color:var(--mut);font-size:13px;margin:4px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>📱 Mi Taller</h1>
+  <input id="q" type="search" placeholder="Buscar nombre, teléfono, modelo, IMEI…">
+  <div class="chips" id="chips"></div>
+</header>
+<main><div class="stats" id="stats"></div><div id="list"></div>
+  <div class="row" style="justify-content:center;margin-top:24px">
+    <button class="btn" id="exp">⬇ Respaldo</button>
+    <label class="btn" style="margin:0">⬆ Restaurar<input id="imp" type="file" accept=".json" hidden></label>
+  </div>
+</main>
+<button class="fab" id="add" aria-label="Nuevo cliente">+</button>
+
+<form class="modal" id="form">
+  <h1 id="ftitle">Nuevo cliente</h1>
+  <label>Nombre del cliente *</label><input name="nombre" required>
+  <label>Teléfono / WhatsApp *</label><input name="tel" type="tel" inputmode="tel" required>
+  <div class="g2">
+    <div><label>Marca</label><input name="marca" placeholder="Samsung, iPhone…"></div>
+    <div><label>Modelo</label><input name="modelo"></div>
+  </div>
+  <label>IMEI / N° de serie</label><input name="imei" inputmode="numeric">
+  <label>Contraseña / patrón del equipo</label><input name="clave">
+  <label>Falla reportada *</label><textarea name="falla" required placeholder="Pantalla rota, no carga, mojado…"></textarea>
+  <label>Accesorios entregados</label><input name="accesorios" placeholder="Funda, SIM, memoria…">
+  <div class="g2">
+    <div><label>Costo estimado</label><input name="costo" type="number" inputmode="decimal" min="0" step="any"></div>
+    <div><label>Anticipo</label><input name="anticipo" type="number" inputmode="decimal" min="0" step="any"></div>
+  </div>
+  <div class="g2">
+    <div><label>Estado</label>
+      <select name="estado"><option>Recibido</option><option>Reparando</option><option>Listo</option><option>Entregado</option></select></div>
+    <div><label>Fecha de ingreso</label><input name="fecha" type="date"></div>
+  </div>
+  <label>Notas</label><textarea name="notas"></textarea>
+  <div class="row"><button class="btn p" type="submit" style="flex:1">Guardar</button><button class="btn" type="button" id="cancel">Cancelar</button></div>
+</form>
+
+<script>
+const KEY='taller_clientes_v1', ESTADOS=['Todos','Recibido','Reparando','Listo','Entregado'];
+let data=[]; try{data=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){}
+let filtro='Todos', editId=null;
+const $=s=>document.querySelector(s), form=$('#form');
+const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'$'+(+n||0).toLocaleString('es',{minimumFractionDigits:0,maximumFractionDigits:2});
+const hoy=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+
+function render(){
+  $('#chips').innerHTML=ESTADOS.map(e=>`<button class="chip ${e===filtro?'on':''}" data-e="${e}">${e}${e==='Todos'?'':' ('+data.filter(c=>c.estado===e).length+')'}</button>`).join('');
+  const q=$('#q').value.toLowerCase().trim();
+  const rows=data.filter(c=>(filtro==='Todos'||c.estado===filtro)&&(!q||[c.nombre,c.tel,c.marca,c.modelo,c.imei,c.falla].join(' ').toLowerCase().includes(q)))
+    .sort((a,b)=>b.fecha.localeCompare(a.fecha)||b.id-a.id);
+  $('#stats').textContent=`${rows.length} de ${data.length} registros`;
+  $('#list').innerHTML=rows.length?rows.map(c=>{
+    const resta=(+c.costo||0)-(+c.anticipo||0), tel=c.tel.replace(/[^\d+]/g,'');
+    return `<div class="card s-${c.estado}">
+      <div class="top"><div><b>${esc(c.nombre)}</b><br><small>${esc(c.marca)} ${esc(c.modelo)} · ${esc(c.fecha)}</small></div><span class="badge">${c.estado}</span></div>
+      <div style="margin-top:6px">${esc(c.falla)}</div>
+      ${c.costo?`<small>Costo ${money(c.costo)} · Anticipo ${money(c.anticipo)} · <b style="color:var(--warn)">Resta ${money(resta)}</b></small>`:''}
+      <div class="row">
+        <a class="btn" href="tel:${tel}">📞 Llamar</a>
+        <a class="btn" target="_blank" rel="noopener" href="https://wa.me/${tel.replace('+','')}?text=${encodeURIComponent('Hola '+c.nombre+', le escribimos del servicio técnico sobre su '+(c.marca+' '+c.modelo).trim()+'. Estado: '+c.estado+'.')}">💬 WhatsApp</a>
+        <button class="btn" data-a="edit" data-id="${c.id}">✏️ Editar</button>
+        <button class="btn d" data-a="del" data-id="${c.id}">🗑</button>
+      </div></div>`}).join(''):'<div class="empty">Sin registros.<br>Toca + para agregar un cliente.</div>';
+}
+function open_(c){
+  editId=c?c.id:null; form.reset();
+  $('#ftitle').textContent=c?'Editar cliente':'Nuevo cliente';
+  const v=c||{estado:'Recibido',fecha:hoy()};
+  for(const el of form.elements) if(el.name) el.value=v[el.name]??'';
+  form.classList.add('open'); form.scrollTop=0;
+}
+const close_=()=>form.classList.remove('open');
+$('#add').onclick=()=>open_();
+$('#cancel').onclick=close_;
+form.onsubmit=e=>{
+  e.preventDefault();
+  const o=Object.fromEntries(new FormData(form).entries());
+  if(editId){const i=data.findIndex(c=>c.id===editId);data[i]={...data[i],...o}}
+  else data.push({id:Date.now(),...o});
+  save(); close_(); render();
+};
+$('#list').onclick=e=>{
+  const b=e.target.closest('[data-a]'); if(!b) return;
+  const id=+b.dataset.id, c=data.find(x=>x.id===id);
+  if(b.dataset.a==='edit') open_(c);
+  else if(confirm('¿Eliminar a '+c.nombre+'?')){data=data.filter(x=>x.id!==id);save();render()}
+};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-e]');if(b){filtro=b.dataset.e;render()}};
+$('#q').oninput=render;
+$('#exp').onclick=()=>{
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));
+  a.download='clientes-taller-'+hoy()+'.json'; a.click();
+};
+$('#imp').onchange=async e=>{
+  try{
+    const arr=JSON.parse(await e.target.files[0].text());
+    if(!Array.isArray(arr)) throw 0;
+    if(confirm('Esto reemplazará los '+data.length+' registros actuales por '+arr.length+'. ¿Continuar?')){data=arr;save();render()}
+  }catch{alert('Archivo no válido')}
+  e.target.value='';
+};
+render();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
