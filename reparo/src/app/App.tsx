@@ -11,6 +11,8 @@ const pages: Record<RouteName, React.LazyExoticComponent<React.ComponentType>> =
   actividad: lazy(() => import('@/pages/actividad/ActividadPage')),
   ajustes: lazy(() => import('@/pages/ajustes/AjustesPage')),
   ui: lazy(() => import('@/ui/Gallery')),
+  'ui-charts': lazy(() => import('@/charts/ChartsGallery')),
+  'ui-3d': lazy(() => import('@/three/ThreeGallery')),
 };
 
 export function App() {

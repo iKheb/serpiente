@@ -44,7 +44,11 @@ export type PaymentStatus = 'pendiente' | 'parcial' | 'pagado';
  * Un "cliente" es el registro de un servicio técnico: la persona, su equipo,
  * el trabajo realizado y cuánto se le cobró.
  */
+export type UnlockType = 'ninguno' | 'patron' | 'pin' | 'contrasena';
+
 export interface Client extends BaseRecord {
+  /** Folio consecutivo del servicio (lo asigna la capa de datos: 1, 2, 3…). Se muestra como "#000123". */
+  folio: number;
   nombre: string;
   telefono: string;
   email: string;
@@ -69,11 +73,49 @@ export interface Client extends BaseRecord {
   fechaEntrega: Timestamp | null;
   /** Días de garantía ofrecidos (0 = sin garantía). */
   garantiaDias: number;
+  /** Tipo de bloqueo de pantalla del equipo. */
+  desbloqueoTipo: UnlockType;
+  /**
+   * Patrón de desbloqueo: secuencia de puntos de una cuadrícula 3×3,
+   * numerados 0..8 de izquierda a derecha y de arriba abajo. [] si no aplica.
+   */
+  desbloqueoPatron: number[];
+  /** PIN o contraseña (texto) si desbloqueoTipo es 'pin' | 'contrasena'. */
+  desbloqueoCodigo: string;
+  /** Cantidad de fotos de evidencia guardadas (denormalizado para listas). */
+  numFotos: number;
   notas: string;
 }
 
-/** Campos que el usuario captura al crear/editar un cliente. */
-export type ClientInput = Omit<Client, keyof BaseRecord>;
+/** Campos que el usuario captura al crear/editar un cliente (folio y numFotos los gestiona la capa de datos). */
+export type ClientInput = Omit<Client, keyof BaseRecord | 'folio' | 'numFotos'>;
+
+/* -------------------------- Evidencia fotográfica ------------------------- */
+
+export type PhotoKind = 'ingreso' | 'reparacion' | 'entrega';
+
+export const PHOTO_KIND_LABEL: Record<PhotoKind, string> = {
+  ingreso: 'Al recibir',
+  reparacion: 'Durante la reparación',
+  entrega: 'Al entregar',
+};
+
+/** Foto de evidencia del estado del equipo (guardada como Blob en IndexedDB, offline). */
+export interface ClientPhoto {
+  id: ID;
+  clientId: ID;
+  kind: PhotoKind;
+  /** Imagen comprimida (JPEG/WebP, lado mayor ≤ 1600 px). */
+  blob: Blob;
+  /** Miniatura (lado mayor ≤ 360 px). */
+  thumb: Blob;
+  width: number;
+  height: number;
+  caption: string;
+  /** Fecha y hora en que se tomó/agregó. */
+  ts: Timestamp;
+  deviceId: string;
+}
 
 /* ------------------------------- Gastos --------------------------------- */
 
@@ -219,6 +261,7 @@ export type AuditAction =
   | 'sistema';
 
 export type EntityType = 'cliente' | 'gasto' | 'inventario' | 'ajustes' | 'sistema';
+// Las fotos se auditan como entity 'cliente' (action 'editar', summary "Agregó 2 fotos de evidencia").
 
 export interface FieldChange {
   /** Clave técnica del campo (p. ej. "cobroCents"). */
@@ -258,6 +301,13 @@ export interface Settings {
   id: 'settings';
   businessName: string;
   ownerName: string;
+  /* Datos que aparecen en el recibo */
+  businessPhone: string;
+  businessAddress: string;
+  /** Texto al pie del recibo (garantía, horario, agradecimiento). */
+  receiptFooter: string;
+  /** Código de país para WhatsApp sin "+": "52" México, "57" Colombia, "54" Argentina… */
+  phoneCountryCode: string;
   /** Código ISO 4217: MXN, USD, COP, ARS, CLP, PEN, EUR, GTQ, BOB, DOP... */
   currency: string;
   /** Locale BCP-47 para formatos: es-MX, es-CO, es-AR, es-ES... */

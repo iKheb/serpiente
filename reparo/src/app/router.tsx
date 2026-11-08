@@ -9,7 +9,9 @@ export type RouteName =
   | 'reportes'
   | 'actividad'
   | 'ajustes'
-  | 'ui'; // galería interna del sistema de diseño (sólo desarrollo)
+  | 'ui' // galería interna del sistema de diseño (sólo desarrollo)
+  | 'ui-charts' // galería de gráficos (sólo desarrollo)
+  | 'ui-3d'; // galería 3D (sólo desarrollo)
 
 export interface Route {
   name: RouteName;
@@ -20,7 +22,7 @@ export interface Route {
   href: string;
 }
 
-const ROUTES: RouteName[] = ['panel', 'clientes', 'gastos', 'inventario', 'reportes', 'actividad', 'ajustes', 'ui'];
+const ROUTES: RouteName[] = ['panel', 'clientes', 'gastos', 'inventario', 'reportes', 'actividad', 'ajustes', 'ui', 'ui-charts', 'ui-3d'];
 
 function parse(hash: string): Route {
   const raw = hash.replace(/^#\/?/, '');
