@@ -1,0 +1,84 @@
+.root {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  min-height: 20px;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.boxWrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.input {
+  position: absolute;
+  inset: -6px;
+  width: calc(100% + 12px);
+  height: calc(100% + 12px);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.box {
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border-hover);
+  color: transparent;
+  box-shadow: var(--shadow-xs);
+  transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast), transform var(--dur-instant);
+}
+
+.box svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.6;
+}
+
+.root:hover .box:not(.checked) {
+  border-color: var(--text-4);
+}
+
+.input:focus-visible + .box {
+  box-shadow: var(--ring);
+}
+
+.input:active + .box {
+  transform: scale(0.92);
+}
+
+.checked {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--text-on-brand);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font-size: var(--text-base);
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.description {
+  font-size: var(--text-sm);
+  color: var(--text-3);
+  line-height: 1.4;
+}

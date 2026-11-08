@@ -1,0 +1,132 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.groupLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-2);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 12px;
+  border-radius: var(--radius-md);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  text-align: left;
+  min-height: 44px;
+  transition: border-color var(--dur-fast), background var(--dur-fast), box-shadow var(--dur-fast);
+}
+
+.sm .card {
+  padding: 9px 10px;
+  align-items: center;
+}
+
+.card:hover:not(:disabled) {
+  border-color: var(--input-border-hover);
+  background: var(--input-bg-hover);
+}
+
+.card:focus-visible {
+  box-shadow: var(--ring);
+  border-radius: var(--radius-md);
+}
+
+.card:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.checked,
+.checked:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--brand) 70%, transparent);
+  background: var(--brand-softer);
+  box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--brand) 60%, transparent);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-active);
+  color: var(--text-2);
+}
+
+.sm .icon {
+  width: 24px;
+  height: 24px;
+  background: none;
+}
+
+.checked .icon {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.description {
+  font-size: var(--text-xs);
+  color: var(--text-3);
+  line-height: 1.4;
+}
+
+.radio {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  border-radius: 50%;
+  border: 1px solid var(--input-border-hover);
+  background: var(--input-bg);
+  transition: border var(--dur-fast);
+}
+
+.sm .radio {
+  margin-top: 0;
+}
+
+.checked .radio {
+  border: 5px solid var(--brand);
+  background: var(--text-on-brand);
+}

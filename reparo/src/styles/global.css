@@ -1,14 +1,370 @@
-/* Estilos globales base (reset + tipografía). El subagente de UI lo amplía. */
-*, *::before, *::after { box-sizing: border-box; }
-html, body, #root { height: 100%; }
-body {
+/* ==========================================================================
+   Reparo — Estilos globales
+   Reset, tipografía, scrollbars, selección, foco, utilidades y tokens
+   complementarios del sistema de diseño (src/ui). Los tokens base viven en
+   tokens.css; aquí sólo se añaden los derivados que necesitan los componentes.
+   ========================================================================== */
+
+/* -------------------------- Tokens complementarios ------------------------ */
+:root {
+  /* Superficies interactivas (hover / activo / campos) */
+  --surface-hover: rgba(255, 255, 255, 0.045);
+  --surface-active: rgba(255, 255, 255, 0.075);
+  --surface-selected: rgba(124, 108, 255, 0.12);
+  --input-bg: rgba(255, 255, 255, 0.025);
+  --input-bg-hover: rgba(255, 255, 255, 0.04);
+  --input-border: rgba(255, 255, 255, 0.09);
+  --input-border-hover: rgba(255, 255, 255, 0.15);
+  --popover-bg: #15181f;
+  --popover-border: rgba(255, 255, 255, 0.09);
+  --tooltip-bg: #232834;
+  --tooltip-text: #eef0f6;
+  --tooltip-border: rgba(255, 255, 255, 0.08);
+  --kbd-bg: rgba(255, 255, 255, 0.06);
+  --kbd-border: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.18);
+  --skeleton-base: rgba(255, 255, 255, 0.045);
+  --skeleton-shine: rgba(255, 255, 255, 0.075);
+  --sidebar-bg: rgba(10, 12, 16, 0.72);
+  --topbar-bg: rgba(6, 7, 10, 0.72);
+  --tabbar-bg: rgba(10, 12, 16, 0.86);
+
+  /* Botón primario: degradado sutil de marca + brillo superior */
+  --btn-primary-bg: linear-gradient(180deg, #8a7bff 0%, #6f5ff4 100%);
+  --btn-primary-bg-hover: linear-gradient(180deg, #9689ff 0%, #7a6bf7 100%);
+  --btn-primary-border: rgba(160, 148, 255, 0.55);
+  --btn-primary-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 2px rgba(0, 0, 0, 0.45),
+    0 4px 14px -4px rgba(124, 108, 255, 0.55);
+  --btn-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 55%);
+  --btn-danger-bg: linear-gradient(180deg, #ff6d81 0%, #ea4a62 100%);
+  --btn-danger-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 4px 14px -4px rgba(255, 93, 115, 0.45);
+  --btn-secondary-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.04) 100%);
+  --btn-secondary-bg-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.06) 100%);
+  --btn-secondary-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.35);
+
+  /* Ambiente (fondo de la app) */
+  --ambient-1: rgba(124, 108, 255, 0.09);
+  --ambient-2: rgba(34, 211, 238, 0.05);
+  --ambient-3: rgba(124, 108, 255, 0.04);
+
+  /* Alto de la barra superior según el layout (lo usan los sticky de las páginas) */
+  --mobile-header-h: 56px;
+  --app-header-h: var(--topbar-h);
+  --app-bottom-h: 0px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+:root[data-theme='light'] {
+  --surface-hover: rgba(16, 20, 30, 0.04);
+  --surface-active: rgba(16, 20, 30, 0.07);
+  --surface-selected: rgba(98, 80, 240, 0.08);
+  --input-bg: #ffffff;
+  --input-bg-hover: #ffffff;
+  --input-border: rgba(16, 20, 30, 0.12);
+  --input-border-hover: rgba(16, 20, 30, 0.2);
+  --popover-bg: #ffffff;
+  --popover-border: rgba(16, 20, 30, 0.1);
+  --tooltip-bg: #171a22;
+  --tooltip-text: #f4f5f8;
+  --tooltip-border: rgba(16, 20, 30, 0.2);
+  --kbd-bg: rgba(16, 20, 30, 0.04);
+  --kbd-border: rgba(16, 20, 30, 0.12);
+  --scrollbar-thumb: rgba(16, 20, 30, 0.14);
+  --scrollbar-thumb-hover: rgba(16, 20, 30, 0.24);
+  --skeleton-base: rgba(16, 20, 30, 0.055);
+  --skeleton-shine: rgba(16, 20, 30, 0.03);
+  --sidebar-bg: rgba(241, 242, 245, 0.78);
+  --topbar-bg: rgba(246, 247, 249, 0.78);
+  --tabbar-bg: rgba(255, 255, 255, 0.88);
+
+  --btn-primary-bg: linear-gradient(180deg, #7262f7 0%, #5a48e8 100%);
+  --btn-primary-bg-hover: linear-gradient(180deg, #7b6cf9 0%, #5241e2 100%);
+  --btn-primary-border: rgba(74, 57, 214, 0.9);
+  --btn-primary-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 2px rgba(40, 30, 140, 0.25),
+    0 4px 12px -4px rgba(98, 80, 240, 0.45);
+  --btn-danger-bg: linear-gradient(180deg, #ec4c69 0%, #d8304f 100%);
+  --btn-danger-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(140, 20, 40, 0.2),
+    0 4px 12px -4px rgba(226, 58, 90, 0.4);
+  --btn-secondary-bg: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+  --btn-secondary-bg-hover: linear-gradient(180deg, #ffffff 0%, #f3f4f7 100%);
+  --btn-secondary-shadow: 0 1px 2px rgba(16, 20, 30, 0.06);
+
+  --ambient-1: rgba(98, 80, 240, 0.07);
+  --ambient-2: rgba(14, 165, 198, 0.05);
+  --ambient-3: rgba(98, 80, 240, 0.03);
+}
+
+@media (max-width: 899px) {
+  :root {
+    --app-header-h: calc(var(--mobile-header-h) + var(--safe-top));
+    --app-bottom-h: calc(var(--tabbar-h) + var(--safe-bottom));
+  }
+}
+
+/* --------------------------------- Reset --------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
   margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-gutter: stable;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+#root {
+  min-height: 100%;
+  isolation: isolate;
+}
+
+body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
+  font-feature-settings: 'liga' 1, 'calt' 1, 'ss01' 1;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+::placeholder {
+  color: var(--text-4);
+  opacity: 1;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* --------------------------- Selección y foco ---------------------------- */
+::selection {
+  background: var(--brand-soft);
+  color: var(--text);
+}
+
+:root[data-theme='light'] ::selection {
+  background: rgba(98, 80, 240, 0.18);
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+  border-radius: var(--radius-xs);
+}
+
+/* --------------------------------- Scroll -------------------------------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ------------------------------- Utilidades ------------------------------ */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.tabular,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'liga' 1, 'calt' 1;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-2 {
+  color: var(--text-2);
+}
+
+.text-3 {
+  color: var(--text-3);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Bloqueo de scroll cuando hay un modal abierto */
+html[data-scroll-locked] body {
+  overflow: hidden;
+}
+
+/* --------------------------- Movimiento reducido ------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes reparo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes reparo-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

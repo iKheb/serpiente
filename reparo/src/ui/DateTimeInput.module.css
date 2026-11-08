@@ -1,0 +1,152 @@
+.control {
+  padding: 0 4px 0 0;
+  gap: 0;
+  cursor: default;
+}
+
+.control.open {
+  border-color: var(--border-focus);
+  box-shadow: var(--ring);
+}
+
+.trigger {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: calc(var(--ctl-h) - 2px);
+  padding: 0 6px 0 var(--ctl-px);
+  text-align: left;
+  font-size: var(--text-base);
+  border-radius: var(--radius-sm);
+}
+
+.trigger:focus-visible {
+  box-shadow: none;
+}
+
+.control:has(.trigger:focus-visible) {
+  border-color: var(--border-focus);
+  box-shadow: var(--ring);
+}
+
+@media (pointer: coarse) {
+  .trigger {
+    font-size: 16px;
+  }
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.value::first-letter {
+  text-transform: uppercase;
+}
+
+.placeholder {
+  flex: 1;
+  color: var(--text-4);
+}
+
+.chevron {
+  width: 15px;
+  height: 15px;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.now {
+  flex-shrink: 0;
+  height: calc(var(--ctl-h) - 12px);
+  padding: 0 8px;
+  border-radius: calc(var(--radius-sm) - 3px);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--brand);
+  background: var(--brand-softer);
+  transition: background var(--dur-fast);
+}
+
+.now:hover {
+  background: var(--brand-soft);
+}
+
+:root[data-theme='light'] .now {
+  color: var(--brand-press);
+}
+
+.panel {
+  padding: 12px;
+  gap: 10px;
+}
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.timeLabel {
+  font-size: var(--text-sm);
+  color: var(--text-2);
+  font-weight: var(--weight-medium);
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+}
+
+.segment {
+  width: 36px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  text-align: center;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  outline: none;
+}
+
+.segment:focus {
+  background: var(--brand-soft);
+  color: var(--text);
+}
+
+.segment:focus-visible {
+  box-shadow: none;
+}
+
+.colon {
+  color: var(--text-3);
+  font-weight: var(--weight-semibold);
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}

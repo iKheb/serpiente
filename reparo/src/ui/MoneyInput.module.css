@@ -1,0 +1,11 @@
+.symbol {
+  font-weight: var(--weight-medium);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  min-width: 10px;
+}
+
+.input {
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.005em;
+}

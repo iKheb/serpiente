@@ -1,0 +1,55 @@
+{
+  "id": "./",
+  "name": "Reparo · Servicio técnico",
+  "short_name": "Reparo",
+  "description": "Gestión profesional para tu servicio técnico de celulares: clientes, reparaciones, gastos, inventario de repuestos y ganancias. Funciona sin internet y te avisa con notificaciones.",
+  "lang": "es",
+  "dir": "ltr",
+  "start_url": "./#/panel",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#06070a",
+  "theme_color": "#06070a",
+  "categories": ["business", "productivity", "finance"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/badge-96.png", "sizes": "96x96", "type": "image/png", "purpose": "monochrome" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nuevo cliente",
+      "short_name": "Nuevo cliente",
+      "description": "Registrar un equipo que llega al taller",
+      "url": "./#/clientes?nuevo=1",
+      "icons": [{ "src": "icons/shortcut-cliente.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Nuevo gasto",
+      "short_name": "Nuevo gasto",
+      "description": "Anotar la compra de un repuesto u otro gasto",
+      "url": "./#/gastos?nuevo=1",
+      "icons": [{ "src": "icons/shortcut-gasto.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Repuestos por pedir",
+      "short_name": "Por pedir",
+      "description": "Ver los repuestos con stock bajo o agotados",
+      "url": "./#/inventario?filtro=pedir",
+      "icons": [{ "src": "icons/shortcut-pedir.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Reportes",
+      "short_name": "Reportes",
+      "description": "Ganancias, cobros y gastos de la semana o el mes",
+      "url": "./#/reportes",
+      "icons": [{ "src": "icons/shortcut-reportes.png", "sizes": "96x96", "type": "image/png" }]
+    }
+  ]
+}

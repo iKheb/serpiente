@@ -1,0 +1,80 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--text-sm);
+}
+
+.label {
+  color: var(--text-2);
+}
+
+.value {
+  color: var(--text);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  --tone: var(--brand);
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--surface-active);
+  overflow: hidden;
+}
+
+.xs {
+  height: 3px;
+}
+.sm {
+  height: 6px;
+}
+.md {
+  height: 10px;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--tone) 70%, transparent), var(--tone));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--tone) 40%, transparent);
+}
+
+.brand .fill {
+  background: var(--brand-gradient);
+}
+
+.income {
+  --tone: var(--income);
+}
+.expense {
+  --tone: var(--expense);
+}
+.profit {
+  --tone: var(--profit);
+}
+.pending,
+.warning {
+  --tone: var(--warning);
+}
+.danger {
+  --tone: var(--danger);
+}
+.info {
+  --tone: var(--info);
+}
+.neutral {
+  --tone: var(--text-3);
+}

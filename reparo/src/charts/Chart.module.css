@@ -1,0 +1,283 @@
+/* ==========================================================================
+   Estilos compartidos de los gráficos de Reparo (SVG propio).
+   Sólo tokens de src/styles/tokens.css — nunca colores sueltos.
+   ========================================================================== */
+
+.root {
+  /* Superficie sobre la que vive el gráfico (anillos de puntos, huecos). */
+  --chart-surface: var(--surface-1);
+  /* Opacidad superior del degradado de las áreas. */
+  --chart-area-top: 0.24;
+  --chart-area-bottom: 0;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  font-family: var(--font-sans);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+}
+
+:global(:root[data-theme='light']) .root {
+  --chart-area-top: 0.16;
+}
+
+.plot {
+  position: relative;
+  width: 100%;
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---- Cuadrícula y ejes ---- */
+.gridLine {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+  fill: none;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.zeroLine {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.axisText {
+  fill: var(--chart-axis);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: 0.005em;
+}
+
+.axisTextActive {
+  fill: var(--text);
+}
+
+/* ---- Marcas ---- */
+.line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.lineDashed {
+  stroke-dasharray: 4 5;
+  stroke-width: 1.75;
+}
+
+.area {
+  stroke: none;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.fade {
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.isHidden {
+  opacity: 0;
+}
+
+/* Entrada: la línea se "dibuja" y el área aparece con un fundido. */
+.drawIn {
+  stroke-dasharray: 1 1;
+  animation: chartDraw 1100ms var(--ease-out) both;
+}
+
+.fadeIn {
+  animation: chartFade 900ms var(--ease-out) 180ms both;
+}
+
+.fadeInFast {
+  animation: chartFade 520ms var(--ease-out) both;
+}
+
+@keyframes chartDraw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes chartFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---- Barras ---- */
+.barGroup {
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.barGroupDim {
+  opacity: 0.34;
+}
+
+.bar {
+  transform-box: fill-box;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.barGrowUp {
+  transform-origin: 50% 100%;
+  animation: barGrow 760ms var(--ease-out) both;
+}
+
+.barGrowDown {
+  transform-origin: 50% 0%;
+  animation: barGrow 760ms var(--ease-out) both;
+}
+
+@keyframes barGrow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.bandHighlight {
+  fill: var(--chart-grid);
+  transition: x var(--dur-fast) var(--ease-out);
+}
+
+/* ---- Puntos ---- */
+.dot {
+  stroke: var(--chart-surface);
+  stroke-width: 2;
+}
+
+.dotHalo {
+  opacity: 0.18;
+}
+
+.crosshair {
+  stroke: var(--chart-axis);
+  stroke-width: 1;
+  opacity: 0.55;
+  shape-rendering: crispEdges;
+}
+
+/* ---- Línea de referencia (meta) ---- */
+.refLine {
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.9;
+}
+
+.refPill {
+  fill: var(--surface-2);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.refText {
+  fill: var(--text-2);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Capa interactiva ---- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  touch-action: pan-y;
+  outline: none;
+  border-radius: var(--radius-sm);
+}
+
+.overlay:focus-visible {
+  box-shadow: 0 0 0 2px var(--border-focus);
+}
+
+.overlaySvg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* ---- Estado vacío ---- */
+.empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.emptyCard {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--chart-surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-3);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  max-width: min(320px, 90%);
+}
+
+.emptyIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--text-3);
+}
+
+/* ---- Accesibilidad ---- */
+.srOnly {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawIn,
+  .fadeIn,
+  .fadeInFast,
+  .barGrowUp,
+  .barGrowDown {
+    animation: none !important;
+  }
+  .line,
+  .area,
+  .bar,
+  .barGroup,
+  .gridLine,
+  .bandHighlight {
+    transition: none !important;
+  }
+}

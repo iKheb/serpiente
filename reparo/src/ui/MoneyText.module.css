@@ -1,0 +1,56 @@
+.money {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.neutral {
+  color: var(--text);
+}
+.muted {
+  color: var(--text-3);
+}
+.income {
+  color: var(--income);
+}
+.expense {
+  color: var(--expense);
+}
+.profit {
+  color: var(--profit);
+}
+.pending {
+  color: var(--pending);
+}
+
+.regular {
+  font-weight: var(--weight-regular);
+}
+.medium {
+  font-weight: var(--weight-medium);
+}
+.semibold {
+  font-weight: var(--weight-semibold);
+}
+
+.sm {
+  font-size: var(--text-sm);
+}
+.md {
+  font-size: var(--text-base);
+}
+.lg {
+  font-size: var(--text-lg);
+  letter-spacing: var(--tracking-tight);
+}
+.xl {
+  font-size: var(--text-2xl);
+  letter-spacing: var(--tracking-tight);
+}
+
+.strike {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, currentColor 60%, transparent);
+  color: var(--text-3);
+}

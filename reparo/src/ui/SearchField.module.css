@@ -1,0 +1,19 @@
+.search {
+  width: 280px;
+  max-width: 100%;
+}
+
+.full {
+  width: 100%;
+}
+
+.hintKey {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+@media (pointer: coarse) {
+  .hintKey {
+    display: none;
+  }
+}

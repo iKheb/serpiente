@@ -1,0 +1,273 @@
+/* Capa PWA: avisos de conexión (arriba, centro) y actualización (abajo). */
+
+.topLayer {
+  position: fixed;
+  z-index: var(--z-toast);
+  top: calc(var(--app-header-h, var(--topbar-h)) + var(--space-2));
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  pointer-events: none;
+}
+
+.pill {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  max-width: min(560px, 100%);
+  padding: var(--space-1-5) var(--space-1-5) var(--space-1-5) var(--space-1-5);
+  border-radius: var(--radius-full);
+  background: var(--surface-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 var(--highlight-top);
+  color: var(--text);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+
+.pillIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.pill[data-tone='offline'] .pillIcon {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.pill[data-tone='online'] .pillIcon,
+.pill[data-tone='ready'] .pillIcon {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.pillText {
+  min-width: 0;
+  padding-right: var(--space-1);
+}
+
+.pillText strong {
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.pillDetail {
+  color: var(--text-2);
+}
+
+.pillClose {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.pillClose:hover {
+  background: var(--surface-hover, var(--surface-3));
+  color: var(--text);
+}
+
+.pillClose:focus-visible,
+.btnPrimary:focus-visible,
+.btnGhost:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+/* ------------------------------ Actualización ----------------------------- */
+
+.bottomLayer {
+  position: fixed;
+  z-index: var(--z-toast);
+  left: calc(var(--space-4) + var(--safe-left, 0px));
+  bottom: calc(var(--space-4) + var(--app-bottom-h, 0px) + var(--safe-bottom, 0px));
+  width: min(392px, calc(100vw - 2 * var(--space-4)));
+  pointer-events: none;
+}
+
+@media (max-width: 899px) {
+  .bottomLayer {
+    left: var(--space-3);
+    right: var(--space-3);
+    width: auto;
+    /* --app-bottom-h ya incluye el área segura en móvil */
+    bottom: calc(var(--space-3) + var(--app-bottom-h, 0px));
+  }
+}
+
+.card {
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 var(--highlight-top);
+  color: var(--text);
+}
+
+/* Filo de luz con el degradado de marca */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: var(--brand-gradient);
+  opacity: 0.85;
+}
+
+/* Halo suave detrás del ícono */
+.card::after {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: -40px;
+  width: 180px;
+  height: 140px;
+  background: radial-gradient(closest-side, var(--brand-soft), transparent);
+  pointer-events: none;
+}
+
+.cardGlyph {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  background: var(--brand-gradient);
+  color: var(--text-on-brand);
+  box-shadow: var(--brand-glow);
+}
+
+.cardBody {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  align-self: center;
+}
+
+.cardTitle {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-snug);
+  color: var(--text);
+}
+
+.cardText {
+  margin-top: var(--space-0-5);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--text-2);
+}
+
+.cardActions {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.btnPrimary,
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1-5);
+  height: 34px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.btnPrimary {
+  border: 1px solid var(--btn-primary-border, transparent);
+  background: var(--btn-primary-bg, var(--brand));
+  color: var(--text-on-brand);
+  box-shadow: var(--btn-primary-shadow, var(--brand-glow));
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: var(--btn-primary-bg-hover, var(--brand-hover));
+}
+
+.btnGhost {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-2);
+}
+
+.btnGhost:hover:not(:disabled) {
+  background: var(--surface-hover, var(--surface-3));
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.btnPrimary:active:not(:disabled),
+.btnGhost:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btnPrimary:disabled,
+.btnGhost:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.spin {
+  animation: pwa-spin 0.9s linear infinite;
+}
+
+@keyframes pwa-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation-duration: 2.4s;
+  }
+  .btnPrimary,
+  .btnGhost {
+    transition: none;
+  }
+}

@@ -1,0 +1,35 @@
+.horizontal {
+  border: 0;
+  height: 1px;
+  background: var(--border);
+  margin: var(--space-4) 0;
+  width: 100%;
+}
+
+.vertical {
+  display: inline-block;
+  width: 1px;
+  align-self: stretch;
+  min-height: 16px;
+  background: var(--border-strong);
+  margin: 0 var(--space-2);
+}
+
+.labeled {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.labeled::before,
+.labeled::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}

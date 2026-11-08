@@ -1,0 +1,39 @@
+.tooltip {
+  z-index: var(--z-tooltip);
+  max-width: 280px;
+  padding: 5px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--tooltip-bg);
+  color: var(--tooltip-text);
+  border: 1px solid var(--tooltip-border);
+  box-shadow: var(--shadow-md);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  line-height: 1.35;
+  letter-spacing: 0;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: normal;
+}
+
+.shortcut {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.key {
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--tooltip-text) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tooltip-text) 12%, transparent);
+  color: var(--tooltip-text);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  line-height: 15px;
+  text-align: center;
+  opacity: 0.85;
+}

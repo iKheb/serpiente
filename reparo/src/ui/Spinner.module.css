@@ -1,0 +1,16 @@
+.spinner {
+  display: inline-block;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.75px solid currentColor;
+  border-right-color: transparent;
+  opacity: 0.85;
+  animation: reparo-spin 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: reparo-spin 1.6s linear infinite !important;
+    animation-iteration-count: infinite !important;
+  }
+}

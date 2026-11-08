@@ -1,0 +1,85 @@
+.list {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 10px;
+  margin-bottom: -1px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-3);
+  white-space: nowrap;
+  transition: color var(--dur-fast);
+}
+
+@media (pointer: coarse) {
+  .tab {
+    height: 44px;
+  }
+}
+
+.tab:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.tab:focus-visible {
+  box-shadow: inset var(--ring);
+  border-radius: var(--radius-xs);
+}
+
+.active {
+  color: var(--text);
+}
+
+.icon {
+  display: inline-flex;
+}
+
+.icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--surface-active);
+  color: var(--text-2);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.active .count {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.ink {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--brand);
+  box-shadow: 0 0 10px var(--brand-soft);
+}

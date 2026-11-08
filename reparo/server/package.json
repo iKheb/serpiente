@@ -1,0 +1,7 @@
+{
+  "name": "reparo-server",
+  "private": true,
+  "type": "module",
+  "description": "Servidor opcional de Reparo (cero dependencias). `node --test server/` ejecuta tests.mjs (Node 22 trata el directorio como módulo).",
+  "main": "tests.mjs"
+}

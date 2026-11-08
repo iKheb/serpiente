@@ -1,22 +1,43 @@
-// STUB con el contrato público de la capa PWA (lo reemplaza el subagente PWA,
-// manteniendo estas firmas).
-import { useSyncExternalStore } from 'react';
+/* ==========================================================================
+   Capa PWA de Reparo — API pública (`import { … } from '@/pwa'`).
+   · <PwaLayer />: montar UNA vez en el Shell.
+   · Hooks para Ajustes / Shell: conexión, instalación, permisos,
+     notificaciones de prueba, actualización y Web Push.
+   ========================================================================== */
+import { useStore } from './store';
+import { applyUpdate as applySwUpdate, swStore, type SwStatus } from './register';
 
-/** Capa global (montada UNA vez por el Shell): actualizaciones, offline, instalación, puente de notificaciones. */
-export function PwaLayer(): null {
-  return null;
+export { PwaLayer } from './PwaLayer';
+export { useOnlineStatus } from './online';
+export { useInstallPrompt, promptInstall, IOS_INSTALL_HINT } from './install';
+export {
+  useNotificationPermission,
+  requestNotificationPermission,
+  getNotificationPermission,
+  showSystemNotification,
+  sendTestNotification,
+  notificationsSupported,
+  type SystemNotificationInput,
+} from './notifications';
+export { usePushSubscription, pushUnavailableReason, refreshPushState } from './push';
+export { checkForUpdates, getServiceWorkerVersion, clearAppCaches, onPushReceived, type SwStatus } from './register';
+
+/** Versión nueva disponible y acción para aplicarla (activa el SW nuevo y recarga una vez). */
+export function useSwUpdate(): { updateReady: boolean; applyUpdate(): void } {
+  const s = useStore(swStore);
+  return { updateReady: s.updateReady, applyUpdate: applyUpdateNow };
 }
 
-function subscribeOnline(cb: () => void) {
-  window.addEventListener('online', cb);
-  window.addEventListener('offline', cb);
-  return () => {
-    window.removeEventListener('online', cb);
-    window.removeEventListener('offline', cb);
-  };
+function applyUpdateNow(): void {
+  void applySwUpdate();
 }
 
-/** true si hay conexión a internet. */
-export function useOnlineStatus(): boolean {
-  return useSyncExternalStore(subscribeOnline, () => navigator.onLine, () => true);
+/**
+ * Estado del modo sin conexión para mostrar en Ajustes.
+ * `offlineCapable` = un service worker controla la página (la app abre sin internet).
+ */
+export function usePwaStatus(): { swStatus: SwStatus; offlineCapable: boolean; version: string | null } {
+  const s = useStore(swStore);
+  const controlled = typeof navigator !== 'undefined' && !!navigator.serviceWorker?.controller;
+  return { swStatus: s.status, offlineCapable: controlled, version: s.version };
 }
