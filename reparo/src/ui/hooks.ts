@@ -69,7 +69,8 @@ function subscribeTick(interval: number, cb: () => void) {
         schedule();
       }, delay);
     };
-    tick.now = Date.now();
+    // Sólo refresca si el valor quedó desfasado (evita re-renders en bucle al re-suscribir).
+    if (Date.now() - tick.now >= interval) tick.now = Date.now();
     schedule();
   }
   return () => {

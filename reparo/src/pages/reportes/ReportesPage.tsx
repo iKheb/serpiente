@@ -141,7 +141,9 @@ export default function ReportesPage() {
   /* ------------------------------- Datos ------------------------------- */
   const summary = useSummary(period);
   const prevSummary = useSummary(prev);
-  const series = useSeries(period, 'day');
+  const seriesAll = useSeries(period, 'day');
+  // En el período en curso sólo se muestran los días transcurridos (sin días futuros en cero).
+  const series = useMemo(() => (seriesAll && isCurrent ? seriesAll.filter((p) => p.start <= now) : seriesAll), [seriesAll, isCurrent, now]);
   const historyAnchor = current.start - period.start > 0 && period.start < shiftPeriod(current, -(HISTORY - 1), ws).start ? period.start : now;
   const history = usePeriodHistory(kind, HISTORY, historyAnchor);
   const categories = useCategoryBreakdown(period);
@@ -344,6 +346,7 @@ export default function ReportesPage() {
                     formatValue={money}
                     formatPercent={(r) => formatPercent(r)}
                     centerLabel="Gastado"
+                    maxSegments={9}
                     size={mobile ? 168 : 188}
                     emptyMessage="Sin gastos en este período"
                     ariaLabel={`Gastos por categoría, ${period.label}`}

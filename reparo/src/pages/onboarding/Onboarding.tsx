@@ -64,7 +64,12 @@ export default function Onboarding() {
   }, [settings]);
 
   // Foco al cambiar de paso: primer campo en "Tu negocio", título en el resto.
+  const firstStep = useRef(true);
   useEffect(() => {
+    if (firstStep.current) {
+      firstStep.current = false;
+      return;
+    }
     const t = setTimeout(() => {
       if (step === 1) nameRef.current?.focus();
       else headingRef.current?.focus({ preventScroll: true });

@@ -667,3 +667,10 @@
     margin: 0;
   }
 }
+
+/* Los títulos reciben foco programático (lectores de pantalla) sin anillo visible. */
+.title:focus,
+.wordmark:focus {
+  outline: none;
+  box-shadow: none;
+}
