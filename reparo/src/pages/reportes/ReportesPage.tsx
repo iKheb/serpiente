@@ -181,6 +181,8 @@ export default function ReportesPage() {
       activeHistory
         ?.slice()
         .reverse()
+        // El período en curso sin movimientos no se dibuja: sería una caída falsa a $0.
+        .filter(({ period: p, summary: s }) => !(p.start === current.start && isEmptySummary(s)))
         .map(({ period: p, summary: s }) => ({
           label: trendLabel(p),
           period: p,
@@ -189,7 +191,7 @@ export default function ReportesPage() {
           gananciaCents: s.gananciaCents,
           margen: s.margen,
         })),
-    [activeHistory],
+    [activeHistory, current.start],
   );
 
   const tableRows = useMemo<HistoryRow[] | undefined>(
@@ -418,7 +420,7 @@ export default function ReportesPage() {
         </>
       )}
 
-      <TrendCard kind={kind} trend={trend} money={money} moneyCompact={moneyCompact} selectedStart={period.start} onSelect={goTo} mobile={mobile} />
+      <TrendCard currentStart={current.start} kind={kind} trend={trend} money={money} moneyCompact={moneyCompact} selectedStart={period.start} onSelect={goTo} mobile={mobile} />
 
       <section className={styles.tableSection} aria-labelledby="rep-compare">
         <div className={styles.sectionHead}>
@@ -595,6 +597,7 @@ function Stat({ label, value, hint, tone, children }: { label: string; value: st
 /* ============================== Tendencia =============================== */
 
 function TrendCard({
+  currentStart,
   kind,
   trend,
   money,
@@ -603,6 +606,7 @@ function TrendCard({
   onSelect,
   mobile,
 }: {
+  currentStart: number;
   kind: PeriodKind;
   trend?: TrendPoint[];
   money: (c: number) => string;
@@ -635,7 +639,9 @@ function TrendCard({
       className={styles.chartCard}
       title={`Tendencia de ${periodsLabel(kind, trend?.length ?? HISTORY)}`}
       icon={<TrendingUp />}
-      description={mobile ? 'Toca dos veces un punto para abrir ese período.' : 'Haz clic en un punto para abrir ese período.'}
+      description={`${mobile ? 'Toca dos veces un punto para abrir ese período.' : 'Haz clic en un punto para abrir ese período.'}${
+        trend?.some((x) => x.period.start === currentStart) ? ` El último punto es ${kind === 'week' ? 'la semana' : 'el mes'} en curso.` : ''
+      }`}
       actions={
         totals ? (
           <div className={styles.trendTotals}>

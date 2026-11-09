@@ -12,7 +12,7 @@ const out = path.resolve(root, process.argv[2]);
 const themes = (process.argv[3] || 'dark,light').split(',');
 const vps = (process.argv[4] || 'desktop,mobile').split(',');
 const only = (process.argv[5] || 'list,form,pattern,edit,detail,receipt,png').split(',');
-const VP = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 }, small: { width: 360, height: 740 } };
+const VP = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 }, small: { width: 360, height: 740 }, tablet: { width: 834, height: 1112 } };
 const port = await new Promise((r) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => r(p)); }); });
 const server = await createServer({ root, configFile: path.join(root, 'vite.config.ts'), server: { port, strictPort: true, host: '127.0.0.1', hmr: false }, logLevel: 'error' });
 await server.listen();
