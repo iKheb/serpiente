@@ -284,7 +284,7 @@ export default function ReportesPage() {
             icon={<Receipt />}
             accent={<Plus />}
             title={`Sin movimientos ${kind === 'week' ? 'esta semana' : 'este mes'}`}
-            description={`No hay servicios ni gastos registrados en ${period.label.toLowerCase()}. Registra un servicio o un gasto y aquí verás cuánto cobraste, cuánto gastaste y tu ganancia.`}
+            description={`No hay servicios ni gastos registrados en ${kind === 'week' ? 'la ' + period.label.toLowerCase() : period.label.toLowerCase()}. Registra un servicio o un gasto y aquí verás cuánto cobraste, cuánto gastaste y tu ganancia.`}
             action={
               <Button variant="primary" iconLeft={<Plus />} onClick={() => navigate('#/clientes?nuevo=1')}>
                 Registrar servicio

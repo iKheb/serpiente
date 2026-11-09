@@ -10,6 +10,6 @@ p.on('console', m => { if (m.type()==='error'||m.type()==='warning') console.log
 await p.goto('http://127.0.0.1:5917/#/ajustes'); await p.waitForFunction(()=>!!window.__reparo);
 await p.evaluate(async()=>{await window.__reparo.seedDemoData(); await window.__reparo.updateSettings({onboarded:true});});
 console.log('---- now reportes');
-await p.goto('http://127.0.0.1:5917/#/reportes'); await p.reload(); await p.waitForTimeout(3000);
+await p.goto('http://127.0.0.1:5917/#/reportes?periodo=month'); await p.reload(); await p.waitForTimeout(4000);
 console.log(await p.evaluate(()=>document.querySelector('main')?.innerText.slice(0,300)));
 await b.close(); await server.close(); process.exit(0);

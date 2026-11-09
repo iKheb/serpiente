@@ -3,8 +3,9 @@ import { useEffect, useRef, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Bell, Truck } from 'lucide-react';
 import { Badge, cx, usePrefersReducedMotion } from '@/ui';
+import { PartThumb } from '@/three';
 import { STOCK_STATUS_LABEL, stockStatus, type ExpenseCategory, type InventoryItem } from '@/data';
-import { CATEGORY_COLOR, CATEGORY_ICON, STATUS_TONE, meterScale } from './lib';
+import { CATEGORY_COLOR, STATUS_TONE, meterScale } from './lib';
 import styles from './parts.module.css';
 
 /* -------------------------------- Miniatura ------------------------------- */
@@ -16,12 +17,8 @@ export interface ItemThumbProps {
   className?: string;
 }
 
-/**
- * Miniatura del repuesto según su categoría. Mientras no exista PartThumb en
- * '@/three', se usa una baldosa con ícono, degradado y brillo (sin WebGL).
- */
+/** Miniatura 3D del repuesto (PartThumb de '@/three') sobre una baldosa tintada por categoría. */
 export function ItemThumb({ categoria, size = 40, className }: ItemThumbProps) {
-  const Icon = CATEGORY_ICON[categoria] ?? CATEGORY_ICON.otros;
   return (
     <span
       className={cx(styles.thumb, size >= 96 && styles.thumbLg, className)}
@@ -29,7 +26,7 @@ export function ItemThumb({ categoria, size = 40, className }: ItemThumbProps) {
       aria-hidden
     >
       <span className={styles.thumbGlow} />
-      <Icon className={styles.thumbIcon} style={{ width: Math.round(size * 0.44), height: Math.round(size * 0.44) }} strokeWidth={size >= 96 ? 1.4 : 1.8} />
+      <PartThumb kind={categoria} size={Math.round(size * 0.94)} label="" className={styles.thumbArt} />
     </span>
   );
 }

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { CalendarDays, CalendarRange, Gauge, ShoppingCart, Store, PieChart } from 'lucide-react';
 import { DonutChart, HBarList, Sparkline } from '@/charts';
 import { formatMoney, getPeriod, shiftPeriod, startOfDay, useCategoryBreakdown, type DateRange, type Expense } from '@/data';
-import { Card, KpiCard, Skeleton } from '@/ui';
+import { Card, KpiCard, Skeleton, useMediaQuery } from '@/ui';
 import { CATEGORY_COLOR, CategoryIcon } from './categories';
 import styles from './gastos.module.css';
 
@@ -45,6 +45,7 @@ export interface ExpenseSummaryProps {
 
 export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel, onCategoryClick, onProviderClick }: ExpenseSummaryProps) {
   const loading = !expenses;
+  const narrow = useMediaQuery('(max-width: 599px)');
   const breakdown = useCategoryBreakdown(range);
 
   const k = useMemo(() => {
@@ -105,7 +106,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
     <div className={styles.summary}>
       <div className={styles.kpis}>
         <KpiCard
-          label="Gastado esta semana"
+          label={narrow ? 'Semana' : 'Gastado esta semana'}
           tone="expense"
           icon={<CalendarDays />}
           value={k.week.total}
@@ -117,7 +118,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
           sparkline={<Sparkline data={k.weekSpark} tone="expense" height={36} ariaLabel="Gasto diario de la semana" />}
         />
         <KpiCard
-          label="Gastado este mes"
+          label={narrow ? 'Mes' : 'Gastado este mes'}
           tone="expense"
           icon={<CalendarRange />}
           value={k.month.total}
@@ -129,7 +130,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
           sparkline={k.monthSpark.length > 1 ? <Sparkline data={k.monthSpark} tone="expense" height={36} ariaLabel="Gasto diario del mes" /> : undefined}
         />
         <KpiCard
-          label="Promedio diario del mes"
+          label={narrow ? 'Por día' : 'Promedio diario del mes'}
           tone="pending"
           icon={<Gauge />}
           value={k.avg}
@@ -142,7 +143,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
           }
         />
         <KpiCard
-          label="Compras este mes"
+          label={narrow ? 'Compras' : 'Compras este mes'}
           tone="brand"
           icon={<ShoppingCart />}
           value={k.month.count}

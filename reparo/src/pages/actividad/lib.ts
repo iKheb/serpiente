@@ -185,5 +185,16 @@ export function useMinuteNow(): number {
 /** "hace 5 min" / "ayer · 14:32" que se actualiza sola cada minuto. */
 export function RelativeTime({ ts, className }: { ts: number; className?: string }) {
   const now = useMinuteNow();
-  return createElement('span', { className }, formatRelative(ts, Math.max(now, Date.now() - 1)));
+  const ref = Math.max(now, Date.now() - 1);
+  const d0 = new Date(ref);
+  const d1 = new Date(ts);
+  const days = Math.round(
+    (new Date(d0.getFullYear(), d0.getMonth(), d0.getDate()).getTime() - new Date(d1.getFullYear(), d1.getMonth(), d1.getDate()).getTime()) / 86_400_000,
+  );
+  let text: string;
+  if (days < 2) text = formatRelative(ts, ref);
+  else if (days < 31) text = `hace ${days} días`;
+  else if (days < 365) text = `hace ${Math.round(days / 30)} ${Math.round(days / 30) === 1 ? 'mes' : 'meses'}`;
+  else text = `hace ${Math.round(days / 365)} ${Math.round(days / 365) === 1 ? 'año' : 'años'}`;
+  return createElement('span', { className }, text);
 }
