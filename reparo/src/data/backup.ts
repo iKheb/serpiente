@@ -690,8 +690,34 @@ export async function exportCSV(kind: CsvKind): Promise<Blob> {
 /* ------------------------------- Utilidades ------------------------------ */
 
 /** Descarga un Blob como archivo. */
+type HostDownloads = { save(o: { filename: string; data: Blob }): Promise<unknown> };
+type HostClaude = { use?(name: string): Promise<unknown> };
+
+/**
+ * Entrega un archivo al usuario. Si la app corre dentro de un visor que
+ * administra descargas (p. ej. una vista previa embebida), usa su API; si no,
+ * un enlace <a download> clásico.
+ */
 export function downloadBlob(blob: Blob, filename: string): void {
-  if (typeof document === 'undefined' || typeof URL.createObjectURL !== 'function') return;
+  if (typeof document === 'undefined') return;
+  const host = (window as unknown as { claude?: HostClaude }).claude;
+  if (host?.use) {
+    host
+      .use('downloads')
+      .then((d) => {
+        if (d) return (d as HostDownloads).save({ filename, data: blob });
+        anchorDownload(blob, filename);
+      })
+      .catch(() => {
+        /* el usuario canceló o la vista no permite descargas */
+      });
+    return;
+  }
+  anchorDownload(blob, filename);
+}
+
+function anchorDownload(blob: Blob, filename: string): void {
+  if (typeof URL.createObjectURL !== 'function') return;
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

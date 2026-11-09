@@ -1,3 +1,4 @@
+import { openExternal } from '@/app/external';
 /* Vista "Por pedir" como lista de compras agrupada por proveedor + pedidos en camino. */
 import { useMemo } from 'react';
 import { motion } from 'motion/react';
@@ -20,7 +21,7 @@ function useOrderQty() {
 }
 
 function openWhatsApp(text: string, countryCode: string) {
-  window.open(whatsappUrl('', text, countryCode), '_blank', 'noopener,noreferrer');
+  openExternal(whatsappUrl('', text, countryCode));
 }
 
 export interface ShoppingListProps {
