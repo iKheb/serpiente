@@ -32,7 +32,7 @@ import {
   type EntityType,
   type FieldChange,
 } from '@/data';
-import { Badge, Button, Highlight, Tooltip, cx, fullDateTime } from '@/ui';
+import { Badge, Button, Highlight, cx, fullDateTime } from '@/ui';
 import { ACTION_TONE, RelativeTime, formatClock, isTrashEntity, plural, recordHref } from './lib';
 import styles from './Actividad.module.css';
 
@@ -209,11 +209,9 @@ export const EventRow = memo(function EventRow({ entry: e, expanded, onToggle, s
             </p>
           </div>
           <div className={styles.when}>
-            <Tooltip content={fullDateTime(e.ts)} side="left">
-              <time className={styles.clock} dateTime={new Date(e.ts).toISOString()}>
-                {formatClock(e.ts)}
-              </time>
-            </Tooltip>
+            <time className={styles.clock} dateTime={new Date(e.ts).toISOString()} title={fullDateTime(e.ts)}>
+              {formatClock(e.ts)}
+            </time>
             <RelativeTime ts={e.ts} className={styles.rel} />
           </div>
           {hasDetail && (

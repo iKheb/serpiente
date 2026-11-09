@@ -110,7 +110,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
           tone="expense"
           icon={<CalendarDays />}
           value={k.week.total}
-          previous={k.prevWeek.total}
+          previous={narrow ? undefined : k.prevWeek.total}
           invertDelta
           format={money}
           deltaLabel="vs. semana pasada a la fecha"
@@ -147,7 +147,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
           tone="brand"
           icon={<ShoppingCart />}
           value={k.month.count}
-          previous={k.prevMonth.count}
+          previous={narrow ? undefined : k.prevMonth.count}
           invertDelta
           format={(n) => String(Math.round(n))}
           loading={loading}

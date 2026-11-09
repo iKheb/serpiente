@@ -18,9 +18,10 @@ export function PreferenciasSection({ settings }: { settings: Settings }) {
   return (
     <div className={styles.stack}>
       <Group title="Moneda y formato" description="Cambia cómo se muestran los montos en toda la app. Los importes guardados no se convierten.">
-        <Row title="Moneda" description={`Ejemplo: ${formatMoney(125050, { currency: settings.currency, locale: cur?.locale ?? settings.locale })}`} stack>
+        <Row title="Moneda" description={`Ejemplo: ${formatMoney(125050, { currency: settings.currency, locale: cur?.locale ?? settings.locale })}`}>
           <Select
             aria-label="Moneda"
+            width={260}
             value={settings.currency}
             options={CURRENCY_OPTIONS}
             onChange={(code) => {

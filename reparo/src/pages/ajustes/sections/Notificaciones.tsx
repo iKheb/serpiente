@@ -181,6 +181,7 @@ export function NotificacionesSection({ settings }: { settings: Settings }) {
                   variant="primary"
                   iconLeft={<Wifi />}
                   loading={push.busy}
+                  disabled={!settings.syncUrl}
                   onClick={async () => {
                     if (await push.subscribe(settings.syncUrl)) toast({ title: 'Notificaciones push activadas', tone: 'success' });
                   }}

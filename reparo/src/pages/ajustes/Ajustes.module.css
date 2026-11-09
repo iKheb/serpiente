@@ -100,8 +100,12 @@
   margin-right: -4px;
 }
 
-.navMeta > * {
-  font-size: 10px;
+.navDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--warning);
+  box-shadow: 0 0 0 3px var(--warning-soft);
 }
 
 .navItem {
@@ -516,8 +520,8 @@
   line-height: 1.55;
   color: var(--text-2);
   font-variant-numeric: tabular-nums;
-  -webkit-mask: conic-gradient(from -45deg at bottom, transparent 90deg, black 0) 0 0 / 12px 100% repeat-x;
-  mask: conic-gradient(from -45deg at bottom, transparent 90deg, black 0) 0 0 / 12px 100% repeat-x;
+  -webkit-mask: linear-gradient(black, black) top / 100% calc(100% - 6px) no-repeat, conic-gradient(from -45deg at bottom, transparent 90deg, black 0) bottom / 12px 6px repeat-x;
+  mask: linear-gradient(black, black) top / 100% calc(100% - 6px) no-repeat, conic-gradient(from -45deg at bottom, transparent 90deg, black 0) bottom / 12px 6px repeat-x;
 }
 
 .receiptHead {

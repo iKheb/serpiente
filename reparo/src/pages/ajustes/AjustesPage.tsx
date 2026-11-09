@@ -212,7 +212,7 @@ export default function AjustesPage() {
                       {active && <motion.span layoutId="ajustes-nav" className={styles.navPill} transition={{ type: 'spring', stiffness: 520, damping: 40 }} />}
                       <Icon aria-hidden className={styles.navIcon} />
                       <span className={styles.navLabel}>{s.label}</span>
-                      {m && typeof m !== 'string' && <span className={styles.navMeta}>{m}</span>}
+                      {m && typeof m !== 'string' && <span className={styles.navMeta} title="Requiere atención"><span className={styles.navDot} /></span>}
                     </a>
                   );
                 })}
