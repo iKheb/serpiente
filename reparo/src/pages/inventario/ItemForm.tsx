@@ -301,7 +301,7 @@ function CategoryPicker({ value, onChange, error }: { value: ExpenseCategory; on
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const idx = EXPENSE_CATEGORIES.indexOf(value);
   return (
-    <Field label="Categoría" labelAs="span" labelId="inv-cat-label" error={error}>
+    <Field label="Categoría" labelAs="span" labelId="inv-cat-label" error={error} className={styles.catField}>
       <div
         role="radiogroup"
         aria-labelledby="inv-cat-label"

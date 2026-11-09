@@ -127,13 +127,18 @@
 }
 
 @media (max-width: 767px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
   .search {
     max-width: none;
+    flex-basis: 100%;
   }
 
   .catSelect {
-    width: 44%;
-    max-width: 180px;
+    flex: 1;
+    width: auto;
   }
 }
 
@@ -1130,4 +1135,8 @@
   .orderStock {
     margin-right: auto;
   }
+}
+
+.catField {
+  margin-top: var(--space-2);
 }

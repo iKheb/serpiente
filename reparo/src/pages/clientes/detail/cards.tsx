@@ -1,3 +1,4 @@
+import { openExternal } from '@/app/external';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
@@ -116,7 +117,7 @@ export function ContactCard({ client }: { client: Client }) {
           <Button
             size="sm"
             iconLeft={<MessageCircle />}
-            onClick={() => window.open(whatsappUrl(tel, `Hola ${client.nombre.split(' ')[0] || ''}`.trim(), settings.phoneCountryCode), '_blank', 'noopener,noreferrer')}
+            onClick={() => openExternal(whatsappUrl(tel, `Hola ${client.nombre.split(' ')[0] || ''}`.trim(), settings.phoneCountryCode))}
           >
             Abrir chat
           </Button>

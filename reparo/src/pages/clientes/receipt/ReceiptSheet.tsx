@@ -1,3 +1,4 @@
+import { openExternal } from '@/app/external';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { motion } from 'motion/react';
 import { Copy, ImageDown, Info, MessageCircle, Printer, ReceiptText } from 'lucide-react';
@@ -50,7 +51,7 @@ export function ReceiptSheet({ client, open, onClose }: ReceiptSheetProps) {
       return;
     }
     const text = buildReceiptText(client, settings, { piezas });
-    window.open(whatsappUrl(target, text, settings.phoneCountryCode), '_blank', 'noopener,noreferrer');
+    openExternal(whatsappUrl(target, text, settings.phoneCountryCode));
     if (!hasPhone && savePhone) {
       try {
         await updateClient(client.id, { telefono: target });
