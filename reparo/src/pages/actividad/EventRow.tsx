@@ -32,8 +32,8 @@ import {
   type EntityType,
   type FieldChange,
 } from '@/data';
-import { Badge, Button, DateTimeText, Highlight, Tooltip, cx, fullDateTime } from '@/ui';
-import { ACTION_TONE, formatClock, isTrashEntity, plural, recordHref } from './lib';
+import { Badge, Button, Highlight, Tooltip, cx, fullDateTime } from '@/ui';
+import { ACTION_TONE, RelativeTime, formatClock, isTrashEntity, plural, recordHref } from './lib';
 import styles from './Actividad.module.css';
 
 export type RecordState = 'activo' | 'papelera' | 'purgado' | 'na';
@@ -207,7 +207,7 @@ export const EventRow = memo(function EventRow({ entry: e, expanded, onToggle, s
                 {formatClock(e.ts)}
               </time>
             </Tooltip>
-            <DateTimeText value={e.ts} variant="relative" muted className={styles.rel} />
+            <RelativeTime ts={e.ts} className={styles.rel} />
           </div>
           {hasDetail && (
             <ChevronRight aria-hidden className={cx(styles.chev, expanded && styles.chevOpen)} />

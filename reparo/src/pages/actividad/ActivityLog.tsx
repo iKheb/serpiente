@@ -21,7 +21,6 @@ import {
   SegmentedControl,
   Skeleton,
   toast,
-  useNow,
   usePrefersReducedMotion,
 } from '@/ui';
 import { EventRow, ENTITY_ICON, type RecordState } from './EventRow';
@@ -39,6 +38,7 @@ import {
   plural,
   rangeStart,
   restoreEntity,
+  useMinuteNow,
   type ActionGroup,
   type RangeKey,
 } from './lib';
@@ -70,7 +70,7 @@ export interface ActivityLogProps {
 export function ActivityLog({ entries, trashIds, query }: ActivityLogProps) {
   const reduced = usePrefersReducedMotion();
   const existing = useExistingIds();
-  const now = useNow(60_000);
+  const now = useMinuteNow();
 
   // ---- Filtros (entidad / acción / id viven en la URL) ----
   const qEnt = query.get('entidad');

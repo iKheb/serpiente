@@ -29,6 +29,8 @@ export default function ThreeGallery() {
   const [screenIdx, setScreenIdx] = useState(0);
   const [stage, setStage] = useState(() => Math.max(0, Math.min(STEPS.length - 1, Number(q.get('stage')) || 0)));
   const screen = SCREENS[screenIdx];
+  const only = q.get('only');
+  const show = (k: string) => !only || only.split(',').includes(k);
 
   return (
     <div className={g.page}>
@@ -41,6 +43,7 @@ export default function ThreeGallery() {
         </p>
       </header>
 
+      {show('hero') && (
       <section className={g.section} aria-labelledby="g-hero">
         <h2 id="g-hero">HeroDevice · variante hero</h2>
         <div className={`${g.card} ${g.heroCard}`}>
@@ -60,7 +63,9 @@ export default function ThreeGallery() {
           <HeroDevice className={g.heroDevice} screen={screen} exploded={exploded} />
         </div>
       </section>
+      )}
 
+      {show('compact') && (
       <section className={g.section} aria-labelledby="g-compact">
         <h2 id="g-compact">HeroDevice · variante compact</h2>
         <div className={g.compactGrid}>
@@ -76,7 +81,9 @@ export default function ThreeGallery() {
           ))}
         </div>
       </section>
+      )}
 
+      {show('onb') && (
       <section className={g.section} aria-labelledby="g-onb">
         <h2 id="g-onb">OnboardingScene</h2>
         <div className={`${g.card} ${g.onboardingWrap}`}>
@@ -106,7 +113,9 @@ export default function ThreeGallery() {
           </div>
         </div>
       </section>
+      )}
 
+      {show('thumbs') && (
       <section className={g.section} aria-labelledby="g-thumbs">
         <h2 id="g-thumbs">PartThumb · miniaturas de repuestos</h2>
         <p className={g.note}>Un solo WebGLRenderer compartido fuera de pantalla, con caché por categoría, tamaño, tema y DPR.</p>
@@ -123,6 +132,7 @@ export default function ThreeGallery() {
           ))}
         </div>
       </section>
+      )}
     </div>
   );
 }

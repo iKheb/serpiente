@@ -66,7 +66,7 @@ function screenPanel(m: PhoneMaterials) {
   const flex = mesh(new BoxGeometry(0.9, 1.1, 0.014), m.flex, g, [0.5, -h / 2 - 0.45, -0.07]);
   flex.rotation.x = 0.25;
   mesh(new RoundedBoxGeometry(0.7, 0.26, 0.08, 2, 0.02), m.chip, g, [0.5, -h / 2 - 0.98, -0.0]);
-  return flatPose(g, -0.9, 0.62, 0.0);
+  return flatPose(g, -0.72, 0.5, 0.0);
 }
 
 function battery(m: PhoneMaterials) {
@@ -141,6 +141,11 @@ function housing(m: PhoneMaterials) {
     { thickness: 0.2, bevel: 0.05 },
   );
   mesh(rim, m.titanium, g, [0, 0, -0.06]);
+  // aro del hueco de cámara
+  const cs = CAMERA_MODULE.size;
+  const ringShape = roundedRectShape(cs + 0.14, cs + 0.14, 0.48, -CAMERA_MODULE.x, CAMERA_MODULE.y, 8);
+  ringShape.holes.push(roundedRectPath(new Shape(), cs - 0.04, cs - 0.04, 0.42, -CAMERA_MODULE.x, CAMERA_MODULE.y, 8));
+  mesh(slabGeometry(ringShape, { thickness: 0.07, bevel: 0.025 }), m.titaniumPolished, g, [0, 0, 0.07]);
   return flatPose(g, -0.9, 0.62);
 }
 

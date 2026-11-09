@@ -1,6 +1,8 @@
 /* Utilidades locales de la página Actividad: metadatos por acción/entidad,
    agrupación, búsqueda y operaciones de papelera por tipo de entidad. */
+import { createElement, useSyncExternalStore } from 'react';
 import {
+  formatRelative,
   normalizeText,
   purgeClient,
   purgeExpense,
@@ -144,4 +146,44 @@ export function formatClock(ts: number): string {
 
 export function plural(n: number, one: string, many: string): string {
   return `${n.toLocaleString('es-MX')} ${n === 1 ? one : many}`;
+}
+
+/* ------------------------------ Reloj local ----------------------------- */
+
+// Temporizador compartido con `subscribe` estable (evita resuscripciones por render).
+let minuteNow = Date.now();
+const minuteListeners = new Set<() => void>();
+let minuteTimer: ReturnType<typeof setTimeout> | null = null;
+function scheduleMinute() {
+  minuteTimer = setTimeout(() => {
+    minuteNow = Date.now();
+    minuteListeners.forEach((l) => l());
+    scheduleMinute();
+  }, 60_000 - (Date.now() % 60_000) + 5);
+}
+function subscribeMinute(cb: () => void) {
+  minuteListeners.add(cb);
+  if (!minuteTimer) {
+    minuteNow = Date.now();
+    scheduleMinute();
+  }
+  return () => {
+    minuteListeners.delete(cb);
+    if (!minuteListeners.size && minuteTimer) {
+      clearTimeout(minuteTimer);
+      minuteTimer = null;
+    }
+  };
+}
+const getMinute = () => minuteNow;
+
+/** Hora actual que se actualiza cada minuto (alineada al cambio de minuto). */
+export function useMinuteNow(): number {
+  return useSyncExternalStore(subscribeMinute, getMinute, getMinute);
+}
+
+/** "hace 5 min" / "ayer · 14:32" que se actualiza sola cada minuto. */
+export function RelativeTime({ ts, className }: { ts: number; className?: string }) {
+  const now = useMinuteNow();
+  return createElement('span', { className }, formatRelative(ts, Math.max(now, Date.now() - 1)));
 }

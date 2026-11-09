@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { ArrowRight, Bell, Check, DatabaseBackup, Package, Sparkles, UserPlus } from 'lucide-react';
 import { seedDemoData, type Settings } from '@/data';
 import { Button, ProgressBar, confirm, cx, toast, usePrefersReducedMotion } from '@/ui';
-import { HeroDevice } from '@/three/HeroDevice';
+import { HeroDevice } from '@/three';
 import s from './Panel.module.css';
 
 interface Step {

@@ -3,7 +3,8 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarDays, CalendarRange, Plus, Receipt } from 'lucide-react';
 import { usePeriodHistory, useSettings, type PeriodKind } from '@/data';
-import { Button, PageHeader, SegmentedControl, Skeleton, useLocalState, useNow } from '@/ui';
+import { Button, PageHeader, SegmentedControl, Skeleton, useLocalState } from '@/ui';
+import { useClock } from './useClock';
 import { navigate } from '@/app/router';
 import { Hero } from './Hero';
 import { GettingStarted } from './GettingStarted';
@@ -18,7 +19,7 @@ function greeting(hour: number): string {
 }
 
 function LiveDate() {
-  const now = useNow(1000);
+  const now = useClock(1000);
   const text = format(now, "EEEE d 'de' MMMM 'de' yyyy", { locale: es });
   return (
     <span className={s.liveDate}>
@@ -40,7 +41,7 @@ const PERIOD_OPTIONS = [
 
 export default function PanelPage() {
   const settings = useSettings();
-  const now = useNow(30_000);
+  const now = useClock(30_000);
   const ws = settings?.weekStartsOn === 0 ? 0 : 1;
   const [kind, setKind] = useLocalState<PeriodKind>('reparo.panel.periodo', 'week');
   const periodKind: PeriodKind = kind === 'month' ? 'month' : 'week';

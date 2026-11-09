@@ -5,7 +5,7 @@ import { ArrowDownRight, ArrowUpRight, Minus, Target, TrendingDown, TrendingUp, 
 import { ProgressRing } from '@/charts';
 import { formatDayMonth, formatPercent, useFormatters, type DateRange, type Settings } from '@/data';
 import { AnimatedNumber, Skeleton, cx, formatDelta, useIsMobile, usePrefersReducedMotion } from '@/ui';
-import { HeroDevice } from '@/three/HeroDevice';
+import { HeroDevice } from '@/three';
 import { cumulative, ratio, type PeriodData } from './usePanelData';
 import s from './Panel.module.css';
 

@@ -134,6 +134,7 @@ export class OnboardingEngine {
     this.vp.onFrame = (dt) => this.frame(dt);
     this.vp.onContextLost = () => o.onContextLost?.();
     window.addEventListener('pointermove', this.onPointer, { passive: true });
+    if (import.meta.env.DEV) (host as HTMLElement & { __engine?: OnboardingEngine }).__engine = this;
 
     if (o.reducedMotion) this.skipToAssembled();
     else this.applyScatter(0);
@@ -179,6 +180,12 @@ export class OnboardingEngine {
       this.skipToAssembled();
       this.snapToTarget();
     }
+    this.vp.invalidate();
+  }
+
+  /** Depuración: salta a un instante de la animación (s). */
+  debugSeek(t: number) {
+    this.clock = t;
     this.vp.invalidate();
   }
 

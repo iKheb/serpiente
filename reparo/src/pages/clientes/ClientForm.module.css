@@ -1,0 +1,215 @@
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.loadingRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.missing {
+  color: var(--text-3);
+  font-size: var(--text-sm);
+}
+
+/* ----------------------------- Desbloqueo -------------------------------- */
+.patternWrap {
+  display: flex;
+}
+
+.patternBox {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+}
+
+.privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--text-xs);
+  color: var(--text-3);
+  line-height: 1.45;
+}
+
+.privacy svg {
+  width: 13px;
+  height: 13px;
+  margin-top: 1.5px;
+  flex-shrink: 0;
+  color: var(--income);
+}
+
+/* ------------------------------ Servicio --------------------------------- */
+.wrapChips {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.statusDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.presets {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.preset {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.preset:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.preset:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.presetOn {
+  background: var(--brand-soft);
+  border-color: color-mix(in srgb, var(--brand) 45%, transparent);
+  color: var(--brand);
+}
+
+/* -------------------------------- Cobro ---------------------------------- */
+.paidFull {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  background: var(--income-soft);
+  color: var(--income);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--income) 25%, transparent);
+}
+
+.paidFull svg {
+  width: 16px;
+  height: 16px;
+}
+
+.balance {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  overflow: hidden;
+}
+
+.balance > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.balance > div + div {
+  border-left: 1px solid var(--border);
+}
+
+.balanceLabel {
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--text-3);
+  font-weight: var(--weight-semibold);
+}
+
+.balanceValue {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.income {
+  color: var(--income);
+}
+
+.pending {
+  color: var(--pending);
+}
+
+/* -------------------------------- Pie ------------------------------------ */
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.footerHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  color: var(--text-4);
+  margin-right: auto;
+}
+
+.deleteBtn + .footerHint {
+  margin-left: 4px;
+}
+
+.footerActions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+@media (max-width: 639px) {
+  .footerHint {
+    display: none;
+  }
+  .footerActions {
+    flex: 1;
+    justify-content: flex-end;
+  }
+}

@@ -12,9 +12,9 @@ import {
   type Expense,
   type InventoryItem,
 } from '@/data';
-import { Badge, Button, DateTimeText, EmptyState, FilterChips, IconButton, Skeleton, Tooltip, confirm, cx, fullDateTime, toast, usePrefersReducedMotion } from '@/ui';
+import { Badge, Button, EmptyState, FilterChips, IconButton, Skeleton, Tooltip, confirm, cx, fullDateTime, toast, usePrefersReducedMotion } from '@/ui';
 import { ENTITY_ICON } from './EventRow';
-import { formatClock, plural, purgeEntity, restoreEntity, type TrashEntity } from './lib';
+import { RelativeTime, formatClock, plural, purgeEntity, restoreEntity, type TrashEntity } from './lib';
 import styles from './Actividad.module.css';
 
 interface TrashRow {
@@ -244,7 +244,7 @@ export function TrashView({
                       </time>
                     </Tooltip>
                     <span className={styles.dotSep}>·</span>
-                    <DateTimeText value={r.deletedAt} variant="relative" muted />
+                    <RelativeTime ts={r.deletedAt} />
                   </p>
                 </div>
                 <div className={styles.trashActions}>

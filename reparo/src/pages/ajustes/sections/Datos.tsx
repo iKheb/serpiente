@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { navigate } from '@/app/router';
 import { Activity, ArchiveRestore, Boxes, CircleAlert, Download, FileJson, FlaskConical, GitMerge, Receipt, Replace, Trash2, TriangleAlert, Upload, Users, type LucideIcon } from 'lucide-react';
 import {
   backupFilename,
@@ -106,7 +107,7 @@ export function DatosSection({ settings }: { settings: Settings }) {
     setSeeding(true);
     try {
       await seedDemoData();
-      toast({ title: 'Datos de ejemplo cargados', description: 'Explora el Panel para ver el taller en acción.', tone: 'success', action: { label: 'Ir al Panel', onClick: () => (location.hash = '#/panel') } });
+      toast({ title: 'Datos de ejemplo cargados', description: 'Explora el Panel para ver el taller en acción.', tone: 'success', action: { label: 'Ir al Panel', onClick: () => navigate('#/panel') } });
     } finally {
       setSeeding(false);
     }

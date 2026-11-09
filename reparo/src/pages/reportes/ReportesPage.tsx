@@ -55,7 +55,6 @@ import {
   formatDelta,
   toast,
   useIsMobile,
-  useNow,
   usePrefersReducedMotion,
   type Column,
 } from '@/ui';
@@ -104,7 +103,7 @@ export default function ReportesPage() {
   const fmt = useFormatters();
   const mobile = useIsMobile();
   const reduced = usePrefersReducedMotion();
-  const now = useNow(60_000);
+  const now = useMinuteNow();
   const ws = settings?.weekStartsOn ?? 1;
 
   /* ------------------------------ Período ------------------------------ */
@@ -729,6 +728,16 @@ function CompareTable({
 }
 
 /* ============================== Auxiliares ============================== */
+
+/** Hora actual refrescada cada minuto (para detectar el cambio de semana/mes). */
+function useMinuteNow(): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+  return now;
+}
 
 function ChartSkeleton({ height }: { height: number }) {
   return (

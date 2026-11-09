@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Download, Plus, Receipt, SearchX } from 'lucide-react';
 import { navigate, setQuery, useRoute } from '@/app/router';
 import {
@@ -26,7 +26,7 @@ import {
   type ExpenseInput,
   type ID,
 } from '@/data';
-import { Button, EmptyState, FilterChips, PageHeader, SearchField, SegmentedControl, Skeleton, confirm, toast, useNow } from '@/ui';
+import { Button, EmptyState, FilterChips, PageHeader, SearchField, SegmentedControl, Skeleton, confirm, toast } from '@/ui';
 import { CATEGORY_COLOR } from './categories';
 import { ExpenseDetailSheet } from './ExpenseDetail';
 import { ExpenseFormSheet } from './ExpenseForm';
@@ -63,7 +63,7 @@ type FormState = { key: string; reqKey: string; mode: 'create' | 'edit'; id?: ID
 
 export default function GastosPage() {
   const route = useRoute();
-  const now = useNow(60_000);
+  const now = useMinuteClock();
   const settings = useSettings();
   const ws: 0 | 1 = settings?.weekStartsOn === 0 ? 0 : 1;
   const expenses = useExpenses();
@@ -389,4 +389,14 @@ function ListSkeleton() {
       ))}
     </div>
   );
+}
+
+/** Hora actual que se actualiza cada minuto (estable entre renders). */
+function useMinuteClock(): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
 }
