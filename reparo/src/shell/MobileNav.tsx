@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronRight, LayoutDashboard, Menu, Monitor, Moon, Package, Plus, Search, Sun, Users } from 'lucide-react';
 import { navigate, type Route } from '@/app/router';
@@ -18,12 +18,22 @@ import styles from './MobileNav.module.css';
 export function MobileHeader({ route }: { route: Route }) {
   const crumbs = useBreadcrumb(route);
   const detail = crumbs.length > 1;
+  // Patrón de título grande (iOS): en las secciones principales el título de la cabecera
+  // aparece sólo cuando el encabezado de la página ya salió de la vista.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const on = () => setScrolled(window.scrollY > 44);
+    on();
+    window.addEventListener('scroll', on, { passive: true });
+    return () => window.removeEventListener('scroll', on);
+  }, [route.name]);
+  const titleHidden = !detail && !scrolled;
   return (
-    <header className={styles.header}>
+    <header className={cx(styles.header, scrolled && styles.headerScrolled)}>
       <a href="#/panel" className={styles.mark} aria-label="Reparo · Panel">
         <BrandMark size={28} />
       </a>
-      <div className={styles.titleBlock}>
+      <div className={cx(styles.titleBlock, titleHidden && styles.titleHidden)} aria-hidden={titleHidden || undefined}>
         {detail && (
           <a href={crumbs[0].href} className={styles.parent}>
             {crumbs[0].label}
@@ -109,7 +119,7 @@ export function TabBar({ route, settings }: { route: Route; settings: Settings }
         })}
       </nav>
 
-      <Sheet open={quick} onClose={() => setQuick(false)} title="Acciones rápidas" description="¿Qué quieres registrar?">
+      <Sheet open={quick} onClose={() => setQuick(false)} placement="bottom" title="Acciones rápidas" description="¿Qué quieres registrar?">
         <div className={styles.quickGrid}>
           {QUICK_ACTIONS.map((a) => (
             <button key={a.id} type="button" className={cx(styles.quick, styles[`q-${a.tone}`])} onClick={() => go(a.href)}>
@@ -123,7 +133,7 @@ export function TabBar({ route, settings }: { route: Route; settings: Settings }
         </div>
       </Sheet>
 
-      <Sheet open={more} onClose={() => setMore(false)} title="Más" description={settings.businessName || 'Reparo'}>
+      <Sheet open={more} onClose={() => setMore(false)} placement="bottom" size="sm" title="Más" description={settings.businessName || 'Reparo'}>
         <ul className={styles.moreList}>
           {moreRoutes.map((n) => (
             <li key={n.route}>

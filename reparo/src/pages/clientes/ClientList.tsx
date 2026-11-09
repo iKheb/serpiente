@@ -377,9 +377,10 @@ export function ClientList() {
 
       <div className={styles.filters}>
         <Toolbar aria-label="Filtros de clientes" className={styles.toolbar}>
-          <SearchField value={q} onChange={setQ} placeholder="Buscar nombre, teléfono, folio, equipo o IMEI…" containerClassName={styles.search} />
+          <SearchField value={q} onChange={setQ} placeholder="Buscar cliente, folio, equipo o IMEI…" containerClassName={styles.search} />
           <SegmentedControl<PayFilter>
             size="sm"
+            className={styles.paySeg}
             aria-label="Filtrar por pago"
             value={pay}
             onChange={setPay}
@@ -389,7 +390,7 @@ export function ClientList() {
               { value: 'saldo', label: 'Con saldo' },
             ]}
           />
-          <Select<SortKey> size="sm" aria-label="Ordenar" value={sort} onChange={setSort} options={SORT_OPTIONS} icon={<ArrowDownUp />} width={170} />
+          <Select<SortKey> size="sm" aria-label="Ordenar" value={sort} onChange={setSort} options={SORT_OPTIONS} icon={<ArrowDownUp />} width={170} containerClassName={styles.sortSel} />
         </Toolbar>
         <FilterChips<StatusFilter> aria-label="Filtrar por estado" value={status} onChange={setStatus} options={statusOptions} />
       </div>

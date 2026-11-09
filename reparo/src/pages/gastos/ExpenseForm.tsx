@@ -295,12 +295,13 @@ export function ExpenseFormSheet({ open, mode, expenseId, initial, expenses, cli
       }
     >
       <form id={FORM_ID} ref={formRef} onSubmit={submit} onKeyDown={onKeyDown} noValidate className={styles.form}>
-        <FormSection title="Qué compraste">
+        <FormSection title="Qué compraste" className={styles.formStack}>
           <FormGrid columns={1}>
             <Combobox
               label="Concepto"
               required
               autoFocus={side}
+              openOnFocus={false}
               value={v.concepto}
               onChange={onConceptChange}
               onSelect={onConceptSelect}
@@ -376,7 +377,7 @@ export function ExpenseFormSheet({ open, mode, expenseId, initial, expenses, cli
           />
         </FormSection>
 
-        <FormSection title="Cuánto costó">
+        <FormSection title="Cuánto costó" className={styles.formStack}>
           <FormGrid columns={2}>
             <NumberStepper label="Cantidad" value={v.cantidad} onChange={(n) => set('cantidad', n)} min={1} max={100000} unit={v.cantidad === 1 ? 'ud' : 'uds'} error={errors.cantidad} fullWidth />
             <MoneyInput label="Costo unitario" value={v.costoUnitarioCents} onChange={(c) => set('costoUnitarioCents', c)} error={errors.costoUnitarioCents} />
@@ -406,7 +407,7 @@ export function ExpenseFormSheet({ open, mode, expenseId, initial, expenses, cli
           <DateTimeInput label="Fecha y hora de la compra" value={v.fecha} onChange={(ts) => set('fecha', ts)} error={errors.fecha} weekStartsOn={weekStartsOn} />
         </FormSection>
 
-        <FormSection title="Vínculos y notas">
+        <FormSection title="Vínculos y notas" className={styles.formStack}>
           {linkedClient ? (
             <div className={styles.linkedClient}>
               <span className={styles.linkedLabel}>Cliente vinculado</span>

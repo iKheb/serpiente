@@ -6,6 +6,7 @@ import { ProgressRing } from '@/charts';
 import { formatDayMonth, formatPercent, useFormatters, type DateRange, type Settings } from '@/data';
 import { AnimatedNumber, Skeleton, cx, formatDelta, useIsMobile, usePrefersReducedMotion } from '@/ui';
 import { HeroDevice } from '@/three';
+import { DeviceFallback } from '@/three/DeviceFallback';
 import { cumulative, ratio, type PeriodData } from './usePanelData';
 import s from './Panel.module.css';
 
@@ -156,6 +157,10 @@ export function Hero({ month, settings, closedPrevious }: HeroProps) {
       </div>
 
       <div className={s.heroDevice}>
+        {/* Mientras la escena 3D carga (o en equipos lentos) se ve el teléfono ilustrado, no sólo un halo. */}
+        <div className={s.heroDevicePre} aria-hidden>
+          <DeviceFallback screen={screen} />
+        </div>
         <HeroDevice screen={screen} variant={isMobile ? 'compact' : 'hero'} className={s.heroDeviceCanvas} />
       </div>
     </motion.section>

@@ -25,6 +25,7 @@ import {
   fold,
   useFocusTrap,
   useLayer,
+  useIsMobile,
   usePrefersReducedMotion,
   useScrollLock,
   MOD_KEY_LABEL,
@@ -81,6 +82,7 @@ function TileIcon({ children, tone }: { children: ReactNode; tone: string }) {
 }
 
 function PaletteBody({ onClose }: { onClose: () => void }) {
+  const mobile = useIsMobile();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -322,7 +324,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
           ref={inputRef}
           data-autofocus
           className={styles.input}
-          placeholder="Busca clientes, folios, teléfonos, IMEI, repuestos o acciones…"
+          placeholder={mobile ? 'Buscar clientes, folios, repuestos…' : 'Busca clientes, folios, teléfonos, IMEI, repuestos o acciones…'}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={onKeyDown}

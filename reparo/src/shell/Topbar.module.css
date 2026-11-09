@@ -150,6 +150,13 @@
 
 @media (max-width: 1179px) {
   .search {
+    flex: 0 1 300px;
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .search {
     flex: 0 0 auto;
     min-width: 0;
     gap: 8px;

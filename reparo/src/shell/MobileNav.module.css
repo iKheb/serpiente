@@ -11,7 +11,13 @@
   background: var(--topbar-bg);
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-base) var(--ease-out);
+}
+
+/* El borde inferior sólo aparece al desplazar, como en las barras nativas. */
+.headerScrolled {
+  border-bottom-color: var(--border);
 }
 
 .mark {
@@ -26,6 +32,12 @@
   display: flex;
   flex-direction: column;
   line-height: 1.15;
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+
+.titleHidden {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 .parent {
@@ -61,6 +73,7 @@
 }
 
 /* -------------------------------- Tab bar -------------------------------- */
+/* En tablet vertical la barra conserva el ancho cómodo del pulgar: las pestañas se agrupan al centro. */
 .tabbar {
   position: fixed;
   left: 0;
@@ -76,6 +89,13 @@
   backdrop-filter: blur(22px) saturate(170%);
   -webkit-backdrop-filter: blur(22px) saturate(170%);
   border-top: 1px solid var(--border);
+}
+
+@media (min-width: 600px) {
+  .tabbar {
+    padding-left: max(calc(6px + var(--safe-left)), calc((100% - 560px) / 2));
+    padding-right: max(calc(6px + var(--safe-right)), calc((100% - 560px) / 2));
+  }
 }
 
 .tab {
@@ -396,4 +416,10 @@
 .connOff .connDot {
   background: var(--warning);
   box-shadow: 0 0 0 3px var(--warning-soft);
+}
+
+@media (min-width: 600px) {
+  .quickGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }

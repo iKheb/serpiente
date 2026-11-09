@@ -155,6 +155,13 @@ export function ShoppingList({ items, onlyOrdered }: ShoppingListProps) {
                   <OrderLineRow key={l.item.id} line={l} onQty={(n) => qty.set(l.item, n)} />
                 ))}
               </ul>
+              <div className={styles.supplierFoot}>
+                <span className={styles.supplierFootLabel}>
+                  Subtotal <span className={styles.supplierFootMeta}>· {plural(g.piezas, 'pieza', 'piezas')}</span>
+                </span>
+                <MoneyText cents={g.totalCents} weight="semibold" className={styles.lineTotal} />
+                <span aria-hidden />
+              </div>
             </motion.section>
           ))}
         </>
@@ -175,7 +182,6 @@ function SupplierHeader({ group: g, business, cc }: { group: OrderGroup; busines
           {plural(g.lines.length, 'artículo', 'artículos')} · {plural(g.piezas, 'pieza', 'piezas')}
         </span>
       </div>
-      <MoneyText cents={g.totalCents} weight="semibold" className={styles.supplierTotal} />
       <div className={styles.supplierActions}>
         <Tooltip content={`Enviar pedido a ${g.proveedor} (sin costos)`}>
           <IconButton
@@ -215,16 +221,19 @@ function OrderLineRow({ line, onQty }: { line: OrderLine; onQty: (n: number) => 
                 Marcado
               </Badge>
             )}
+            <span className={styles.lineUnitInline}>
+              <MoneyText cents={i.costoUnitarioCents} tone="muted" weight="regular" /> c/u
+            </span>
             {compat && <span className={styles.hideSm}>{compat}</span>}
           </span>
         </span>
       </a>
       <div className={styles.lineQty}>
         <NumberStepper value={qty} onChange={onQty} min={0} max={9999} size="sm" />
-        <span className={styles.lineUnit}>
-          × <MoneyText cents={i.costoUnitarioCents} tone="muted" weight="regular" />
-        </span>
       </div>
+      <span className={styles.lineUnit}>
+        × <MoneyText cents={i.costoUnitarioCents} tone="muted" weight="regular" />
+      </span>
       <MoneyText cents={qty * i.costoUnitarioCents} weight="semibold" className={styles.lineTotal} tone={qty ? 'neutral' : 'muted'} />
       <div className={styles.lineActions}>
         <Tooltip content="Marcar como pedido">

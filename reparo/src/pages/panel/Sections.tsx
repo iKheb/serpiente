@@ -164,7 +164,7 @@ export function FreshPeriodNote({ data, kind }: { data: PeriodData; kind: Period
       <div className={s.freshText}>
         <strong>{title}</strong>
         <span>
-          Aún no hay cobros ni gastos registrados. Mientras tanto, abajo ves cómo cerró {kind === 'week' ? 'la semana pasada' : 'el mes pasado'} ({previous.shortLabel}) como referencia.
+          Todavía no hay servicios nuevos ni gastos {kind === 'week' ? 'esta semana' : 'este mes'}. Mientras tanto, abajo ves cómo cerró {kind === 'week' ? 'la semana pasada' : 'el mes pasado'} ({previous.shortLabel}) como referencia.
         </span>
       </div>
       <div className={s.freshActions}>

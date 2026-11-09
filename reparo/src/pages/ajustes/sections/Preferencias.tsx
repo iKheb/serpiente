@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, Monitor, Moon, Sun } from 'lucide-react';
 import { CURRENCIES, formatMoney, type Settings, type ThemePreference } from '@/data';
-import { MoneyInput, SegmentedControl, Select, cx } from '@/ui';
+import { MoneyInput, SegmentedControl, Select, cx, useIsMobile } from '@/ui';
 import { Group, Row, saveSettings } from '../shared';
 import styles from '../Ajustes.module.css';
 
@@ -15,13 +15,14 @@ const THEMES: { value: ThemePreference; label: string; desc: string; icon: typeo
 
 export function PreferenciasSection({ settings }: { settings: Settings }) {
   const cur = CURRENCIES.find((c) => c.code === settings.currency);
+  const mobile = useIsMobile();
   return (
     <div className={styles.stack}>
       <Group title="Moneda y formato" description="Cambia cómo se muestran los montos en toda la app. Los importes guardados no se convierten.">
         <Row title="Moneda" description={`Ejemplo: ${formatMoney(125050, { currency: settings.currency, locale: cur?.locale ?? settings.locale })}`}>
           <Select
             aria-label="Moneda"
-            width={260}
+            width={mobile ? '100%' : 260}
             value={settings.currency}
             options={CURRENCY_OPTIONS}
             onChange={(code) => {

@@ -18,10 +18,31 @@
   color: var(--text-3);
 }
 
-.subtitle > span + span::before {
+.subtitle > span + span::before,
+.subLine > span + span::before {
   content: '·';
   margin-right: var(--space-2);
   color: var(--text-4);
+}
+
+.subLine {
+  display: inline-flex;
+  align-items: center;
+  column-gap: var(--space-2);
+  min-width: 0;
+}
+
+/* En móvil: una línea por dato, sin separadores colgando al inicio. */
+@media (max-width: 599px) {
+  .subtitle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 3px;
+  }
+  .subtitle > span + span::before {
+    content: none;
+  }
 }
 
 .folioTag {
@@ -57,6 +78,19 @@
 .iconRow {
   display: flex;
   gap: var(--space-1-5);
+}
+
+/* WhatsApp: verde reconocible al instante (derivado de --success). */
+.ctaWa {
+  --btn-primary-bg: linear-gradient(180deg, color-mix(in srgb, var(--success) 74%, black) 0%, color-mix(in srgb, var(--success) 62%, black) 100%);
+  --btn-primary-bg-hover: linear-gradient(180deg, color-mix(in srgb, var(--success) 80%, black) 0%, color-mix(in srgb, var(--success) 68%, black) 100%);
+  --btn-primary-border: color-mix(in srgb, var(--success) 70%, transparent);
+  --btn-primary-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -10px color-mix(in srgb, var(--success) 70%, transparent);
+}
+
+:root[data-theme='light'] .ctaWa {
+  --btn-primary-bg: linear-gradient(180deg, color-mix(in srgb, var(--success) 92%, black) 0%, color-mix(in srgb, var(--success) 80%, black) 100%);
+  --btn-primary-bg-hover: linear-gradient(180deg, color-mix(in srgb, var(--success) 98%, black) 0%, color-mix(in srgb, var(--success) 86%, black) 100%);
 }
 
 @media (max-width: 599px) {
@@ -233,7 +267,8 @@
   inset: -1.5px;
   border-radius: 50%;
   border: 2px solid var(--c);
-  animation: pulse 2.2s var(--ease-out) infinite;
+  animation: pulse 2.2s var(--ease-out) 3;
+  opacity: 0;
 }
 
 @keyframes pulse {
@@ -282,8 +317,13 @@
   .stepTime {
     display: none;
   }
+  .step {
+    padding-left: 0;
+    padding-right: 0;
+  }
   .stepLabel {
-    font-size: var(--text-xs);
+    font-size: var(--text-2xs);
+    letter-spacing: -0.01em;
   }
   .stepDot {
     width: 28px;

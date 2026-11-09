@@ -395,7 +395,7 @@ export function ClientForm({ open, clientId, onClose }: ClientFormProps) {
                 <div data-field="desbloqueoPatron" className={styles.patternWrap}>
                   <Field label="Dibuja el patrón" error={errors.desbloqueoPatron} labelAs="span" hint="Desliza el dedo por los puntos en el mismo orden que en el equipo.">
                     <div className={styles.patternBox}>
-                      <PatternLock value={draft.desbloqueoPatron} onChange={(v) => set('desbloqueoPatron', v)} size={232} />
+                      <PatternLock value={draft.desbloqueoPatron} onChange={(v) => set('desbloqueoPatron', v)} size={280} />
                     </div>
                   </Field>
                 </div>

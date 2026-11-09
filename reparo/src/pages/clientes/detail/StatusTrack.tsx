@@ -88,8 +88,10 @@ export function StatusTrack({ client, audit }: { client: Client; audit: AuditEnt
           />
         </span>
         {FLOW.map((s, i) => {
-          const done = i < current;
           const active = i === current;
+          // El último paso alcanzado es un estado final: se marca como completado.
+          const final = active && i === FLOW.length - 1;
+          const done = i < current || final;
           const at = (done || active) && reachedAt[s];
           return (
             <li key={s} className={styles.stepItem}>
@@ -105,7 +107,7 @@ export function StatusTrack({ client, audit }: { client: Client; audit: AuditEnt
               >
                 <span className={styles.stepDot}>
                   {done ? <Check aria-hidden /> : <span className={styles.stepNum}>{i + 1}</span>}
-                  {active && !reduced && <span className={styles.stepPulse} aria-hidden />}
+                  {active && !final && !reduced && <span className={styles.stepPulse} aria-hidden />}
                 </span>
                 <span className={styles.stepText}>
                   <span className={styles.stepLabel}>{STEP_LABEL[s]}</span>

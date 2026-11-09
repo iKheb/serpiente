@@ -47,22 +47,23 @@ export function DateTimeText({ value, variant = 'datetime', className, muted }: 
     case 'relative':
       content = <Relative value={value} />;
       break;
-    case 'relative-datetime':
+    case 'relative-datetime': {
+      // Pasados dos días el texto relativo ya es la fecha y hora exactas: no se repite.
+      const rel = formatRelative(value);
+      if (rel === formatDateTime(value)) {
+        content = <Relative value={value} />;
+        break;
+      }
       // Si el texto relativo ya incluye la hora ("ayer · 14:32"), sólo se añade la fecha.
-      content = /\d:\d/.test(formatRelative(value)) ? (
+      content = (
         <>
           <Relative value={value} />
           <span className={styles.sep}> · </span>
-          <span className={styles.exact}>{formatDate(value)}</span>
-        </>
-      ) : (
-        <>
-          <Relative value={value} />
-          <span className={styles.sep}> · </span>
-          <span className={styles.exact}>{formatDateTime(value)}</span>
+          <span className={styles.exact}>{/\d:\d/.test(rel) ? formatDate(value) : formatDateTime(value)}</span>
         </>
       );
       break;
+    }
     default:
       content = formatDateTime(value);
   }

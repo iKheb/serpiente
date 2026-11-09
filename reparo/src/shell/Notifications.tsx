@@ -137,7 +137,7 @@ export function NotificationsButton({ mobile }: { mobile: boolean }) {
         onClick={() => setOpen((o) => !o)}
       />
       {mobile ? (
-        <Sheet open={open} onClose={() => setOpen(false)} title="Notificaciones" description={unread ? `${unread} sin leer` : 'Estás al día'} flush>
+        <Sheet open={open} onClose={() => setOpen(false)} placement="bottom" title="Notificaciones" description={unread ? `${unread} sin leer` : 'Estás al día'} flush>
           <NotificationList onNavigate={() => setOpen(false)} />
         </Sheet>
       ) : (

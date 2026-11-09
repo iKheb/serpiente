@@ -180,7 +180,7 @@ export function DatosSection({ settings }: { settings: Settings }) {
         </div>
       </Group>
 
-      <Group title="Datos de ejemplo">
+      <Group title="Datos de ejemplo" description="Útil para conocer Reparo antes de registrar tu propio taller.">
         <Row title="Cargar datos de ejemplo" description="Llena la app con un taller ficticio para explorar reportes, inventario y notificaciones.">
           <Button iconLeft={<FlaskConical />} loading={seeding} onClick={doSeed}>
             Cargar ejemplo

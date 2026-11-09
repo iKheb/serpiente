@@ -183,14 +183,21 @@ async function pump() {
       const job = urgent.shift() ?? background.shift();
       if (!job) break;
       try {
-        let blob: Blob;
-        try {
-          blob = await getBackend().render(job.kind, job.tier, job.theme);
-        } catch (e) {
-          if (!(e instanceof UnsupportedError) || !backend?.offThread) throw e;
-          backend = mainThreadBackend();
-          background.length = 0; // sin worker no se prepara nada por adelantado
-          blob = await backend.render(job.kind, job.tier, job.theme);
+        let blob: Blob | null = null;
+        for (let attempt = 0; !blob; attempt++) {
+          try {
+            blob = await getBackend().render(job.kind, job.tier, job.theme);
+          } catch (e) {
+            if (e instanceof UnsupportedError && backend?.offThread) {
+              backend = mainThreadBackend();
+              background.length = 0; // sin worker no se prepara nada por adelantado
+            } else if (attempt >= 2) {
+              throw e;
+            } else {
+              // Fallo transitorio (contexto perdido, GPU ocupada): reintenta con calma.
+              await new Promise((r) => setTimeout(r, 1200 * (attempt + 1)));
+            }
+          }
         }
         storagePut(job.key, blob);
         job.resolve(URL.createObjectURL(blob));

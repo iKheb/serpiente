@@ -66,6 +66,16 @@
   padding-bottom: var(--safe-bottom);
 }
 
+/* Hoja inferior en pantallas anchas (tablet): centrada y con ancho de lectura. */
+@media (min-width: 640px) {
+  .bottom {
+    left: 50%;
+    right: auto;
+    width: min(600px, calc(100vw - 32px));
+    margin-left: calc(min(600px, calc(100vw - 32px)) / -2);
+  }
+}
+
 .header {
   position: relative;
   flex-shrink: 0;

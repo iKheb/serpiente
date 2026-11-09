@@ -501,14 +501,21 @@
   .equation {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   }
-  .equation > .operator:nth-of-type(2) {
+  .equation > .operator:nth-child(4) {
     display: none;
   }
   .equation > .term:last-child {
     grid-column: 1 / -1;
   }
+  /* 3 + 2 sin hueco: la segunda fila reparte el ancho entre dos. */
   .stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .stat {
+    grid-column: span 2;
+  }
+  .stat:nth-child(n + 4) {
+    grid-column: span 3;
   }
   .stat:nth-child(4) {
     border-left: 0;
@@ -545,9 +552,6 @@
     grid-template-columns: minmax(0, 1fr);
     padding: var(--space-1-5);
   }
-  .equation > .operator:nth-of-type(2) {
-    display: grid;
-  }
   .equation > .term:last-child {
     grid-column: auto;
   }
@@ -564,10 +568,23 @@
   .emphasis .termValue {
     font-size: 36px;
   }
+  /* En columna, el operador es un separador: línea — ⊖ — línea. */
   .operator {
-    justify-items: start;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
     padding: 0 var(--space-4);
     margin-block: calc(var(--space-1) * -1);
+  }
+  .operator::before,
+  .operator::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .equation > .operator:nth-child(4) {
+    display: flex;
   }
   .opIcon {
     width: 22px;
@@ -580,7 +597,9 @@
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .stat {
+  .stat,
+  .stat:nth-child(n + 4) {
+    grid-column: auto;
     padding: var(--space-3) var(--space-4);
   }
   .stat:nth-child(n) {

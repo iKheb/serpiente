@@ -84,7 +84,6 @@ function useSectionMeta(settings: Settings | undefined): Partial<Record<SectionI
   if (!settings) return {};
   const cur = CURRENCIES.find((c) => c.code === settings.currency);
   return {
-    negocio: settings.businessName,
     preferencias: cur ? cur.code : settings.currency,
     notificaciones: !settings.notificationsEnabled ? 'Desactivadas' : permission === 'granted' ? 'Activas' : permission === 'denied' ? 'Bloqueadas' : 'Sólo en la app',
     sincronizacion: sync.state === 'disabled' ? 'Desactivada' : sync.state === 'idle' ? 'Al día' : sync.state === 'syncing' ? 'Sincronizando…' : sync.state === 'offline' ? 'Sin conexión' : 'Con error',
@@ -184,9 +183,10 @@ export default function AjustesPage() {
     <>
       <PageHeader
         title={mobile ? section.label : 'Ajustes'}
-        subtitle={mobile ? section.description : 'Configura tu negocio, avisos y respaldos. Los cambios se guardan automáticamente.'}
+        subtitle={mobile ? section.description : 'Configura tu negocio, avisos y respaldos.'}
         back={mobile ? { href: '#/ajustes', label: 'Ajustes' } : undefined}
-        actions={<SaveIndicator />}
+        meta={mobile ? <SaveIndicator /> : undefined}
+        actions={mobile ? undefined : <SaveIndicator />}
       />
       <div className={styles.layout}>
         {!mobile && (

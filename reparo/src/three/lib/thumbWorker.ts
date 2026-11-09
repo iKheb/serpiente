@@ -16,6 +16,7 @@ export type ThumbWorkerResponse =
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 let stage: ThumbStage | null = null;
 let unsupported = false;
+let stageFailures = 0;
 
 function getStage(): ThumbStage {
   if (stage && !stage.isLost()) return stage;
@@ -33,9 +34,12 @@ scope.onmessage = async (ev: MessageEvent<ThumbWorkerRequest>) => {
   let st: ThumbStage;
   try {
     st = getStage();
+    stageFailures = 0;
   } catch (e) {
-    unsupported = true;
-    scope.postMessage({ id, ok: false, unsupported: true, error: String(e) } satisfies ThumbWorkerResponse);
+    // Un fallo aislado (p. ej. GPU saturada) no descarta el worker; dos seguidos sí.
+    unsupported = ++stageFailures >= 2;
+    stage = null;
+    scope.postMessage({ id, ok: false, unsupported, error: String(e) } satisfies ThumbWorkerResponse);
     return;
   }
   try {

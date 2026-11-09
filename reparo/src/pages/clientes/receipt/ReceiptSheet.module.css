@@ -80,13 +80,13 @@
   color: var(--paper-ink);
   font-size: 12.5px;
   line-height: 1.45;
-  /* Borde perforado arriba y abajo */
+  /* Borde dentado (corte de ticket) arriba y abajo: igual que el PNG. */
   -webkit-mask:
-    radial-gradient(circle var(--tooth) at 50% 0, transparent 96%, black) top / 15px 51% repeat-x,
-    radial-gradient(circle var(--tooth) at 50% 100%, transparent 96%, black) bottom / 15px 51% repeat-x;
+    conic-gradient(from 135deg at top, transparent, black 1deg 89deg, transparent 90deg) top / calc(var(--tooth) * 2) 51% repeat-x,
+    conic-gradient(from -45deg at bottom, transparent, black 1deg 89deg, transparent 90deg) bottom / calc(var(--tooth) * 2) 51% repeat-x;
   mask:
-    radial-gradient(circle var(--tooth) at 50% 0, transparent 96%, black) top / 15px 51% repeat-x,
-    radial-gradient(circle var(--tooth) at 50% 100%, transparent 96%, black) bottom / 15px 51% repeat-x;
+    conic-gradient(from 135deg at top, transparent, black 1deg 89deg, transparent 90deg) top / calc(var(--tooth) * 2) 51% repeat-x,
+    conic-gradient(from -45deg at bottom, transparent, black 1deg 89deg, transparent 90deg) bottom / calc(var(--tooth) * 2) 51% repeat-x;
 }
 
 .stage::after {
@@ -185,6 +185,7 @@
 
 .row dd {
   text-align: right;
+  font-variant-numeric: tabular-nums;
   font-weight: var(--weight-medium);
   overflow-wrap: anywhere;
 }
@@ -193,6 +194,7 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
+  margin: 3px 0;
 }
 
 .rowBlock dd {
@@ -317,6 +319,19 @@
   flex-direction: column;
   gap: var(--space-2);
   width: 100%;
+}
+
+/* WhatsApp: verde reconocible al instante (derivado de --success). */
+.cta {
+  --btn-primary-bg: linear-gradient(180deg, color-mix(in srgb, var(--success) 74%, black) 0%, color-mix(in srgb, var(--success) 62%, black) 100%);
+  --btn-primary-bg-hover: linear-gradient(180deg, color-mix(in srgb, var(--success) 80%, black) 0%, color-mix(in srgb, var(--success) 68%, black) 100%);
+  --btn-primary-border: color-mix(in srgb, var(--success) 70%, transparent);
+  --btn-primary-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -10px color-mix(in srgb, var(--success) 70%, transparent);
+}
+
+:root[data-theme='light'] .cta {
+  --btn-primary-bg: linear-gradient(180deg, color-mix(in srgb, var(--success) 92%, black) 0%, color-mix(in srgb, var(--success) 80%, black) 100%);
+  --btn-primary-bg-hover: linear-gradient(180deg, color-mix(in srgb, var(--success) 98%, black) 0%, color-mix(in srgb, var(--success) 86%, black) 100%);
 }
 
 .secondary {

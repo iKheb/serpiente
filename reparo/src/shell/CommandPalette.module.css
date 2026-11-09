@@ -278,3 +278,10 @@
     display: none;
   }
 }
+
+/* En pantallas táctiles los atajos de teclado no aplican: sin pie de atajos. */
+@media (pointer: coarse) and (hover: none) {
+  .footer {
+    display: none;
+  }
+}

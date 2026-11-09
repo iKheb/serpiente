@@ -141,14 +141,14 @@ function layout(ctx: Ctx, m: ReceiptModel, ox: number, oy: number, draw: boolean
       const lf = font(450, 12.5);
       const vf = font(r.mono ? 450 : 520, r.mono ? 12.5 : 13, r.mono);
       if (r.block) {
-        y += 17;
+        y += 24;
         text(r.label, left, y, lf, PAPER.ink3);
         ctx.font = vf;
         for (const l of wrap(ctx, r.value, inner)) {
           y += 18;
           text(l, left, y, vf, PAPER.ink);
         }
-        y += 3;
+        y += 6;
         continue;
       }
       ctx.font = lf;

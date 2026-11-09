@@ -23,7 +23,7 @@ const errors = [];
 const W = (ms) => new Promise((r) => setTimeout(r, ms));
 for (const vn of vps) for (const theme of themes) {
   const mob = vn !== 'desktop';
-  const ctx = await browser.newContext({ viewport: VP[vn], isMobile: mob, hasTouch: mob, colorScheme: theme, locale: 'es-MX', timezoneId: 'America/Mexico_City' });
+  const ctx = await browser.newContext({ viewport: VP[vn], isMobile: mob, hasTouch: mob, colorScheme: theme, reducedMotion: process.env.RM ? 'reduce' : 'no-preference', locale: 'es-MX', timezoneId: 'America/Mexico_City' });
   const page = await ctx.newPage();
   page.setDefaultTimeout(60000);
   page.on('pageerror', (e) => errors.push(`[${vn}/${theme}] ${e.message}`));

@@ -724,7 +724,8 @@
 }
 
 /* -------------------------------- Móvil --------------------------------- */
-@media (max-width: 899px) {
+/* En tablet vertical la búsqueda y el rango caben en una fila. */
+@media (max-width: 699px) {
   .search {
     max-width: none;
     flex-basis: 100%;

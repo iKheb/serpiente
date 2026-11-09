@@ -342,6 +342,11 @@
   .rowControl > button {
     flex: 1;
   }
+  /* Los selectores ocupan todo el ancho, como el resto de campos en móvil. */
+  .rowControl > :has([role='combobox']) {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .inlineTitle {
@@ -1077,7 +1082,7 @@
 /* ------------------------------- Datos ----------------------------------- */
 .csvGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
   gap: 8px;
   padding: var(--space-1) 0 var(--space-2);
 }
@@ -1092,6 +1097,10 @@
   }
   .csvBtn {
     min-height: 44px;
+  }
+  /* Con un número impar de exportaciones, la última ocupa la fila completa. */
+  .csvBtn:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1293,15 +1302,17 @@
 
 .mDesc {
   font-size: var(--text-xs);
+  line-height: 1.35;
   color: var(--text-3);
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .mMeta {
   flex-shrink: 0;
-  max-width: 40%;
+  max-width: 34%;
   font-size: var(--text-sm);
   color: var(--text-3);
   white-space: nowrap;

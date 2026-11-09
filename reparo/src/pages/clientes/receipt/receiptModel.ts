@@ -52,7 +52,7 @@ function plural(n: number, one: string, many: string) {
 export function buildReceiptModel(c: Client, s: Settings, piezas: ReceiptPiece[] = []): ReceiptModel {
   const money = (cents: number) => formatMoney(cents, { currency: s.currency, locale: s.locale });
   const client: ReceiptRow[] = [{ label: 'Cliente', value: c.nombre.trim() || '—' }];
-  if (c.telefono.trim()) client.push({ label: 'Teléfono', value: c.telefono.trim(), mono: true });
+  if (c.telefono.trim()) client.push({ label: 'Teléfono', value: c.telefono.trim() });
 
   const device: ReceiptRow[] = [{ label: 'Equipo', value: deviceFullName(c) || '—' }];
   if (c.imei.trim()) device.push({ label: 'IMEI / serie', value: c.imei.trim(), mono: true });

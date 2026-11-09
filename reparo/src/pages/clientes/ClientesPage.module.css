@@ -49,6 +49,21 @@
   .search {
     flex-basis: 100%;
   }
+  /* Pago y orden comparten fila, a todo el ancho. */
+  .paySeg {
+    flex: 1 1 auto;
+    display: flex;
+  }
+  .paySeg > * {
+    flex: 1;
+  }
+  .sortSel {
+    flex: 0 1 150px;
+    min-width: 0;
+  }
+  .sortSel button {
+    width: 100% !important;
+  }
 }
 
 /* -------------------------------- Celdas -------------------------------- */

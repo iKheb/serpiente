@@ -137,8 +137,10 @@ function DetailView({ client }: { client: Client }) {
         meta={<StatusBadge status={client.estado} />}
         subtitle={
           <span className={styles.subtitle}>
-            <span className={styles.folioTag}>{folio}</span>
-            {device && <span>{device}</span>}
+            <span className={styles.subLine}>
+              <span className={styles.folioTag}>{folio}</span>
+              {device && <span>{device}</span>}
+            </span>
             {client.servicio && <span>{client.servicio}</span>}
             <span className={styles.subtitleTime}>
               <CalendarClock aria-hidden />

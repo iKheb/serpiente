@@ -686,3 +686,21 @@
   outline: none;
   box-shadow: none;
 }
+
+/* Tablet vertical: la escena ocupa el espacio libre sobre el contenido (que va abajo, a mano del pulgar). */
+@media (min-width: 600px) and (max-width: 899px) {
+  .scene {
+    height: calc(56svh - 36px);
+  }
+  .root[data-step='1'] .scene,
+  .root[data-step='3'] .scene {
+    height: calc(50svh - 36px);
+  }
+  .root[data-step='2'] .scene {
+    height: calc(48svh - 36px);
+  }
+  .column {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}

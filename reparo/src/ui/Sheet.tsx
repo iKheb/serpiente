@@ -28,6 +28,11 @@ export interface SheetProps {
   bodyClassName?: string;
   /** Sin padding en el cuerpo (listas a sangre). */
   flush?: boolean;
+  /**
+   * 'auto' (defecto): panel lateral desde 640 px, hoja inferior por debajo.
+   * 'bottom': siempre hoja inferior (menús de la barra inferior en móvil y tablet).
+   */
+  placement?: 'auto' | 'bottom';
 }
 
 /** Ancho a partir del cual el Sheet es panel lateral (por debajo: hoja inferior). */
@@ -39,8 +44,9 @@ export const SHEET_SIDE_QUERY = '(min-width: 640px)';
  * Patrón de formulario: <form id="x"> en children y en footer
  * <Button type="submit" form="x" variant="primary">Guardar</Button>.
  */
-export function Sheet({ open, onClose, title, description, icon, children, footer, size = 'md', dismissible = true, headerActions, bodyClassName, flush }: SheetProps) {
-  const side = useMediaQuery(SHEET_SIDE_QUERY);
+export function Sheet({ open, onClose, title, description, icon, children, footer, size = 'md', dismissible = true, headerActions, bodyClassName, flush, placement = 'auto' }: SheetProps) {
+  const wide = useMediaQuery(SHEET_SIDE_QUERY);
+  const side = wide && placement !== 'bottom';
   const reduced = usePrefersReducedMotion();
   const panelRef = useRef<HTMLDivElement | null>(null);
   const titleId = useId();

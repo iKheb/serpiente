@@ -61,7 +61,7 @@ export function usePeriodData(kind: PeriodKind, now: number, weekStartsOn: 0 | 1
   return { period, previous, previousToDate, summary, previousSummary, series, todayIndex, previousFullSummary, previousSeries, quiet };
 }
 
-/** Sin cobros, gastos ni servicios registrados. */
+/** Sin servicios nuevos, cobros ni gastos (una entrega de un servicio anterior no cuenta: su cobro pertenece a la fecha del servicio). */
 export function isQuiet(x: Summary): boolean {
   return x.cobradoCents === 0 && x.gastadoCents === 0 && x.servicios === 0 && x.numGastos === 0 && x.facturadoCents === 0;
 }
