@@ -86,8 +86,9 @@ function subscribeTick(interval: number, cb: () => void) {
  * Todos los componentes con el mismo intervalo comparten un solo temporizador.
  */
 export function useNow(interval = 60_000): number {
+  const subscribe = useCallback((cb: () => void) => subscribeTick(interval, cb), [interval]);
   return useSyncExternalStore(
-    (cb) => subscribeTick(interval, cb),
+    subscribe,
     () => getTick(interval).now,
     () => getTick(interval).now,
   );
