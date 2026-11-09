@@ -76,7 +76,7 @@ export interface RemoteRow {
   id: string;
   data: Record<string, unknown>;
   updated_at: number;
-  device_id: string | null;
+  device_id?: string | null;
   seq?: number;
 }
 
@@ -331,7 +331,7 @@ async function applyRemote(page: RemoteRow[], ctx: ApplyContext): Promise<number
 async function pullPage(client: CloudClient, cursor: number): Promise<RemoteRow[]> {
   const { data, error } = await client
     .from('reparo_rows')
-    .select('tbl,id,data,updated_at,device_id,seq')
+    .select('tbl,id,data,updated_at,seq')
     .gt('seq', cursor)
     .order('seq', { ascending: true })
     .limit(PULL_PAGE);
@@ -352,15 +352,26 @@ export interface CloudSyncResult {
   pulled: number;
 }
 
+/**
+ * El seq se asigna antes del commit: una transacción más lenta puede hacerse
+ * visible con un seq MENOR al cursor ya guardado. Por eso cada descarga se
+ * repite con un margen (cursor − PULL_MARGIN); aplicar es idempotente (LWW).
+ */
+export const PULL_MARGIN = 200;
+
 async function pullAll(client: CloudClient, ctx: ApplyContext): Promise<number> {
   let pulled = 0;
   for (let i = 0; i < MAX_PULL_PAGES; i++) {
-    const page = await pullPage(client, ctx.meta.cursor);
-    if (!page.length) break;
-    pulled += await applyRemote(page, ctx);
-    ctx.meta.cursor = Math.max(ctx.meta.cursor, ...page.map((r) => r.seq ?? 0));
-    await saveMeta(ctx.meta);
-    if (page.length < PULL_PAGE) break;
+    const from = Math.max(0, ctx.meta.cursor - PULL_MARGIN);
+    const page = await pullPage(client, from);
+    if (page.length) pulled += await applyRemote(page, ctx);
+    const max = page.reduce((m, r) => Math.max(m, r.seq ?? 0), 0);
+    const advanced = max > ctx.meta.cursor;
+    if (advanced) {
+      ctx.meta.cursor = max;
+      await saveMeta(ctx.meta);
+    }
+    if (page.length < PULL_PAGE || !advanced) break;
   }
   return pulled;
 }

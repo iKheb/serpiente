@@ -9,8 +9,8 @@ await page.addInitScript(() => { window.__long = []; new PerformanceObserver((l)
 await page.goto('file://' + process.argv[2] + '#/panel');
 await page.waitForFunction(() => !!window.__reparo, null, { timeout: 60000 });
 await page.evaluate(async () => { await window.__reparo.seedDemoData(); await window.__reparo.updateSettings({ onboarded: true }); });
-await page.goto('file://' + process.argv[2] + '#/inventario'); await page.evaluate(() => (window.__long.length = 0));
-for (let t = 0; t < 12; t++) {
+await page.goto('file://' + process.argv[2] + '#/ajustes'); await page.waitForTimeout(8000); await page.evaluate(() => (window.__long.length = 0)); await page.goto('file://' + process.argv[2] + '#/inventario');
+for (let t = 0; t < 5; t++) {
   await page.waitForTimeout(5000);
   const r = await page.evaluate(() => { const imgs = [...document.querySelectorAll('[data-kind] img')]; return imgs.length + ' imgs, ' + imgs.filter((i) => i.src.startsWith('blob:') || i.src.startsWith('data:')).length + ' ok; fallback ' + document.querySelectorAll('[data-kind] svg').length + '; long ' + JSON.stringify(window.__long); });
   console.log((t + 1) * 5 + 's', r);
