@@ -1,4 +1,5 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
+import { startAutoSync } from '@/data/sync';
 import { useRoute, type RouteName } from './router';
 import { AppShell } from '@/shell/AppShell';
 
@@ -17,6 +18,7 @@ const pages: Record<RouteName, React.LazyExoticComponent<React.ComponentType>> =
 
 export function App() {
   const route = useRoute();
+  useEffect(() => startAutoSync(), []);
   const Page = pages[route.name];
   return (
     <AppShell route={route}>
