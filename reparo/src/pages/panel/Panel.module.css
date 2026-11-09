@@ -325,9 +325,9 @@
 .heroDevicePre {
   position: absolute;
   inset: 0;
+  /* Sin transición al salir: un fundido cruzado con el 3D (encuadres distintos) se vería doble. */
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--dur-slow) var(--ease-out);
 }
 
 .heroDevicePre svg {
@@ -1336,5 +1336,12 @@
 @media (max-width: 599px) {
   .hero {
     margin-top: var(--space-1);
+  }
+}
+
+/* Teléfonos: el nombre del cliente tiene prioridad sobre "abonó 50 %" (sigue en la ficha). */
+@media (max-width: 420px) {
+  .rowMeta .paidPct {
+    display: none;
   }
 }

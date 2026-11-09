@@ -51,7 +51,8 @@
   }
   /* Pago y orden comparten fila, a todo el ancho. */
   .paySeg {
-    flex: 1 1 auto;
+    flex: 1 1 0%;
+    min-width: 0;
     display: flex;
   }
   .paySeg > * {

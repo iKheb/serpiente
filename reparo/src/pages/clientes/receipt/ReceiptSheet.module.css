@@ -58,7 +58,7 @@
   border-radius: var(--radius-lg);
   background:
     radial-gradient(120% 80% at 50% 0%, var(--brand-softer), transparent 70%),
-    var(--surface-2);
+    var(--surface-3);
   border: 1px solid var(--border);
   isolation: isolate;
 }
@@ -70,6 +70,13 @@
 }
 
 /* ------------------------------- Ticket ---------------------------------- */
+/* El contorno y la sombra van en el contenedor: la máscara del papel recorta box-shadow. */
+.paper {
+  width: 100%;
+  max-width: 340px;
+  filter: drop-shadow(0 0 0.5px rgba(16, 20, 30, 0.28)) drop-shadow(0 10px 18px rgba(4, 6, 12, 0.22));
+}
+
 .ticket {
   --tooth: 6px;
   position: relative;
@@ -87,20 +94,6 @@
   mask:
     conic-gradient(from 135deg at top, transparent, black 1deg 89deg, transparent 90deg) top / calc(var(--tooth) * 2) 51% repeat-x,
     conic-gradient(from -45deg at bottom, transparent, black 1deg 89deg, transparent 90deg) bottom / calc(var(--tooth) * 2) 51% repeat-x;
-}
-
-.stage::after {
-  /* sombra suave bajo el papel (el mask recorta box-shadow) */
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 18px;
-  width: min(300px, 80%);
-  height: 24px;
-  transform: translateX(-50%);
-  background: radial-gradient(closest-side, var(--surface-overlay), transparent);
-  filter: blur(8px);
-  z-index: -1;
 }
 
 .tHead {

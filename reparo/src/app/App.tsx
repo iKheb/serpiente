@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { startAutoSync } from '@/data/sync';
 import { useRoute, type RouteName } from './router';
 import { AppShell } from '@/shell/AppShell';
+import { Spinner } from '@/ui';
 
 const pages: Record<RouteName, React.LazyExoticComponent<React.ComponentType>> = {
   panel: lazy(() => import('@/pages/panel/PanelPage')),
@@ -22,7 +23,13 @@ export function App() {
   const Page = pages[route.name];
   return (
     <AppShell route={route}>
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <div style={{ display: 'grid', placeItems: 'center', minHeight: '50vh' }} aria-busy="true">
+            <Spinner />
+          </div>
+        }
+      >
         <Page key={route.name} />
       </Suspense>
     </AppShell>

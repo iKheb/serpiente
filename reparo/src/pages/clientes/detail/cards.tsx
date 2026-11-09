@@ -91,7 +91,7 @@ export function ContactCard({ client }: { client: Client }) {
         <Def label="Teléfono" wide>
           {tel ? (
             <span className={styles.inlineCopy}>
-              <a href={`tel:${tel.replace(/[^\d+]/g, '')}`} className={cx(styles.link, styles.mono)}>
+              <a href={`tel:${tel.replace(/[^\d+]/g, '')}`} className={cx(styles.link, styles.tnum)}>
                 {tel}
               </a>
               <CopyButton value={tel} label="Copiar teléfono" />
