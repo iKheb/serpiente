@@ -40,17 +40,8 @@ export const CATEGORY_ICON: Record<ExpenseCategory, LucideIcon> = {
   otros: Package,
 };
 
-export const CATEGORY_COLOR: Record<ExpenseCategory, string> = {
-  pantallas: 'var(--chart-1)',
-  baterias: 'var(--chart-3)',
-  puertos: 'var(--chart-2)',
-  camaras: 'var(--chart-6)',
-  placas: 'var(--chart-7)',
-  carcasas: 'var(--chart-4)',
-  herramientas: 'var(--chart-5)',
-  accesorios: 'var(--chart-2)',
-  otros: 'var(--chart-8)',
-};
+/** Mismos colores por categoría que Gastos (fuente única). */
+export { CATEGORY_COLOR } from '../gastos/categories';
 
 /** Etiqueta corta para chips y tarjetas. */
 export const CATEGORY_SHORT: Record<ExpenseCategory, string> = {

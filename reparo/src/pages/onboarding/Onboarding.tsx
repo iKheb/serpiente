@@ -177,6 +177,7 @@ export default function Onboarding() {
         <span className={styles.blobB} />
         <span className={styles.blobC} />
         <span className={styles.grid} />
+        <span className={styles.veil} />
       </div>
 
       <div className={styles.scene} data-step={step}>

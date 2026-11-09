@@ -29,17 +29,33 @@
   flex: none;
   display: inline-grid;
   place-items: center;
+  overflow: hidden;
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
   color: var(--cat);
-  background: color-mix(in oklab, var(--cat) 14%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--cat) 26%, transparent), inset 0 1px 0 var(--highlight-top);
+  background:
+    radial-gradient(120% 90% at 30% 15%, color-mix(in oklab, var(--cat) 24%, transparent), transparent 62%),
+    linear-gradient(160deg, var(--surface-3), var(--surface-2));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--cat) 24%, var(--border)),
+    inset 0 1px 0 var(--highlight-top);
 }
 
-.catIcon svg {
-  width: 19px;
-  height: 19px;
+.catArt {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block;
+  translate: -50% -50%;
+  transform-origin: center;
+  line-height: 0;
+}
+
+.cat-xs {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
 }
 
 .cat-sm {
@@ -48,20 +64,10 @@
   border-radius: var(--radius-xs);
 }
 
-.cat-sm svg {
-  width: 14px;
-  height: 14px;
-}
-
 .cat-lg {
   width: 56px;
   height: 56px;
   border-radius: var(--radius-lg);
-}
-
-.cat-lg svg {
-  width: 26px;
-  height: 26px;
 }
 
 /* ---------------------------------- Resumen ---------------------------------- */

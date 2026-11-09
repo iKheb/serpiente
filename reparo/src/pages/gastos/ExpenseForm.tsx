@@ -44,7 +44,7 @@ import {
   useMediaQuery,
   type ComboboxOption,
 } from '@/ui';
-import { CATEGORY_ICON, CategoryIcon } from './categories';
+import { CategoryIcon } from './categories';
 import styles from './gastos.module.css';
 
 const FORM_ID = 'gasto-form';
@@ -99,13 +99,12 @@ export function ExpenseFormSheet({ open, mode, expenseId, initial, expenses, cli
     const seen = new Set<string>();
     for (const it of inventory) {
       seen.add(normalizeText(it.nombre));
-      const Icon = CATEGORY_ICON[it.categoria];
       out.push({
         value: it.nombre,
         id: 'i:' + it.id,
         description: `Inventario · ${EXPENSE_CATEGORY_LABEL[it.categoria]}${it.proveedor ? ' · ' + it.proveedor : ''}`,
         keywords: `${it.marca} ${it.modelo} ${it.sku}`,
-        icon: <Icon />,
+        icon: <CategoryIcon categoria={it.categoria} size="sm" />,
         meta: `${formatNumber(it.stock)} en stock`,
       });
     }
@@ -114,12 +113,11 @@ export function ExpenseFormSheet({ open, mode, expenseId, initial, expenses, cli
       const k = normalizeText(e.concepto);
       if (!k || seen.has(k)) continue;
       seen.add(k);
-      const Icon = CATEGORY_ICON[e.categoria];
       prev.push({
         value: e.concepto,
         id: 'e:' + e.id,
         description: `Compra previa · ${EXPENSE_CATEGORY_LABEL[e.categoria]}${e.proveedor ? ' · ' + e.proveedor : ''}`,
-        icon: <Icon />,
+        icon: <CategoryIcon categoria={e.categoria} size="sm" />,
         meta: formatMoney(e.costoUnitarioCents),
       });
     }

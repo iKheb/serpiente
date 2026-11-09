@@ -25,8 +25,9 @@ import {
   HandCoins,
   PiggyBank,
   Clock3,
+  Sunrise,
 } from 'lucide-react';
-import { BarChart, Sparkline, type ChartSeries } from '@/charts';
+import { BarChart, Sparkline, useMeasure, type ChartSeries } from '@/charts';
 import {
   deviceLabel,
   formatDayHeading,
@@ -55,28 +56,39 @@ import s from './Panel.module.css';
 
 export function PeriodKpis({ data, kind }: { data: PeriodData; kind: PeriodKind }) {
   const fmt = useFormatters();
-  const { summary: cur, previousSummary: prev, series, todayIndex, previousToDate } = data;
+  const { summary: cur, previousSummary: prev, previousFullSummary: closed, series, todayIndex, previousToDate, quiet } = data;
   const loading = !cur || !prev;
   const label = compareLabel(kind, previousToDate);
   const upto = useMemo(() => (series ? (todayIndex >= 0 ? series.slice(0, todayIndex + 1) : series) : []), [series, todayIndex]);
   const labels = upto.map((p) => p.label);
   const money = (n: number) => fmt.money(n);
   const spark = (key: keyof SeriesPoint, tone: 'income' | 'expense' | 'profit') =>
-    upto.length >= 2 ? (
+    upto.length >= 2 && !quiet ? (
       <Sparkline data={upto.map((p) => p[key] as number)} tone={tone} height={44} interactive labels={labels} formatValue={money} ariaLabel={`Tendencia diaria`} />
     ) : undefined;
+  // Periodo recién iniciado: sin un "−0 %" vacío; se muestra cómo cerró el anterior como referencia.
+  const prevName = kind === 'week' ? 'Semana pasada' : 'Mes pasado';
+  const ref = (v: number | undefined, suffix = '') =>
+    quiet ? (
+      <span className={s.kpiRef}>
+        {prevName} cerró en <strong className="tabular-nums">{v === undefined ? '…' : fmt.money(v)}</strong>
+        {suffix}
+      </span>
+    ) : undefined;
+  const delta = (a: number | undefined, b: number | undefined) => (quiet ? undefined : a !== undefined && b !== undefined && cur && prev ? ratio(a, b) : undefined);
 
   return (
-    <div className={s.kpiGrid}>
+    <div className={cx(s.kpiGrid, quiet && s.kpiQuiet)}>
       <KpiCard
         label="Cobrado"
         tone="income"
         icon={<TrendingUp />}
         value={cur?.cobradoCents ?? 0}
         format={money}
-        delta={cur && prev ? ratio(cur.cobradoCents, prev.cobradoCents) : undefined}
+        delta={delta(cur?.cobradoCents, prev?.cobradoCents)}
         deltaLabel={label}
         sparkline={spark('cobradoCents', 'income')}
+        footer={ref(closed?.cobradoCents)}
         loading={loading}
         href="#/clientes"
       />
@@ -87,9 +99,10 @@ export function PeriodKpis({ data, kind }: { data: PeriodData; kind: PeriodKind 
         value={cur?.gastadoCents ?? 0}
         format={money}
         invertDelta
-        delta={cur && prev ? ratio(cur.gastadoCents, prev.gastadoCents) : undefined}
+        delta={delta(cur?.gastadoCents, prev?.gastadoCents)}
         deltaLabel={label}
         sparkline={spark('gastadoCents', 'expense')}
+        footer={ref(closed?.gastadoCents)}
         loading={loading}
         href="#/gastos"
       />
@@ -99,9 +112,10 @@ export function PeriodKpis({ data, kind }: { data: PeriodData; kind: PeriodKind 
         icon={<PiggyBank />}
         value={cur?.gananciaCents ?? 0}
         format={money}
-        delta={cur && prev ? ratio(cur.gananciaCents, prev.gananciaCents) : undefined}
+        delta={delta(cur?.gananciaCents, prev?.gananciaCents)}
         deltaLabel={label}
         sparkline={spark('gananciaCents', 'profit')}
+        footer={ref(closed?.gananciaCents)}
         loading={loading}
         href={`#/reportes?periodo=${kind}`}
       />
@@ -112,9 +126,17 @@ export function PeriodKpis({ data, kind }: { data: PeriodData; kind: PeriodKind 
         value={cur?.porCobrarCents ?? 0}
         format={money}
         invertDelta
-        delta={cur && prev ? ratio(cur.porCobrarCents, prev.porCobrarCents) : undefined}
+        delta={delta(cur?.porCobrarCents, prev?.porCobrarCents)}
         deltaLabel={label}
-        footer={cur ? <span>De {fmt.money(cur.facturadoCents)} facturado en el periodo</span> : undefined}
+        footer={
+          quiet ? (
+            <span className={s.kpiRef}>
+              Nada facturado aún {kind === 'week' ? 'esta semana' : 'este mes'}
+            </span>
+          ) : cur ? (
+            <span>De {fmt.money(cur.facturadoCents)} facturado en el periodo</span>
+          ) : undefined
+        }
         loading={loading}
         href="#/clientes"
       />
@@ -122,9 +144,46 @@ export function PeriodKpis({ data, kind }: { data: PeriodData; kind: PeriodKind 
   );
 }
 
+/** Aviso del periodo recién iniciado: explica los ceros y ofrece el anterior como referencia. */
+export function FreshPeriodNote({ data, kind }: { data: PeriodData; kind: PeriodKind }) {
+  const { todayIndex, previous } = data;
+  if (!data.quiet) return null;
+  const day = todayIndex >= 0 ? todayIndex + 1 : 1;
+  const noun = kind === 'week' ? 'semana' : 'mes';
+  const title =
+    day === 1
+      ? kind === 'week'
+        ? 'La semana empezó hoy'
+        : 'El mes empezó hoy'
+      : `Van ${day} días ${kind === 'week' ? 'de esta semana' : 'de este mes'} sin movimientos`;
+  return (
+    <div className={s.freshNote} role="status">
+      <span className={s.freshIcon} aria-hidden>
+        <Sunrise />
+      </span>
+      <div className={s.freshText}>
+        <strong>{title}</strong>
+        <span>
+          Aún no hay cobros ni gastos registrados. Mientras tanto, abajo ves cómo cerró {kind === 'week' ? 'la semana pasada' : 'el mes pasado'} ({previous.shortLabel}) como referencia.
+        </span>
+      </div>
+      <div className={s.freshActions}>
+        <Button variant="secondary" size="sm" iconLeft={<Plus />} onClick={() => navigate('#/clientes?nuevo=1')}>
+          Registrar servicio
+        </Button>
+        <Button variant="ghost" size="sm" iconRight={<ArrowRight />} onClick={() => navigate(`#/reportes?periodo=${kind}&fecha=${previous.start}`)}>
+          Ver {noun} anterior
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function SecondaryMetrics({ data }: { data: PeriodData }) {
   const fmt = useFormatters();
-  const { summary: cur, previousSummary: prev } = data;
+  const { summary: cur, previousSummary: base, quiet } = data;
+  // Sin movimientos aún: no se muestran variaciones contra un corte vacío.
+  const prev = quiet ? undefined : base;
   const items = [
     { icon: <Wrench />, label: 'Servicios', value: cur ? formatNumber(cur.servicios) : null, delta: cur && prev ? ratio(cur.servicios, prev.servicios) : undefined },
     {
@@ -179,51 +238,105 @@ const PROFIT_LINE: ChartSeries[] = [{ key: 'gananciaCents', label: 'Ganancia', c
 
 export function FlowChart({ data, kind }: { data: PeriodData; kind: PeriodKind }) {
   const fmt = useFormatters();
-  const { series, period, summary } = data;
+  const { period, previous, quiet } = data;
+  // Periodo recién iniciado y vacío: se muestra el anterior completo, rotulado como referencia.
+  const showPrev = quiet && !!data.previousFullSummary && (data.previousFullSummary.cobradoCents !== 0 || data.previousFullSummary.gastadoCents !== 0);
+  const series = showPrev ? data.previousSeries : data.series;
+  const summary = showPrev ? data.previousFullSummary : data.summary;
+  const shown = showPrev ? previous : period;
+  const prevNoun = kind === 'week' ? 'la semana pasada' : 'el mes pasado';
+  // El gráfico ocupa todo el alto que deja la columna derecha (sin hueco al pie de la tarjeta).
+  const [fillRef, fillSize] = useMeasure<HTMLDivElement>();
+  const chartH = Math.max(260, Math.min(460, fillSize.height || 300));
   return (
     <Card
       className={s.chartCard}
-      title="Cobrado vs. gastado por día"
-      description={`${period.label} · la línea muestra la ganancia diaria`}
+      title={showPrev ? `Así cerró ${prevNoun}` : 'Cobrado vs. gastado por día'}
+      description={showPrev ? `${shown.label} · referencia mientras ${kind === 'week' ? 'esta semana' : 'este mes'} toma forma` : `${period.label} · la línea muestra la ganancia diaria`}
       actions={
-        <Button variant="ghost" size="sm" iconRight={<ArrowRight />} onClick={() => navigate(`#/reportes?periodo=${kind}`)}>
+        <Button variant="ghost" size="sm" iconRight={<ArrowRight />} onClick={() => navigate(`#/reportes?periodo=${kind}${showPrev ? `&fecha=${previous.start}` : ''}`)}>
           Reportes
         </Button>
       }
     >
       {series ? (
-        <>
+        <div className={s.chartBody}>
           {summary && (
             <div className={s.chartTotals}>
+              {showPrev && (
+                <Badge tone="neutral" size="sm" className={s.refBadge}>
+                  {kind === 'week' ? 'Semana pasada' : 'Mes pasado'}
+                </Badge>
+              )}
               <ChartTotal color="var(--income)" label="Cobrado" value={fmt.money(summary.cobradoCents)} />
               <ChartTotal color="var(--expense)" label="Gastado" value={fmt.money(summary.gastadoCents)} />
               <ChartTotal color="var(--profit)" label="Ganancia" value={fmt.money(summary.gananciaCents)} line />
             </div>
           )}
-          <BarChart
-            data={series}
-            series={BARS}
-            lineSeries={PROFIT_LINE}
-            height={268}
-            maxBarWidth={kind === 'week' ? 28 : 12}
-            formatValue={(n) => fmt.money(n)}
-            formatAxisValue={(n) => fmt.money(n, { compact: true })}
-            formatTooltipLabel={(_l, d) => formatDayHeading(d.start)}
-            tooltipFooter={(d) => (
-              <div className={s.tipFoot}>
-                <span>Margen</span>
-                <span className="tabular-nums">{d.cobradoCents ? formatPercent(d.gananciaCents / d.cobradoCents) : '—'}</span>
-              </div>
-            )}
-            legend="none"
-            emptyMessage={kind === 'week' ? 'Aún no hay cobros ni gastos esta semana' : 'Aún no hay cobros ni gastos este mes'}
-            ariaLabel={`Cobrado, gastado y ganancia por día · ${period.label}`}
-          />
-        </>
+          <div ref={fillRef} className={cx(s.chartFill, showPrev && s.chartRef)}>
+            <BarChart
+              data={series}
+              series={BARS}
+              lineSeries={PROFIT_LINE}
+              height={chartH}
+              maxBarWidth={kind === 'week' ? 28 : 12}
+              formatValue={(n) => fmt.money(n)}
+              formatAxisValue={(n) => fmt.money(n, { compact: true })}
+              formatTooltipLabel={(_l, d) => formatDayHeading(d.start)}
+              tooltipFooter={(d) => (
+                <div className={s.tipFoot}>
+                  <span>Margen</span>
+                  <span className="tabular-nums">{d.cobradoCents ? formatPercent(d.gananciaCents / d.cobradoCents) : '—'}</span>
+                </div>
+              )}
+              legend="none"
+              emptyMessage={kind === 'week' ? 'Aún no hay cobros ni gastos esta semana' : 'Aún no hay cobros ni gastos este mes'}
+              ariaLabel={`Cobrado, gastado y ganancia por día · ${shown.label}`}
+            />
+          </div>
+          {summary && series.length > 0 && <FlowFacts series={series} todayIndex={showPrev ? -1 : data.todayIndex} />}
+        </div>
       ) : (
         <Skeleton height={300} radius={10} />
       )}
     </Card>
+  );
+}
+
+/** Pie del gráfico: mejor día y días con movimiento (llena el alto de la tarjeta con algo útil). */
+function FlowFacts({ series, todayIndex }: { series: SeriesPoint[]; todayIndex: number }) {
+  const fmt = useFormatters();
+  const upto = todayIndex >= 0 ? series.slice(0, todayIndex + 1) : series;
+  const active = upto.filter((p) => p.cobradoCents !== 0 || p.gastadoCents !== 0);
+  if (active.length === 0) return null;
+  const best = active.reduce((a, p) => (p.gananciaCents > a.gananciaCents ? p : a), active[0]);
+  const avg = Math.round(active.reduce((a, p) => a + p.gananciaCents, 0) / active.length);
+  return (
+    <dl className={s.flowFacts}>
+      <div>
+        <dt>Mejor día</dt>
+        <dd>
+          <span className="tabular-nums">{fmt.money(best.gananciaCents)}</span>
+          <span className={s.flowFactSub}>{formatDayHeading(best.start)}</span>
+        </dd>
+      </div>
+      <div>
+        <dt>Ganancia promedio por día</dt>
+        <dd>
+          <span className="tabular-nums">{fmt.money(avg)}</span>
+          <span className={s.flowFactSub}>en días con movimiento</span>
+        </dd>
+      </div>
+      <div>
+        <dt>Días con movimiento</dt>
+        <dd>
+          <span className="tabular-nums">
+            {active.length} de {upto.length}
+          </span>
+          <span className={s.flowFactSub}>{upto.length === series.length ? 'del periodo' : 'transcurridos'}</span>
+        </dd>
+      </div>
+    </dl>
   );
 }
 

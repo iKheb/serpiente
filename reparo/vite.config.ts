@@ -13,7 +13,7 @@ export default defineConfig({
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   build: {
     target: 'es2022',
-    outDir: '../app',
+    outDir: process.env.REPARO_OUT_DIR ?? '../app',
     emptyOutDir: true,
     assetsInlineLimit: 100_000_000,
     cssCodeSplit: false,

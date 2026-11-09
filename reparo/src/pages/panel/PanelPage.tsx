@@ -8,7 +8,7 @@ import { useClock } from './useClock';
 import { navigate } from '@/app/router';
 import { Hero } from './Hero';
 import { GettingStarted } from './GettingStarted';
-import { FlowChart, InventoryAlert, PeriodKpis, Pipeline, ReadyList, ReceivableList, RecentActivity, SecondaryMetrics } from './Sections';
+import { FlowChart, FreshPeriodNote, InventoryAlert, PeriodKpis, Pipeline, ReadyList, ReceivableList, RecentActivity, SecondaryMetrics } from './Sections';
 import { usePeriodData, useWorkshopData } from './usePanelData';
 import s from './Panel.module.css';
 
@@ -111,6 +111,7 @@ export default function PanelPage() {
           </div>
           <SegmentedControl aria-label="Periodo" value={periodKind} onChange={(v) => setKind(v)} options={PERIOD_OPTIONS} />
         </div>
+        <FreshPeriodNote data={period} kind={periodKind} />
         <PeriodKpis data={period} kind={periodKind} />
         <SecondaryMetrics data={period} />
       </section>

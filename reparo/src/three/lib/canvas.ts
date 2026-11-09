@@ -8,9 +8,15 @@ import { BRAND } from './palette';
 export type Ctx = CanvasRenderingContext2D;
 
 export function makeCanvas(w: number, h: number): { canvas: HTMLCanvasElement; ctx: Ctx } {
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.max(1, Math.round(w));
-  canvas.height = Math.max(1, Math.round(h));
+  const cw = Math.max(1, Math.round(w));
+  const ch = Math.max(1, Math.round(h));
+  // En un Web Worker (miniaturas) no hay DOM: OffscreenCanvas expone la misma API 2D.
+  const canvas =
+    typeof document === 'undefined' && typeof OffscreenCanvas !== 'undefined'
+      ? (new OffscreenCanvas(cw, ch) as unknown as HTMLCanvasElement)
+      : document.createElement('canvas');
+  canvas.width = cw;
+  canvas.height = ch;
   const ctx = canvas.getContext('2d')!;
   return { canvas, ctx };
 }

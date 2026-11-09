@@ -100,7 +100,17 @@ export function useTweenedArray(target: readonly number[], duration = 520, enabl
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    // Red de seguridad: si no llegan frames (pestaña oculta, visor embebido o
+    // equipo saturado) el gráfico nunca debe quedar a medio camino.
+    const settle = window.setTimeout(() => {
+      cancelAnimationFrame(raf);
+      currentRef.current = target;
+      setCurrent(target);
+    }, duration + 250);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(settle);
+    };
   }, [target, duration, enabled]);
 
   return current.length === target.length ? current : target;

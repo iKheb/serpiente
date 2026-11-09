@@ -90,12 +90,19 @@ button.row:focus-visible {
 }
 
 .labelText {
+  flex: 0 1 auto;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .sub {
+  /* Cede espacio mucho antes que la etiqueta: en móvil se recorta el "14 servicios", no el nombre. */
+  flex: 0 1000 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--text-3);
   font-size: var(--text-xs);
   white-space: nowrap;

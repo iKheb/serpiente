@@ -32,6 +32,11 @@ export interface PeriodData {
   series: SeriesPoint[] | undefined;
   /** Índice del día de hoy dentro de la serie (−1 si no aplica). */
   todayIndex: number;
+  /** Periodo anterior completo (cómo cerró): referencia cuando el actual aún no tiene movimientos. */
+  previousFullSummary: Summary | undefined;
+  previousSeries: SeriesPoint[] | undefined;
+  /** El periodo en curso todavía no registra cobros, gastos ni servicios. */
+  quiet: boolean;
 }
 
 const MINUTE = 60_000;
@@ -50,7 +55,15 @@ export function usePeriodData(kind: PeriodKind, now: number, weekStartsOn: 0 | 1
   const previousSummary = useSummary(previousToDate);
   const series = useSeries(period, 'day');
   const todayIndex = series ? series.findIndex((p) => now >= p.start && now < p.end) : -1;
-  return { period, previous, previousToDate, summary, previousSummary, series, todayIndex };
+  const previousFullSummary = useSummary(previous);
+  const previousSeries = useSeries(previous, 'day');
+  const quiet = !!summary && isQuiet(summary);
+  return { period, previous, previousToDate, summary, previousSummary, series, todayIndex, previousFullSummary, previousSeries, quiet };
+}
+
+/** Sin cobros, gastos ni servicios registrados. */
+export function isQuiet(x: Summary): boolean {
+  return x.cobradoCents === 0 && x.gastadoCents === 0 && x.servicios === 0 && x.numGastos === 0 && x.facturadoCents === 0;
 }
 
 export interface WorkshopData {

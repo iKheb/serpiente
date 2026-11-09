@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { navigate, setQuery, useRoute } from '@/app/router';
 import {
-  EXPENSE_CATEGORIES,
   downloadBlob,
   formatDateTime,
   formatNumber,
@@ -39,6 +38,7 @@ import {
   type PeriodKind,
   type SeriesPoint,
   type Summary,
+  formatDayMonth,
 } from '@/data';
 import {
   AnimatedNumber,
@@ -140,7 +140,20 @@ export default function ReportesPage() {
 
   /* ------------------------------- Datos ------------------------------- */
   const summary = useSummary(period);
+  // En el período en curso se compara contra el mismo tramo del anterior (1–9 oct vs. 1–9 nov),
+  // no contra el período anterior completo: así la variación no castiga el mes a medio camino.
+  const prevCut = useMemo(() => {
+    if (!isCurrent) return prev;
+    const elapsed = Math.max(60_000, Math.floor(now / 60_000) * 60_000 + 60_000 - period.start);
+    return { start: prev.start, end: Math.min(prev.end, prev.start + elapsed) };
+  }, [isCurrent, prev, period.start, now]);
+  const prevCutSummary = useSummary(prevCut);
   const prevSummary = useSummary(prev);
+  const prevLabel = !isCurrent
+    ? prev.shortLabel
+    : kind === 'month'
+      ? `1–${formatDayMonth(prevCut.end - 1)}`
+      : `${prev.shortLabel} al mismo corte`;
   const seriesAll = useSeries(period, 'day');
   // En el período en curso sólo se muestran los días transcurridos (sin días futuros en cero).
   const series = useMemo(() => (seriesAll && isCurrent ? seriesAll.filter((p) => p.start <= now) : seriesAll), [seriesAll, isCurrent, now]);
@@ -152,9 +165,20 @@ export default function ReportesPage() {
   const money = useCallback((c: number) => fmt.money(c), [fmt]);
   const moneyCompact = useCallback((c: number) => fmt.money(c, { compact: true, decimals: false }), [fmt]);
 
+  // Se omiten los períodos anteriores al primer movimiento (antes de usar la app):
+  // sólo aplastaban la curva y llenaban la tabla de $0.00.
+  const activeHistory = useMemo(() => {
+    if (!history) return undefined;
+    let last = -1;
+    history.forEach((h, i) => {
+      if (!isEmptySummary(h.summary)) last = i;
+    });
+    return history.slice(0, Math.max(last + 1, Math.min(history.length, 3)));
+  }, [history]);
+
   const trend = useMemo<TrendPoint[] | undefined>(
     () =>
-      history
+      activeHistory
         ?.slice()
         .reverse()
         .map(({ period: p, summary: s }) => ({
@@ -165,12 +189,12 @@ export default function ReportesPage() {
           gananciaCents: s.gananciaCents,
           margen: s.margen,
         })),
-    [history],
+    [activeHistory],
   );
 
   const tableRows = useMemo<HistoryRow[] | undefined>(
-    () => history?.slice(0, TABLE_ROWS[kind]).map((h) => ({ id: String(h.period.start), period: h.period, summary: h.summary })),
-    [history, kind],
+    () => activeHistory?.slice(0, TABLE_ROWS[kind]).map((h) => ({ id: String(h.period.start), period: h.period, summary: h.summary })),
+    [activeHistory, kind],
   );
   const bestId = useMemo(() => {
     if (!tableRows?.length) return null;
@@ -179,7 +203,7 @@ export default function ReportesPage() {
     return best && best.summary.gananciaCents > 0 ? best.id : null;
   }, [tableRows]);
 
-  const loading = !summary || !prevSummary || !series;
+  const loading = !summary || !prevSummary || !prevCutSummary || !series;
   const empty = !!summary && isEmptySummary(summary);
 
   /* ------------------------------ Acciones ----------------------------- */
@@ -278,15 +302,30 @@ export default function ReportesPage() {
       </div>
 
       {/* Ecuación héroe */}
-      <Hero summary={summary} prev={prevSummary} prevLabel={prev.shortLabel} money={money} />
+      <Hero
+        summary={summary}
+        prev={prevCutSummary}
+        prevLabel={prevLabel}
+        closed={empty && isCurrent ? prevSummary : undefined}
+        closedLabel={kind === 'week' ? 'La semana pasada' : 'El mes pasado'}
+        money={money}
+      />
 
       {empty && !loading ? (
         <Card className={styles.emptyCard}>
           <EmptyState
             icon={<Receipt />}
             accent={<Plus />}
-            title={`Sin movimientos ${kind === 'week' ? 'esta semana' : 'este mes'}`}
-            description={`No hay servicios ni gastos registrados en ${kind === 'week' ? 'la ' + period.label.toLowerCase() : period.label.toLowerCase()}. Registra un servicio o un gasto y aquí verás cuánto cobraste, cuánto gastaste y tu ganancia.`}
+            title={
+              isCurrent
+                ? `${kind === 'week' ? 'La semana' : 'El mes'} apenas empieza`
+                : `Sin movimientos en ${kind === 'week' ? 'esa semana' : 'ese mes'}`
+            }
+            description={
+              isCurrent
+                ? `Todavía no hay servicios ni gastos registrados ${kind === 'week' ? 'esta semana' : 'este mes'}. En cuanto registres uno, aquí verás el día a día; mientras tanto, revisa cómo cerró ${kind === 'week' ? 'la semana anterior' : 'el mes anterior'}.`
+                : `No hay servicios ni gastos registrados en ${kind === 'week' ? 'la ' + period.label.toLowerCase() : period.label.toLowerCase()}.`
+            }
             action={
               <Button variant="primary" iconLeft={<Plus />} onClick={() => navigate('#/clientes?nuevo=1')}>
                 Registrar servicio
@@ -322,8 +361,8 @@ export default function ReportesPage() {
                       {d.servicios} {d.servicios === 1 ? 'servicio' : 'servicios'}
                     </span>
                   )}
-                  maxBarWidth={kind === 'week' ? 28 : 12}
-                  barGap={kind === 'week' ? 3 : 1}
+                  maxBarWidth={series.length <= 8 ? 28 : series.length <= 16 ? 18 : 12}
+                  barGap={series.length <= 16 ? 3 : 1}
                   ariaLabel={`Cobrado, gastado y ganancia por día, ${period.label}`}
                 />
               ) : (
@@ -337,12 +376,7 @@ export default function ReportesPage() {
               <div data-print-fit>
                 {categories ? (
                   <DonutChart
-                    data={categories.map<DonutDatum>((c) => ({
-                      key: c.categoria,
-                      label: c.label,
-                      value: c.totalCents,
-                      color: `var(--chart-${(EXPENSE_CATEGORIES.indexOf(c.categoria) % 8) + 1})`,
-                    }))}
+                    data={categoryDonut(categories)}
                     formatValue={money}
                     formatPercent={(r) => formatPercent(r)}
                     centerLabel="Gastado"
@@ -389,7 +423,7 @@ export default function ReportesPage() {
       <section className={styles.tableSection} aria-labelledby="rep-compare">
         <div className={styles.sectionHead}>
           <h2 id="rep-compare" className={styles.sectionTitle}>
-            Comparativa de {kind === 'week' ? `las últimas ${TABLE_ROWS.week} semanas` : `los últimos ${TABLE_ROWS.month} meses`}
+            Comparativa de {periodsLabel(kind, tableRows?.length ?? TABLE_ROWS[kind])}
           </h2>
           <p className={styles.sectionDesc}>Toca una fila para ver ese período en detalle.</p>
         </div>
@@ -401,7 +435,22 @@ export default function ReportesPage() {
 
 /* ================================ Héroe ================================= */
 
-function Hero({ summary, prev, prevLabel, money }: { summary?: Summary; prev?: Summary; prevLabel: string; money: (c: number) => string }) {
+function Hero({
+  summary,
+  prev,
+  prevLabel,
+  closed,
+  closedLabel,
+  money,
+}: {
+  summary?: Summary;
+  prev?: Summary;
+  prevLabel: string;
+  /** Período en curso aún sin movimientos: cómo cerró el anterior, en lugar de un "0 %" vacío. */
+  closed?: Summary;
+  closedLabel: string;
+  money: (c: number) => string;
+}) {
   if (!summary || !prev) {
     return (
       <Card padding="none" className={styles.hero} aria-busy="true">
@@ -429,9 +478,9 @@ function Hero({ summary, prev, prevLabel, money }: { summary?: Summary; prev?: S
   return (
     <Card padding="none" className={styles.hero}>
       <div className={styles.equation}>
-        <Term tone="income" label="Cobrado" hint="Dinero que entró" value={summary.cobradoCents} prev={prev.cobradoCents} prevLabel={prevLabel} money={money} />
+        <Term tone="income" label="Cobrado" hint="Dinero que entró" value={summary.cobradoCents} prev={prev.cobradoCents} prevLabel={prevLabel} closed={closed && `${closedLabel} cerró en ${money(closed.cobradoCents)}`} money={money} />
         <Operator icon={<Minus />} label="menos" />
-        <Term tone="expense" label="Gastado" hint="Repuestos y otros gastos" value={summary.gastadoCents} prev={prev.gastadoCents} prevLabel={prevLabel} money={money} invert />
+        <Term tone="expense" label="Gastado" hint="Repuestos y otros gastos" value={summary.gastadoCents} prev={prev.gastadoCents} prevLabel={prevLabel} closed={closed && `${closedLabel} cerró en ${money(closed.gastadoCents)}`} money={money} invert />
         <Operator icon={<Equal />} label="igual a" />
         <Term
           tone={negative ? 'loss' : 'profit'}
@@ -440,6 +489,7 @@ function Hero({ summary, prev, prevLabel, money }: { summary?: Summary; prev?: S
           value={summary.gananciaCents}
           prev={prev.gananciaCents}
           prevLabel={prevLabel}
+          closed={closed && `${closedLabel} cerró en ${money(closed.gananciaCents)}`}
           money={money}
           emphasis
         />
@@ -474,6 +524,7 @@ function Term({
   money,
   invert,
   emphasis,
+  closed,
 }: {
   tone: 'income' | 'expense' | 'profit' | 'loss';
   label: string;
@@ -484,6 +535,7 @@ function Term({
   money: (c: number) => string;
   invert?: boolean;
   emphasis?: boolean;
+  closed?: string;
 }) {
   const delta = value === 0 && prev === 0 ? 0 : percentChange(value, prev);
   const dir = delta == null ? 1 : delta > 0.0005 ? 1 : delta < -0.0005 ? -1 : 0;
@@ -500,13 +552,19 @@ function Term({
         <AnimatedNumber value={value} format={money} />
       </div>
       <div className={styles.termFoot}>
-        <span className={cx(styles.delta, deltaTone)} title={`Antes: ${money(prev)}`}>
-          <Icon aria-hidden />
-          {delta == null ? 'Nuevo' : formatDelta(delta)}
-        </span>
-        <span className={styles.termPrev}>
-          vs. {prevLabel} · {money(prev)}
-        </span>
+        {closed ? (
+          <span className={styles.termPrev}>{closed}</span>
+        ) : (
+          <>
+            <span className={cx(styles.delta, deltaTone)} title={`Antes: ${money(prev)}`}>
+              <Icon aria-hidden />
+              {delta == null ? 'Nuevo' : formatDelta(delta)}
+            </span>
+            <span className={styles.termPrev}>
+              vs. {prevLabel} · {money(prev)}
+            </span>
+          </>
+        )}
       </div>
       <p className={styles.termHint}>{hint}</p>
     </div>
@@ -575,7 +633,7 @@ function TrendCard({
   return (
     <Card
       className={styles.chartCard}
-      title={kind === 'week' ? 'Tendencia de las últimas 12 semanas' : 'Tendencia de los últimos 12 meses'}
+      title={`Tendencia de ${periodsLabel(kind, trend?.length ?? HISTORY)}`}
       icon={<TrendingUp />}
       description={mobile ? 'Toca dos veces un punto para abrir ese período.' : 'Haz clic en un punto para abrir ese período.'}
       actions={
@@ -750,6 +808,25 @@ function ChartSkeleton({ height }: { height: number }) {
       ))}
     </div>
   );
+}
+
+/**
+ * Colores del donut: distintos por posición (sin choques como "Pantallas" y "Otros"
+ * en el mismo violeta) y "Otros" siempre en gris neutro.
+ */
+function categoryDonut(rows: { categoria: string; label: string; totalCents: number }[]): DonutDatum[] {
+  let rank = 0;
+  return rows.map((c) => ({
+    key: c.categoria,
+    label: c.label,
+    value: c.totalCents,
+    color: c.categoria === 'otros' ? 'var(--chart-8)' : `var(--chart-${(rank++ % 7) + 1})`,
+  }));
+}
+
+/** "las últimas 8 semanas" / "los últimos 4 meses". */
+function periodsLabel(kind: PeriodKind, n: number): string {
+  return kind === 'week' ? `las últimas ${n} semanas` : `los últimos ${n} meses`;
 }
 
 function capitalize(s: string): string {

@@ -233,8 +233,13 @@ const BUILDERS: Record<ExpenseCategory, (m: PhoneMaterials) => Object3D> = {
   otros: chip,
 };
 
-export function buildPart(kind: ExpenseCategory): Object3D {
-  const m = createPhoneMaterials(null, { pcbSize: 768 });
+/** Materiales base para `buildPart` (compartibles entre piezas para reutilizar texturas y shaders). */
+export function createPartMaterials(): PhoneMaterials {
+  return createPhoneMaterials(null, { pcbSize: 768 });
+}
+
+export function buildPart(kind: ExpenseCategory, materials?: PhoneMaterials): Object3D {
+  const m = materials ?? createPartMaterials();
   const root = new Group();
   root.add(BUILDERS[kind](m));
   return root;
