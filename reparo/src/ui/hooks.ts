@@ -46,13 +46,17 @@ export function usePrefersReducedMotion(): boolean {
 type Tick = { now: number; listeners: Set<() => void>; timer: ReturnType<typeof setTimeout> | null };
 const ticks = new Map<number, Tick>();
 
-function subscribeTick(interval: number, cb: () => void) {
+function getTick(interval: number): Tick {
   let t = ticks.get(interval);
   if (!t) {
     t = { now: Date.now(), listeners: new Set(), timer: null };
     ticks.set(interval, t);
   }
-  const tick = t;
+  return t;
+}
+
+function subscribeTick(interval: number, cb: () => void) {
+  const tick = getTick(interval);
   tick.listeners.add(cb);
   if (!tick.timer) {
     const schedule = () => {
@@ -84,8 +88,8 @@ function subscribeTick(interval: number, cb: () => void) {
 export function useNow(interval = 60_000): number {
   return useSyncExternalStore(
     (cb) => subscribeTick(interval, cb),
-    () => ticks.get(interval)?.now ?? Date.now(),
-    () => Date.now(),
+    () => getTick(interval).now,
+    () => getTick(interval).now,
   );
 }
 

@@ -48,7 +48,14 @@ export function DateTimeText({ value, variant = 'datetime', className, muted }: 
       content = <Relative value={value} />;
       break;
     case 'relative-datetime':
-      content = (
+      // Si el texto relativo ya incluye la hora ("ayer · 14:32"), sólo se añade la fecha.
+      content = /\d:\d/.test(formatRelative(value)) ? (
+        <>
+          <Relative value={value} />
+          <span className={styles.sep}> · </span>
+          <span className={styles.exact}>{formatDate(value)}</span>
+        </>
+      ) : (
         <>
           <Relative value={value} />
           <span className={styles.sep}> · </span>

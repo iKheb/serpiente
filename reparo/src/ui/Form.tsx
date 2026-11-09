@@ -28,10 +28,10 @@ export interface FormSectionProps {
 /** Grupo con título dentro de un formulario (separado por línea del anterior). */
 export function FormSection({ title, description, children, className, style }: FormSectionProps) {
   return (
-    <fieldset className={cx(styles.section, className)} style={style}>
-      {title && <legend className={styles.legend}>{title}</legend>}
+    <div role="group" aria-label={typeof title === 'string' ? title : undefined} className={cx(styles.section, className)} style={style}>
+      {title && <div className={styles.legend}>{title}</div>}
       {description && <p className={styles.description}>{description}</p>}
       <div className={styles.body}>{children}</div>
-    </fieldset>
+    </div>
   );
 }

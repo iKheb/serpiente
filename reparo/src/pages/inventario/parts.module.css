@@ -1,0 +1,200 @@
+/* ------------------------------- Miniatura ------------------------------- */
+.thumb {
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 10px;
+  color: var(--thumb-color);
+  background:
+    radial-gradient(120% 90% at 30% 15%, color-mix(in srgb, var(--thumb-color) 26%, transparent), transparent 62%),
+    linear-gradient(160deg, var(--surface-3), var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--thumb-color) 22%, var(--border));
+  box-shadow: inset 0 1px 0 var(--highlight-top), var(--shadow-xs);
+}
+
+.thumbLg {
+  border-radius: var(--radius-xl);
+}
+
+.thumbGlow {
+  position: absolute;
+  inset: auto -20% -45% -20%;
+  height: 70%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--thumb-color) 30%, transparent), transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.thumbIcon {
+  position: relative;
+  filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--thumb-color) 40%, transparent));
+}
+
+/* ---------------------------- Número de stock ---------------------------- */
+.stockNum {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  padding: 0 1px;
+}
+
+.stockDigit {
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.flashDown {
+  animation: flashDown 900ms var(--ease-out);
+}
+
+.flashUp {
+  animation: flashUp 900ms var(--ease-out);
+}
+
+@keyframes flashDown {
+  0%,
+  30% {
+    color: var(--warning);
+  }
+}
+
+@keyframes flashUp {
+  0%,
+  30% {
+    color: var(--success);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flashDown,
+  .flashUp {
+    animation: none;
+  }
+}
+
+/* --------------------------------- Medidor -------------------------------- */
+.meter {
+  --meter-color: var(--success);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.meter[data-status='bajo'] {
+  --meter-color: var(--warning);
+}
+
+.meter[data-status='agotado'] {
+  --meter-color: var(--danger);
+}
+
+.meter[data-status='pedido'] {
+  --meter-color: var(--info);
+}
+
+.meterHead {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.meterValue {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+  letter-spacing: var(--tracking-tight);
+}
+
+.meter[data-status='agotado'] .meterValue {
+  color: var(--danger);
+}
+
+.meter[data-status='bajo'] .meterValue {
+  color: var(--warning);
+}
+
+.meterMin {
+  font-size: var(--text-xs);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  position: relative;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--surface-4);
+  overflow: hidden;
+}
+
+.zone {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--min-pct);
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--warning) 26%, transparent) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--meter-color) 70%, transparent), var(--meter-color));
+  box-shadow: 0 0 10px -2px color-mix(in srgb, var(--meter-color) 60%, transparent);
+}
+
+.tick {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: var(--min-pct);
+  width: 2px;
+  margin-left: -1px;
+  background: var(--text-2);
+  opacity: 0.7;
+  border-radius: 1px;
+}
+
+.m-sm .track {
+  height: 4px;
+}
+
+.m-sm .meterValue {
+  font-size: var(--text-base);
+}
+
+.m-lg {
+  gap: 10px;
+}
+
+.m-lg .track {
+  height: 10px;
+}
+
+.m-lg .meterValue {
+  font-size: var(--text-5xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tighter);
+  line-height: 1;
+}
+
+.m-lg .meterMin {
+  font-size: var(--text-base);
+}
+
+.badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}

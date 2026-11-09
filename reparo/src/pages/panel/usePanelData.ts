@@ -11,7 +11,7 @@ import {
   useInventory,
   useInventoryStats,
   useSeries,
-  useSettings,
+
   useStatusCounts,
   useSummary,
   type Client,
@@ -120,4 +120,3 @@ export function cumulative(values: readonly number[]): number[] {
   return values.map((v) => (acc += v));
 }
 
-export { useSettings };
