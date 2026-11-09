@@ -36,6 +36,9 @@ import { Badge, Button, Highlight, Tooltip, cx, fullDateTime } from '@/ui';
 import { ACTION_TONE, RelativeTime, formatClock, isTrashEntity, plural, recordHref } from './lib';
 import styles from './Actividad.module.css';
 
+/** Acciones cuyo resumen ya lo dice (evita "Enviado a la papelera · Envió a la papelera"). */
+const REDUNDANT = new Set<AuditAction>(['eliminar', 'restaurar', 'purgar', 'ajustes']);
+
 export type RecordState = 'activo' | 'papelera' | 'purgado' | 'na';
 
 const TONE_CLASS: Record<string, string> = {
@@ -186,10 +189,14 @@ export const EventRow = memo(function EventRow({ entry: e, expanded, onToggle, s
               )}
             </div>
             <p className={styles.summary}>
-              <span className={cx(styles.actionLabel, TONE_CLASS[tone])}>{AUDIT_ACTION_LABEL[e.action]}</span>
-              <span className={styles.dotSep} aria-hidden>
-                ·
-              </span>
+              {!REDUNDANT.has(e.action) && (
+                <>
+                  <span className={cx(styles.actionLabel, TONE_CLASS[tone])}>{AUDIT_ACTION_LABEL[e.action]}</span>
+                  <span className={styles.dotSep} aria-hidden>
+                    ·
+                  </span>
+                </>
+              )}
               <Highlight text={e.summary} query={query} className={styles.mark} />
               {single && (
                 <>
