@@ -14,7 +14,7 @@
    ========================================================================== */
 'use strict';
 
-const VERSION = '202c55b8e4';
+const VERSION = '97bcfc1a61';
 
 const PREFIX = 'reparo-';
 const SHELL_CACHE = PREFIX + 'shell-' + VERSION;

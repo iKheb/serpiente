@@ -288,7 +288,7 @@ export class HeroEngine {
     const aspect = width / height;
     this.camera.aspect = aspect;
     const P = POSE[this.o.variant];
-    const halfH = MathUtils.lerp(PHONE.H / 2 + 0.25, PHONE.H / 2 + 0.95, e) / P.fill;
+    const halfH = MathUtils.lerp(PHONE.H / 2 + 0.25, PHONE.H / 2 + 1.25, e) / P.fill;
     const halfW = MathUtils.lerp(2.15, 3.85, e) / P.fill;
     const t = Math.tan(MathUtils.degToRad(this.camera.fov / 2));
     const dist = Math.max(halfH / t, halfW / (t * aspect));

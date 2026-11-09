@@ -69,11 +69,11 @@ export const LAYER_ORDER: LayerKey[] = ['display', 'frame', 'board', 'battery', 
 
 /** Desplazamiento de cada capa en la vista explosionada (espacio local del teléfono). */
 export const EXPLODE_OFFSETS: Record<LayerKey, [number, number, number]> = {
-  display: [-0.55, -0.42, 2.15],
-  frame: [-0.2, -0.15, 0.95],
-  board: [0.1, 0.1, -0.1],
-  battery: [0.35, 0.3, -1.1],
-  back: [0.62, 0.5, -2.15],
+  display: [-0.62, -0.6, 2.2],
+  frame: [-0.22, -0.2, 1.0],
+  board: [0.12, 0.2, -0.1],
+  battery: [0.42, 0.5, -1.15],
+  back: [0.75, 0.82, -2.25],
 };
 
 /* ============================================================ Materiales */
@@ -533,7 +533,8 @@ export function buildPhone(screen: Texture | null, opts: { pcbSize?: number } = 
       const a = typeof amounts === 'number' ? amounts : (amounts[i] ?? 0);
       const [x, y, z] = EXPLODE_OFFSETS[k];
       layers[k].position.set(x * a, y * a, z * a);
-      layers[k].rotation.set(0, 0, 0);
+      // leve abanico entre capas
+      layers[k].rotation.set(0, (2 - i) * 0.045 * a, 0);
     });
     const af = typeof amounts === 'number' ? amounts : (amounts[1] ?? 0);
     screws.forEach((s, i) => {

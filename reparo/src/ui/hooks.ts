@@ -154,12 +154,19 @@ export function useScrollLock(active: boolean) {
   useEffect(() => {
     if (!active) return;
     lockCount++;
-    document.documentElement.setAttribute('data-scroll-locked', '');
+    const root = document.documentElement;
+    if (lockCount === 1) {
+      // Compensa el ancho de la barra de desplazamiento para que nada salte.
+      const comp = window.innerWidth - root.clientWidth;
+      root.style.setProperty('--scrollbar-comp', `${Math.max(0, comp)}px`);
+    }
+    root.setAttribute('data-scroll-locked', '');
     return () => {
       lockCount--;
       if (lockCount <= 0) {
         lockCount = 0;
         document.documentElement.removeAttribute('data-scroll-locked');
+        document.documentElement.style.removeProperty('--scrollbar-comp');
       }
     };
   }, [active]);

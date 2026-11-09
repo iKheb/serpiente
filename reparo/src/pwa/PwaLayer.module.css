@@ -6,13 +6,15 @@
   top: calc(var(--app-header-h, var(--topbar-h)) + var(--space-2));
   left: 0;
   right: 0;
-  display: flex;
-  justify-content: center;
+  /* Una sola celda: el aviso que sale y el que entra se superponen (sin saltos). */
+  display: grid;
+  justify-items: center;
   padding: 0 var(--space-4);
   pointer-events: none;
 }
 
 .pill {
+  grid-area: 1 / 1;
   pointer-events: auto;
   display: flex;
   align-items: center;

@@ -148,14 +148,13 @@
   padding-right: 8px;
 }
 
-@media (max-width: 1239px) {
-  .clock :global(span:first-child) {
-    display: none;
-  }
-}
-
-@media (max-width: 1099px) {
+@media (max-width: 1179px) {
   .search {
-    flex-basis: 260px;
+    flex: 0 0 auto;
+    min-width: 0;
+    gap: 8px;
+  }
+  .searchText {
+    display: none;
   }
 }

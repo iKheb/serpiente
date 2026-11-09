@@ -107,7 +107,7 @@ export function Sidebar({ route, collapsed, settings }: { route: Route; collapse
             {!collapsed && (
               <span className={styles.ownerText}>
                 <span className={styles.ownerName}>{owner}</span>
-                <span className={styles.ownerRole}>Dueño · {business}</span>
+                <span className={styles.ownerRole}>{online ? 'Dueño · en este equipo' : 'Dueño · modo sin conexión'}</span>
               </span>
             )}
           </a>

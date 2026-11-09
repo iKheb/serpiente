@@ -121,7 +121,7 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
-  scrollbar-gutter: stable;
+  background: var(--bg);
 }
 
 html,
@@ -340,6 +340,7 @@ samp {
 /* Bloqueo de scroll cuando hay un modal abierto */
 html[data-scroll-locked] body {
   overflow: hidden;
+  padding-right: var(--scrollbar-comp, 0px);
 }
 
 /* --------------------------- Movimiento reducido ------------------------- */

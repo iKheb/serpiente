@@ -158,22 +158,6 @@
   box-shadow: inset 0 0 0 1px var(--border), inset 0 1px 0 var(--highlight-top);
 }
 
-.activeBg::before {
-  content: '';
-  position: absolute;
-  left: -12px;
-  top: 9px;
-  bottom: 9px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--brand-gradient);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--brand) 60%, transparent);
-}
-
-.collapsed .activeBg::before {
-  left: -14px;
-}
-
 .iconWrap {
   position: relative;
   display: inline-flex;

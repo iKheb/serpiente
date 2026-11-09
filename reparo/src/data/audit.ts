@@ -207,7 +207,7 @@ export function summarizeClientEdit(changes: FieldChange[], after: Client): stri
     }
     return `Corrigió lo abonado a ${formatMoney(to)}`;
   }
-  if (fields.length === 1 && (fields[0] === 'desbloqueoPatron' || fields[0] === 'desbloqueoCodigo' || fields[0] === 'desbloqueoTipo')) {
+  if (fields.length > 0 && fields.every((f) => f.startsWith('desbloqueo'))) {
     return 'Actualizó los datos de desbloqueo';
   }
   return `Editó ${plural(changes.length, 'campo', 'campos')}`;
