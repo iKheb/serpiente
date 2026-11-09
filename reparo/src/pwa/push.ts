@@ -16,6 +16,7 @@ import { sendServiceWorkerConfig } from './register';
 
 const SERVER_STORAGE_KEY = 'reparo.pushServer';
 const REQUEST_TIMEOUT_MS = 10_000;
+const SUBSCRIBE_TIMEOUT_MS = 20_000;
 
 interface PushState {
   subscribed: boolean;
@@ -142,6 +143,22 @@ function sameKey(a: ArrayBuffer | null | undefined, b: Uint8Array): boolean {
   return true;
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new PushError(MSG.pushService)), ms);
+    promise.then(
+      (v) => {
+        window.clearTimeout(timer);
+        resolve(v);
+      },
+      (e) => {
+        window.clearTimeout(timer);
+        reject(e);
+      },
+    );
+  });
+}
+
 function preflight() {
   if (!isSecure()) throw new PushError(MSG.insecure);
   if (!pushSupported) throw new PushError(MSG.unsupported);
@@ -231,7 +248,14 @@ export async function subscribePush(serverUrl: string): Promise<boolean> {
     }
     if (!sub) {
       try {
-        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey });
+        // El servicio push del navegador (FCM, Mozilla, Apple) puede no responder nunca
+        // si la red lo bloquea: ponemos un límite para no dejar la UI "ocupada".
+        const pending = reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey });
+        sub = await withTimeout(pending, SUBSCRIBE_TIMEOUT_MS).catch((err) => {
+          // Si llega tarde, la anulamos para no dejar una suscripción huérfana.
+          pending.then((late) => late.unsubscribe()).catch(() => false);
+          throw err;
+        });
       } catch (err) {
         if (err instanceof DOMException && err.name === 'NotAllowedError') throw new PushError(MSG.denied);
         throw new PushError(MSG.pushService);

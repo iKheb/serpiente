@@ -55,6 +55,15 @@ export function formatFieldValue(domain: AuditDomain, field: string, value: unkn
   if (value === null || value === undefined || value === '') return EMPTY_TEXT;
   if (Array.isArray(value) && value.length === 0) return EMPTY_TEXT;
   if (typeof value === 'boolean') return value ? 'Sí' : 'No';
+  // Nunca mostrar el desbloqueo en claro, aunque se pida formatear directamente.
+  if (domain === 'cliente' && (field === 'desbloqueoPatron' || field === 'desbloqueoCodigo')) {
+    return maskUnlockValue(field, value, undefined);
+  }
+  if (domain === 'foto' && field === 'kind') return PHOTO_KIND_LABEL[value as keyof typeof PHOTO_KIND_LABEL] ?? String(value);
+  if (domain === 'ajustes') {
+    if (field === 'theme') return THEME_LABEL[value as keyof typeof THEME_LABEL] ?? String(value);
+    if (field === 'weekStartsOn') return value === 0 ? 'Domingo' : 'Lunes';
+  }
 
   if (field.endsWith('Cents') && typeof value === 'number') return formatMoney(value);
   if (DATE_FIELDS.has(field) && typeof value === 'number') return formatDateTime(value);
@@ -68,12 +77,6 @@ export function formatFieldValue(domain: AuditDomain, field: string, value: unkn
       return EXPENSE_CATEGORY_LABEL[value as keyof typeof EXPENSE_CATEGORY_LABEL] ?? String(value);
     case 'desbloqueoTipo':
       return UNLOCK_TYPE_LABEL[value as UnlockType] ?? String(value);
-    case 'kind':
-      return PHOTO_KIND_LABEL[value as keyof typeof PHOTO_KIND_LABEL] ?? String(value);
-    case 'theme':
-      return THEME_LABEL[value as keyof typeof THEME_LABEL] ?? String(value);
-    case 'weekStartsOn':
-      return value === 0 ? 'Domingo' : 'Lunes';
     case 'garantiaDias':
       return value === 0 ? 'Sin garantía' : plural(Number(value), 'día', 'días');
     case 'readyPickupDays':

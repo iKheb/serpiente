@@ -84,6 +84,10 @@ export function BarChart<T>(props: BarChartProps<T>) {
     className,
   } = props;
 
+  // Clave estable: las metas suelen pasarse como arreglo literal en cada render.
+  const refKey = referenceLines?.map((r) => `${r.value}|${r.label ?? ''}|${r.color ?? ''}`).join(';') ?? '';
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const refs = useMemo(() => referenceLines, [refKey]);
   const reduced = useReducedMotion();
   const motionOn = animate && !reduced;
   const [measureRef, { width }] = useMeasure<HTMLDivElement>();
@@ -119,9 +123,9 @@ export function BarChart<T>(props: BarChartProps<T>) {
     lineSeries.forEach((sr, li) => {
       if (!hidden.has(sr.key)) vals.push(...raw[nb + li]);
     });
-    referenceLines?.forEach((r) => vals.push(r.value));
+    refs?.forEach((r) => vals.push(r.value));
     return niceDomain(vals, tickCount);
-  }, [mode, n, nb, series, lineSeries, hidden, raw, referenceLines, tickCount]);
+  }, [mode, n, nb, series, lineSeries, hidden, raw, refs, tickCount]);
 
   const target = useMemo(
     () => [domain.min, domain.max, ...raw.flat(), ...all.map((sr) => (hidden.has(sr.key) ? 0 : 1))],
@@ -297,8 +301,8 @@ export function BarChart<T>(props: BarChartProps<T>) {
                 ))}
               </g>
             ))}
-            {referenceLines && referenceLines.length > 0 && (
-              <RefLines lines={referenceLines} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="line" />
+            {refs && refs.length > 0 && (
+              <RefLines lines={refs} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="line" />
             )}
             {geo.lines.map((l) => (
               <g key={l.series.key} className={[s.fade, l.visible ? '' : s.isHidden].join(' ')}>
@@ -322,14 +326,14 @@ export function BarChart<T>(props: BarChartProps<T>) {
                 )}
               </g>
             ))}
-            {referenceLines && referenceLines.length > 0 && (
-              <RefLines lines={referenceLines} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="label" />
+            {refs && refs.length > 0 && (
+              <RefLines lines={refs} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="label" />
             )}
           </g>
         )}
       </svg>
     );
-  }, [geo, width, height, active, isEmpty, formatAxisValue, xLabels, shapeKey, motionOn, referenceLines, showLineDots]);
+  }, [geo, width, height, active, isEmpty, formatAxisValue, xLabels, shapeKey, motionOn, refs, showLineDots]);
 
   /* ---- Tooltip ---- */
   let rows: TooltipRow[] = [];

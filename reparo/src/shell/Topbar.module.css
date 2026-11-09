@@ -1,0 +1,161 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: var(--topbar-h);
+  padding: 0 var(--gutter) 0 14px;
+  background: var(--topbar-bg);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-bottom: 1px solid var(--border);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+.sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border-strong);
+  flex-shrink: 0;
+}
+
+.crumbs {
+  min-width: 0;
+}
+
+.crumbs ol {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.crumbs li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.chev {
+  width: 14px;
+  height: 14px;
+  color: var(--text-4);
+  flex-shrink: 0;
+}
+
+.crumbLink,
+.crumbCurrent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.crumbLink {
+  color: var(--text-3);
+  transition: color var(--dur-fast), background var(--dur-fast);
+}
+
+.crumbLink:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.crumbCurrent {
+  color: var(--text);
+  font-weight: var(--weight-semibold);
+}
+
+.crumbText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crumbIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 1 380px;
+  min-width: 200px;
+  height: 34px;
+  padding: 0 7px 0 11px;
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  box-shadow: var(--shadow-xs);
+  color: var(--text-3);
+  font-size: var(--text-sm);
+  text-align: left;
+  transition: border-color var(--dur-fast), background var(--dur-fast), color var(--dur-fast);
+}
+
+.search:hover {
+  border-color: var(--input-border-hover);
+  color: var(--text-2);
+}
+
+.search:focus-visible {
+  box-shadow: var(--ring);
+  border-radius: var(--radius-sm);
+}
+
+.searchIcon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.searchText {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 1 1 0;
+}
+
+.newBtn {
+  padding-right: 8px;
+}
+
+@media (max-width: 1239px) {
+  .clock :global(span:first-child) {
+    display: none;
+  }
+}
+
+@media (max-width: 1099px) {
+  .search {
+    flex-basis: 260px;
+  }
+}

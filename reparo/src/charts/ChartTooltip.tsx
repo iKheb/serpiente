@@ -75,11 +75,17 @@ export function ChartTooltip({
       wasOpen.current = true;
       return;
     }
-    let left = anchor.x + offset;
-    if (left + tw > bounds.width - pad) left = anchor.x - offset - tw;
-    if (left < pad) left = Math.max(pad, Math.min(bounds.width - tw - pad, anchor.x - tw / 2));
-    let top = align === 'center' ? anchor.y - th / 2 : anchor.y - 6;
     const maxTop = Math.max(pad, bounds.height - th - pad);
+    let left = anchor.x + offset;
+    let top = align === 'center' ? anchor.y - th / 2 : anchor.y - 6;
+    if (left + tw > bounds.width - pad) left = anchor.x - offset - tw;
+    if (left < pad) {
+      // No cabe a ningún lado (pantallas angostas): centrado y por encima del
+      // punto activo; si tampoco cabe arriba, por debajo. Nunca tapa el ancla.
+      left = Math.max(pad, Math.min(bounds.width - tw - pad, anchor.x - tw / 2));
+      const above = anchor.y - th - 14;
+      top = above >= -pad * 2 ? above : anchor.y + 16;
+    }
     top = Math.max(-pad * 2, Math.min(maxTop, top));
     el.dataset.glide = wasOpen.current ? '1' : '0';
     el.style.transform = `translate3d(${Math.round(left)}px, ${Math.round(top)}px, 0)`;

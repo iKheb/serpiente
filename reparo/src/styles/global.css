@@ -368,3 +368,20 @@ html[data-scroll-locked] body {
     opacity: 1;
   }
 }
+
+@keyframes reparo-pulse-draw {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  55% {
+    stroke-dashoffset: 0;
+  }
+  80% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}

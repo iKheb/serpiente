@@ -7,19 +7,9 @@ import type { CanvasTexture } from 'three';
 import { BRAND, UI, FONT_SANS } from './palette';
 import { brandLinear, canvasTexture, drawBrandMark, hexToRgba, makeCanvas, rr, setTracking, type Ctx } from './canvas';
 
-export interface ScreenData {
-  title: string;
-  value: string;
-  caption?: string;
-  trend?: number[];
-}
+import { DEFAULT_SCREEN, type ScreenData } from './screenData';
 
-export const DEFAULT_SCREEN: Required<ScreenData> = {
-  title: 'Ganancia del mes',
-  value: '$48,250.00',
-  caption: 'vs. mes anterior',
-  trend: [18, 22, 19, 27, 25, 31, 29, 36, 34, 41, 39, 47],
-};
+export { DEFAULT_SCREEN, type ScreenData };
 
 const DW = 640; // ancho de diseño
 
@@ -429,9 +419,9 @@ export class ScreenPainter {
   /* ------------------------------------------------------------- escenas */
 
   drawDashboard(input: ScreenData | undefined, layout: 'hero' | 'compact' = 'hero') {
-    const data = { ...DEFAULT_SCREEN, ...(input ?? {}) };
+    const data: ScreenData = input ?? DEFAULT_SCREEN;
     const trend = input?.trend && input.trend.length >= 2 ? input.trend : DEFAULT_SCREEN.trend;
-    const delta = deltaOf(trend);
+    const delta = input?.delta !== undefined ? input.delta : deltaOf(trend);
     this.begin();
     const { ctx, dh } = this;
     this.glow(90, 120, 560, BRAND.iris, 0.3);

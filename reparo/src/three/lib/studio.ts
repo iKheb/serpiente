@@ -116,6 +116,7 @@ const bokehVertex = /* glsl */ `
   uniform vec2 uWrapY;
   varying vec3 vColor;
   varying float vAlpha;
+  varying float vSize;
   void main() {
     vec3 p = position;
     float t = uTime * uDrift;
@@ -125,10 +126,12 @@ const bokehVertex = /* glsl */ `
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
     gl_PointSize = aSize * uPixelRatio * uScale / max(-mv.z, 0.1);
-    float tw = 0.6 + 0.4 * sin(uTime * (0.7 + aSeed * 1.3) + aSeed * 40.0);
-    // desvanecer por profundidad (niebla)
+    vSize = gl_PointSize / uPixelRatio;
+    float tw = 0.65 + 0.35 * sin(uTime * (0.7 + aSeed * 1.3) + aSeed * 40.0);
+    // desvanecer por profundidad (niebla) y por desenfoque (discos grandes = tenues)
     float fog = clamp(1.0 - (-mv.z - 8.0) / 60.0, 0.0, 1.0);
-    vAlpha = tw * fog;
+    float dof = mix(1.0, 0.32, smoothstep(6.0, 70.0, vSize));
+    vAlpha = tw * fog * dof;
     vColor = aColor;
   }
 `;
@@ -137,14 +140,18 @@ const bokehFragment = /* glsl */ `
   uniform float uOpacity;
   varying vec3 vColor;
   varying float vAlpha;
+  varying float vSize;
   void main() {
     vec2 c = gl_PointCoord - 0.5;
     float d = length(c) * 2.0;
     if (d > 1.0) discard;
-    float disc = smoothstep(1.0, 0.78, d);
-    float rim = smoothstep(1.0, 0.86, d) * smoothstep(0.55, 0.86, d);
-    float core = exp(-d * d * 7.0);
-    float a = (disc * 0.28 + rim * 0.32 + core * 0.55) * vAlpha * uOpacity;
+    // destello nítido (polvo) ↔ disco bokeh suave según el tamaño en pantalla
+    float k = smoothstep(4.0, 22.0, vSize);
+    float glint = exp(-d * d * 9.0);
+    float soft = 1.0 - smoothstep(1.0 - 0.6 / max(vSize * 0.15, 1.0) - 0.12, 1.0, d);
+    float rim = smoothstep(0.62, 0.92, d) * soft;
+    float disc = soft * (0.55 + 0.25 * rim) + glint * 0.18;
+    float a = mix(glint, disc * 0.62, k) * vAlpha * uOpacity;
     gl_FragColor = vec4(vColor * a, a);
   }
 `;
@@ -186,8 +193,8 @@ export class Bokeh {
         if (!o.avoidRadius || Math.hypot(x, y * 0.6) > o.avoidRadius || z < -2) break;
       }
       pos.set([x + cx, y + cy, z + cz], i * 3);
-      const c = palette[Math.floor(rand() * palette.length * 0.999)];
-      const w = rand() < 0.18 ? 1 : 0;
+      const c = palette[Math.floor(rand() * 3)];
+      const w = rand() < 0.1 ? 0.85 : 0;
       col.set([c.r * (1 - w) + w, c.g * (1 - w) + w, c.b * (1 - w) + w], i * 3);
       size[i] = smin + Math.pow(rand(), 2.2) * (smax - smin);
       seed[i] = rand();
@@ -244,16 +251,23 @@ export class Bokeh {
 
 /* ================================================= Halo y sombra de contacto */
 
-export function createGlow(size = 12): Mesh {
-  const tex = radialTexture(
-    [
-      [0, 'rgba(139,123,255,0.85)'],
-      [0.32, 'rgba(91,140,255,0.38)'],
-      [0.6, 'rgba(34,211,238,0.12)'],
-      [1, 'rgba(34,211,238,0)'],
-    ],
-    256,
-  );
+const GLOW_STOPS = {
+  iris: [
+    [0, 'rgba(139,123,255,0.9)'],
+    [0.3, 'rgba(124,108,255,0.45)'],
+    [0.62, 'rgba(91,140,255,0.12)'],
+    [1, 'rgba(91,140,255,0)'],
+  ],
+  cyan: [
+    [0, 'rgba(34,211,238,0.75)'],
+    [0.35, 'rgba(34,211,238,0.28)'],
+    [0.7, 'rgba(91,140,255,0.06)'],
+    [1, 'rgba(91,140,255,0)'],
+  ],
+} as const satisfies Record<string, readonly (readonly [number, string])[]>;
+
+export function createGlow(size = 12, tone: keyof typeof GLOW_STOPS = 'iris'): Mesh {
+  const tex = radialTexture(GLOW_STOPS[tone].map(([o, c]) => [o, c] as [number, string]), 256);
   const mat = new MeshBasicMaterial({
     map: tex,
     transparent: true,

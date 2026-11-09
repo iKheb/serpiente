@@ -428,7 +428,7 @@ export function createBatteryLabel(w = 640, h = 820): CanvasTexture {
 /** Mapa de rugosidad (canal G) del vidrio esmerilado con el isotipo pulido. */
 export function createBackRoughness(w = 512, h = 1056): CanvasTexture {
   const { canvas, ctx } = makeCanvas(w, h);
-  ctx.fillStyle = 'rgb(0,150,0)';
+  ctx.fillStyle = 'rgb(0,128,0)';
   ctx.fillRect(0, 0, w, h);
   // isotipo brillante en el centro (pulido)
   const s = 150;
@@ -532,4 +532,26 @@ export function createWallpaper(w = 320, h = 660): CanvasTexture {
   }
   drawBrandMark(ctx, w / 2 - 40, h * 0.42 - 40, 80);
   return canvasTexture(canvas, { anisotropy: 4 });
+}
+
+/* ================================================== Bobina de carga inalámbrica */
+
+/** Bobina de cobre (anillos concéntricos) para el interior del vidrio trasero. */
+export function createCoilTexture(S = 512): CanvasTexture {
+  const { canvas, ctx } = makeCanvas(S, S);
+  const c = S / 2;
+  ctx.clearRect(0, 0, S, S);
+  const inner = c * (0.34 / 1.0);
+  for (let r = c * 0.985; r > inner; r -= 4.2) {
+    ctx.beginPath();
+    ctx.arc(c, c, r, 0, Math.PI * 2);
+    const t = (r - inner) / (c - inner);
+    ctx.strokeStyle = `rgb(${Math.round(196 + 30 * t)},${Math.round(116 + 26 * t)},${Math.round(58 + 14 * t)})`;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+  // terminales
+  ctx.fillStyle = '#d7a35e';
+  ctx.fillRect(c - 10, c + inner * 0.2, 20, c);
+  return canvasTexture(canvas, { anisotropy: 8 });
 }

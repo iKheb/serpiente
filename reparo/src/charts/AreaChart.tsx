@@ -72,6 +72,10 @@ export function AreaChart<T>(props: AreaChartProps<T>) {
     className,
   } = props;
 
+  // Clave estable: las metas suelen pasarse como arreglo literal en cada render.
+  const refKey = referenceLines?.map((r) => `${r.value}|${r.label ?? ''}|${r.color ?? ''}`).join(';') ?? '';
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const refs = useMemo(() => referenceLines, [refKey]);
   const reduced = useReducedMotion();
   const motionOn = animate && !reduced;
   const [measureRef, { width }] = useMeasure<HTMLDivElement>();
@@ -89,9 +93,9 @@ export function AreaChart<T>(props: AreaChartProps<T>) {
     series.forEach((sr, si) => {
       if (!hidden.has(sr.key)) vals.push(...raw[si]);
     });
-    referenceLines?.forEach((r) => vals.push(r.value));
+    refs?.forEach((r) => vals.push(r.value));
     return niceDomain(vals, tickCount);
-  }, [series, hidden, raw, referenceLines, tickCount]);
+  }, [series, hidden, raw, refs, tickCount]);
 
   const target = useMemo(() => [domain.min, domain.max, ...raw.flat()], [domain, raw]);
   const tw = useTweenedArray(target, 620, motionOn);
@@ -223,8 +227,8 @@ export function AreaChart<T>(props: AreaChartProps<T>) {
                 />
               ) : null,
             )}
-            {referenceLines && referenceLines.length > 0 && (
-              <RefLines lines={referenceLines} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="line" />
+            {refs && refs.length > 0 && (
+              <RefLines lines={refs} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="line" />
             )}
             {geo.series.map((g) => (
               <path
@@ -250,14 +254,14 @@ export function AreaChart<T>(props: AreaChartProps<T>) {
                   </g>
                 ) : null,
               )}
-            {referenceLines && referenceLines.length > 0 && (
-              <RefLines lines={referenceLines} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="label" />
+            {refs && refs.length > 0 && (
+              <RefLines lines={refs} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="label" />
             )}
           </g>
         )}
       </svg>
     );
-  }, [geo, width, height, gid, isEmpty, formatAxisValue, xLabels, shapeKey, motionOn, referenceLines, dots]);
+  }, [geo, width, height, gid, isEmpty, formatAxisValue, xLabels, shapeKey, motionOn, refs, dots]);
 
   return (
     <div className={[s.root, className].filter(Boolean).join(' ')}>

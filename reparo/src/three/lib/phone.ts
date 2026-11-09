@@ -38,6 +38,7 @@ import {
   createBackRoughness,
   createBatteryLabel,
   createChipLabel,
+  createCoilTexture,
   createFlashTexture,
   createLensTexture,
   createPcbTextures,
@@ -101,6 +102,9 @@ export interface PhoneMaterials {
   batteryLabel: MeshPhysicalMaterial;
   flex: MeshStandardMaterial;
   steel: MeshStandardMaterial;
+  coating: MeshStandardMaterial;
+  coil: MeshStandardMaterial;
+  magnet: MeshStandardMaterial;
 }
 
 export function createPhoneMaterials(screen: Texture | null, opts: { pcbSize?: number } = {}): PhoneMaterials {
@@ -156,7 +160,8 @@ export function createPhoneMaterials(screen: Texture | null, opts: { pcbSize?: n
       clearcoatRoughness: 0,
       iridescence: 1,
       iridescenceIOR: 1.85,
-      iridescenceThicknessRange: [240, 560],
+      iridescenceThicknessMinimum: 240,
+      iridescenceThicknessMaximum: 560,
     }),
     matteBlack: new MeshStandardMaterial({ color: new Color('#050506'), roughness: 0.6, metalness: 0 }),
     glossBlack: new MeshPhysicalMaterial({
@@ -184,6 +189,9 @@ export function createPhoneMaterials(screen: Texture | null, opts: { pcbSize?: n
     }),
     flex: new MeshStandardMaterial({ color: new Color(MAT.flex), roughness: 0.35, metalness: 0.35 }),
     steel: new MeshStandardMaterial({ color: new Color(MAT.steel), metalness: 1, roughness: 0.22 }),
+    coating: new MeshStandardMaterial({ color: new Color('#0d0e12'), roughness: 0.7, metalness: 0.2 }),
+    coil: new MeshStandardMaterial({ map: createCoilTexture(), transparent: true, roughness: 0.32, metalness: 0.85 }),
+    magnet: new MeshStandardMaterial({ color: new Color('#5a5d66'), roughness: 0.38, metalness: 0.9 }),
   };
 }
 
@@ -345,15 +353,16 @@ export function buildCameraModule(m: PhoneMaterials, opts: { plateau?: boolean }
     mesh(cap, m.lensGlass, lg);
     g.add(lg);
   }
+  const top = 0.0765; // superficie de la meseta
   // flash
   const flashRing = new RingGeometry(0.1, 0.122, 40);
-  mesh(new CircleGeometry(0.1, 40), m.flash, g, [0.42, 0.52, base + 0.003]);
-  mesh(flashRing, m.titaniumPolished, g, [0.42, 0.52, base + 0.004]);
+  mesh(new CircleGeometry(0.1, 40), m.flash, g, [0.42, 0.52, top + 0.0015]);
+  mesh(flashRing, m.titaniumPolished, g, [0.42, 0.52, top + 0.002]);
   // LiDAR
-  mesh(new CircleGeometry(0.088, 40), m.glossBlack, g, [0.42, -0.52, base + 0.003]);
-  mesh(flashRing.clone().scale(0.88, 0.88, 1), m.titaniumPolished, g, [0.42, -0.52, base + 0.004]);
+  mesh(new CircleGeometry(0.088, 40), m.glossBlack, g, [0.42, -0.52, top + 0.0015]);
+  mesh(flashRing.clone().scale(0.88, 0.88, 1), m.titaniumPolished, g, [0.42, -0.52, top + 0.002]);
   // micrófono
-  mesh(new CircleGeometry(0.026, 16), m.matteBlack, g, [0.62, 0.02, base + 0.003]);
+  mesh(new CircleGeometry(0.026, 16), m.matteBlack, g, [0.66, 0.02, top + 0.0015]);
   return g;
 }
 
@@ -368,6 +377,14 @@ export function buildBack(m: PhoneMaterials): Group {
     flipU: true,
   });
   mesh(glass, m.backGlass, g, [0, 0, -Z_FRONT - GLASS_T / 2]);
+  // interior: recubrimiento de grafito + bobina de carga inalámbrica con imanes
+  const inner = new ShapeGeometry(roundedRectShape(W - GLASS_INSET * 2 - 0.08, H - GLASS_INSET * 2 - 0.08, R - GLASS_INSET - 0.04));
+  mesh(inner, m.coating, g, [0, 0, -Z_FRONT + 0.0012]);
+  const coilY = -0.35;
+  mesh(new CircleGeometry(0.98, 64), m.coil, g, [0, coilY, -Z_FRONT + 0.004]);
+  const magnets = new RingGeometry(1.06, 1.18, 72, 1);
+  mesh(magnets, m.magnet, g, [0, coilY, -Z_FRONT + 0.004]);
+  mesh(new BoxGeometry(0.12, 0.34, 0.006), m.magnet, g, [0, coilY - 1.42, -Z_FRONT + 0.004]);
   const cam = buildCameraModule(m);
   cam.position.set(CAM.x, CAM.y, -Z_FRONT - GLASS_T + 0.004);
   cam.rotation.y = Math.PI;

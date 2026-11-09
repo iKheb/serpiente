@@ -29,12 +29,12 @@ const POSE = {
   hero: {
     assembled: { x: 0.07, y: -0.42, z: 0.045 },
     exploded: { x: 0.16, y: -0.7, z: 0.07 },
-    fill: 0.8,
+    fill: 0.88,
   },
   compact: {
     assembled: { x: 0.05, y: -0.32, z: 0.035 },
     exploded: { x: 0.12, y: -0.62, z: 0.05 },
-    fill: 0.86,
+    fill: 0.9,
   },
 } as const;
 
@@ -50,7 +50,9 @@ export class HeroEngine {
   private tilt = new Group();
   private pose = new Group();
   private glow: Mesh;
+  private glow2: Mesh;
   private shadow: Mesh;
+  private poseOverride: { x: number; y: number; z: number } | null = null;
   private bokeh: Bokeh;
   private host: HTMLElement;
   private o: HeroEngineOptions;
@@ -86,9 +88,12 @@ export class HeroEngine {
     this.stage.add(this.tilt);
     this.scene.add(this.stage);
 
-    this.glow = createGlow(compact ? 10 : 13);
-    this.glow.position.set(0.4, 0.3, -3.2);
+    this.glow = createGlow(compact ? 10 : 12.5, 'iris');
+    this.glow.position.set(-0.9, 0.9, -3.4);
     this.scene.add(this.glow);
+    this.glow2 = createGlow(compact ? 7.5 : 9.5, 'cyan');
+    this.glow2.position.set(1.5, -1.7, -3.8);
+    this.scene.add(this.glow2);
     this.shadow = createContactShadow(4.6, 1.05);
     this.shadow.position.set(0.15, -PHONE.H / 2 - 0.85, -0.6);
     this.scene.add(this.shadow);
@@ -114,6 +119,7 @@ export class HeroEngine {
     this.vp.onContextLost = () => o.onContextLost?.();
     this.fit(true);
     this.bind();
+    if (import.meta.env.DEV) (host as HTMLElement & { __engine?: HeroEngine }).__engine = this;
 
     if (o.autoExplode && !o.reducedMotion && o.exploded === undefined) {
       this.timers.push(
@@ -155,6 +161,7 @@ export class HeroEngine {
     this.lights.setTheme(theme);
     this.bokeh.setTheme(theme);
     setGlowTheme(this.glow, theme, this.o.variant === 'compact' ? 0.8 : 1);
+    setGlowTheme(this.glow2, theme, this.o.variant === 'compact' ? 0.5 : 0.62);
     (this.shadow.material as MeshBasicMaterial).opacity = light ? 0.32 : 0.7;
     this.vp.invalidate();
   }
@@ -180,6 +187,12 @@ export class HeroEngine {
       this.pointer.tx = this.pointer.ty = 0;
       if (this.o.exploded === undefined) this.explodeTarget = 0;
     }
+    this.vp.invalidate();
+  }
+
+  /** Depuración / composiciones fijas: fuerza la rotación base del teléfono. */
+  setPoseOverride(rot: { x: number; y: number; z: number } | null) {
+    this.poseOverride = rot;
     this.vp.invalidate();
   }
 
@@ -303,7 +316,8 @@ export class HeroEngine {
     this.fit();
 
     const P = POSE[this.o.variant];
-    this.pose.rotation.set(
+    if (this.poseOverride) this.pose.rotation.set(this.poseOverride.x, this.poseOverride.y, this.poseOverride.z);
+    else this.pose.rotation.set(
       MathUtils.lerp(P.assembled.x, P.exploded.x, e),
       MathUtils.lerp(P.assembled.y, P.exploded.y, e) + (reduced ? 0 : Math.sin(time * 0.42) * 0.045),
       MathUtils.lerp(P.assembled.z, P.exploded.z, e),
@@ -323,7 +337,8 @@ export class HeroEngine {
     const base = this.o.theme === 'light' ? 0.32 : 0.7;
     sm.opacity = base * (1 - fy * 1.6) * (1 - e * 0.35);
     this.shadow.scale.set(1 + fy * 0.5 + e * 0.35, 1 + fy * 0.3, 1);
-    this.glow.scale.setScalar(1 + e * 0.18 + (reduced ? 0 : Math.sin(time * 0.8) * 0.025));
+    this.glow.scale.setScalar(1 + e * 0.18 + (reduced ? 0 : Math.sin(time * 0.8) * 0.03));
+    this.glow2.scale.setScalar(1 + e * 0.12 + (reduced ? 0 : Math.cos(time * 0.65) * 0.035));
 
     this.bokeh.update(reduced ? 0 : time, this.vp.pixelRatio, this.vp.height / (2 * Math.tan(MathUtils.degToRad(this.camera.fov / 2))), 1);
 

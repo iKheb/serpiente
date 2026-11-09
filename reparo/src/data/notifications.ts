@@ -121,7 +121,7 @@ function stockRule(ctx: RuleContext): { drafts: NotificationDraft[]; resolvedPre
       title: agotado ? `Se agotó: ${i.nombre}` : `Stock bajo: ${i.nombre}`,
       body: agotado
         ? 'No quedan unidades. Pídelo al proveedor para no frenar reparaciones.'
-        : `Quedan ${plural(i.stock, 'unidad', 'unidades')} (mínimo ${i.stockMinimo}). Conviene reponerlo pronto.`,
+        : `${i.stock === 1 ? 'Queda 1 unidad' : `Quedan ${i.stock} unidades`} (mínimo ${i.stockMinimo}). Conviene reponerlo pronto.`,
       href: `#/inventario/${i.id}`,
       entityId: i.id,
       dedupeKey: `stock:${i.id}:${i.stock}`,
