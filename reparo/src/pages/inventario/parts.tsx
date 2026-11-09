@@ -3,7 +3,7 @@ import { useEffect, useRef, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Bell, Truck } from 'lucide-react';
 import { Badge, cx, usePrefersReducedMotion } from '@/ui';
-import { CATEGORY_ICON } from './lib';
+import { PartThumb } from '@/three';
 import { STOCK_STATUS_LABEL, stockStatus, type ExpenseCategory, type InventoryItem } from '@/data';
 import { CATEGORY_COLOR, STATUS_TONE, meterScale } from './lib';
 import styles from './parts.module.css';
@@ -29,7 +29,7 @@ export function ItemThumb({ categoria, size = 40, className }: ItemThumbProps) {
     >
       <span className={styles.thumbGlow} />
       <span className={styles.thumbArt} style={{ transform: `scale(${(size * 0.94) / bucket})` }}>
-        {(() => { const I = CATEGORY_ICON[categoria]; return <I style={{ width: bucket * 0.46, height: bucket * 0.46, color: 'var(--thumb-color)' }} strokeWidth={1.7} />; })()}
+        <PartThumb kind={categoria} size={bucket} label="" />
       </span>
     </span>
   );
