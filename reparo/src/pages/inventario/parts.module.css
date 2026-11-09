@@ -200,5 +200,11 @@
 }
 
 .thumbArt {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block;
+  translate: -50% -50%;
+  transform-origin: center;
+  line-height: 0;
 }

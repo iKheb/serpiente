@@ -19,6 +19,8 @@ export interface ItemThumbProps {
 
 /** Miniatura 3D del repuesto (PartThumb de '@/three') sobre una baldosa tintada por categoría. */
 export function ItemThumb({ categoria, size = 40, className }: ItemThumbProps) {
+  // Pocos tamaños de render (caché del renderizador 3D); se escala por CSS.
+  const bucket = size <= 48 ? 48 : size <= 96 ? 96 : 160;
   return (
     <span
       className={cx(styles.thumb, size >= 96 && styles.thumbLg, className)}
@@ -26,7 +28,9 @@ export function ItemThumb({ categoria, size = 40, className }: ItemThumbProps) {
       aria-hidden
     >
       <span className={styles.thumbGlow} />
-      <PartThumb kind={categoria} size={Math.round(size * 0.94)} label="" className={styles.thumbArt} />
+      <span className={styles.thumbArt} style={{ transform: `scale(${(size * 0.94) / bucket})` }}>
+        <PartThumb kind={categoria} size={bucket} label="" />
+      </span>
     </span>
   );
 }
