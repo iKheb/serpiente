@@ -9,7 +9,8 @@ export interface SrTableProps {
 /** Tabla visualmente oculta con los datos del gráfico (equivalente accesible). */
 export function SrTable({ caption, columns, rows }: SrTableProps) {
   return (
-    <table className={s.srOnly}>
+    <div className={s.srOnly}>
+    <table>
       <caption>{caption}</caption>
       <thead>
         <tr>
@@ -36,5 +37,6 @@ export function SrTable({ caption, columns, rows }: SrTableProps) {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }

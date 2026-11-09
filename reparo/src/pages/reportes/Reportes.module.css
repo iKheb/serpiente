@@ -757,3 +757,15 @@
     cursor: auto;
   }
 }
+
+/* Las tablas accesibles (sólo lectores de pantalla) de los gráficos no deben ensanchar la página en móvil. */
+[data-print-fit] table {
+  display: block !important;
+  max-width: 1px !important;
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap;
+}

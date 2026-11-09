@@ -109,8 +109,12 @@ try {
         if (!hasApi) await page.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
         await page.waitForTimeout(wait);
         const file = path.join(out, `${r.replace(/[^a-z0-9]+/gi, '_')}__${vpName}__${theme}.png`);
-        await page.screenshot({ path: file, fullPage: full });
-        console.log(file);
+        try {
+          await page.screenshot({ path: file, fullPage: full, timeout: 90_000 });
+          console.log(file);
+        } catch (e) {
+          errors.push(`[${vpName}/${theme}] captura fallida ${r}: ${String(e.message).split('\n')[0]}`);
+        }
       }
       await ctx.close();
     }
