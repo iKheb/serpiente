@@ -401,13 +401,24 @@ export async function runChecks(
     const ledger = await readLedger();
     let ledgerChanged = false;
 
+    const resolvedKeys: string[] = [];
     for (const prefix of resolvedPrefixes) {
       for (const k of Object.keys(ledger)) {
         if (k === prefix || k.startsWith(prefix)) {
           delete ledger[k];
+          resolvedKeys.push(k);
           ledgerChanged = true;
         }
       }
+    }
+    // Las notificaciones de problemas ya resueltos se archivan para que puedan volver a avisar.
+    if (resolvedKeys.length) {
+      await db.notifications
+        .where('dedupeKey')
+        .anyOf(resolvedKeys)
+        .modify((n) => {
+          n.dedupeKey = `${n.dedupeKey}~${now}`;
+        });
     }
     const cutoff = now - LEDGER_TTL_DAYS * DAY;
     for (const [k, ts] of Object.entries(ledger)) {

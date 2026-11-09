@@ -72,10 +72,17 @@ function requirePositiveInt(n: number, field = 'cantidad'): number {
   return n;
 }
 
-/** Tras bajar el stock: evalúa la regla de stock bajo (respetando los ajustes). */
-function triggerLowStock(item: InventoryItem): void {
+/**
+ * Tras bajar el stock: evalúa la regla de stock bajo (respetando los ajustes).
+ * Un fallo aquí nunca invalida la mutación, que ya se guardó.
+ */
+async function triggerLowStock(item: InventoryItem): Promise<void> {
   if (item.stock > item.stockMinimo) return;
-  runChecks(Date.now(), ['stock']).catch((err) => console.error('[reparo] aviso de stock bajo falló', err));
+  try {
+    await runChecks(Date.now(), ['stock']);
+  } catch (err) {
+    console.error('[reparo] aviso de stock bajo falló', err);
+  }
 }
 
 /* ---------------------------------- CRUD --------------------------------- */
@@ -148,7 +155,7 @@ export async function createInventoryItem(
       });
     }
   });
-  triggerLowStock(item);
+  await triggerLowStock(item);
   return item;
 }
 
@@ -185,7 +192,7 @@ export async function updateInventoryItem(id: ID, patch: Partial<InventoryItemIn
     });
     return updated;
   });
-  triggerLowStock(result);
+  await triggerLowStock(result);
   return result;
 }
 
@@ -281,7 +288,7 @@ export async function consumeInventory(
     });
     return { movement: mv, item: updated };
   });
-  triggerLowStock(item);
+  await triggerLowStock(item);
   return movement;
 }
 
@@ -406,7 +413,7 @@ export async function adjustInventory(itemId: ID, o: { nuevoStock: number; nota?
     });
     return { movement: mv, item: updated };
   });
-  triggerLowStock(item);
+  await triggerLowStock(item);
   return movement;
 }
 
@@ -438,7 +445,7 @@ export async function registerWaste(itemId: ID, o: { cantidad: number; nota?: st
     });
     return { movement: mv, item: updated };
   });
-  triggerLowStock(item);
+  await triggerLowStock(item);
   return movement;
 }
 

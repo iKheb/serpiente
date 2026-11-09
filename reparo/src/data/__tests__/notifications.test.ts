@@ -20,11 +20,12 @@ const DAY = 86_400_000;
 
 describe('runNotificationChecks', () => {
   it('deduplica: la misma alerta no se repite aunque se borre', async () => {
+    // Al crear un artículo agotado la regla de stock se evalúa de inmediato.
     await createInventoryItem(itemInput({ stock: 0, stockMinimo: 2 }));
-    const first = await runNotificationChecks();
-    expect(first.map((n) => n.kind)).toEqual(['stock_bajo']);
+    const stored = await db.notifications.toArray();
+    expect(stored.map((n) => n.kind)).toEqual(['stock_bajo']);
     expect(await runNotificationChecks()).toEqual([]);
-    await deleteNotification(first[0].id);
+    await deleteNotification(stored[0].id);
     expect(await runNotificationChecks()).toEqual([]);
     await clearNotifications();
     expect(await runNotificationChecks()).toEqual([]);
@@ -32,18 +33,21 @@ describe('runNotificationChecks', () => {
 
   it('vuelve a avisar si el problema se resolvió y reaparece', async () => {
     const item = await createInventoryItem(itemInput({ stock: 2, stockMinimo: 2 }));
-    expect(await runNotificationChecks()).toHaveLength(1);
+    expect(await db.notifications.count()).toBe(1);
     await restockInventory(item.id, { cantidad: 5, registrarGasto: false });
     expect(await runNotificationChecks()).toEqual([]);
+    const heard: AppNotification[] = [];
+    const off = onNotificationCreated((n) => heard.push(n));
     await consumeInventory(item.id, { cantidad: 5 });
-    const again = await runNotificationChecks();
-    expect(again).toHaveLength(1);
-    expect(again[0].dedupeKey).toBe(`stock:${item.id}:2`);
+    off();
+    expect(heard).toHaveLength(1);
+    expect(heard[0].dedupeKey).toBe(`stock:${item.id}:2`);
+    expect(await db.notifications.count()).toBe(2);
   });
 
   it('respeta los interruptores de ajustes', async () => {
-    await createInventoryItem(itemInput({ stock: 0 }));
     await updateSettings({ notifyLowStock: false });
+    await createInventoryItem(itemInput({ stock: 0 }));
     expect(await runNotificationChecks()).toEqual([]);
     await updateSettings({ notifyLowStock: true, notificationsEnabled: false });
     expect(await runNotificationChecks()).toEqual([]);
@@ -96,7 +100,9 @@ describe('runNotificationChecks', () => {
   });
 
   it('agrupa muchas alertas del mismo tipo y avisa a los oyentes', async () => {
-    for (let i = 0; i < 5; i++) await createInventoryItem(itemInput({ nombre: `Pieza ${i}`, stock: 0 }));
+    // Simula datos que llegan de golpe (importación): cinco artículos agotados a la vez.
+    for (let i = 0; i < 5; i++) await createInventoryItem(itemInput({ nombre: `Pieza ${i}`, stock: 5 }));
+    await db.inventory.toCollection().modify({ stock: 0 });
     const heard: AppNotification[] = [];
     const off = onNotificationCreated((n) => heard.push(n));
     const created = await runNotificationChecks();
