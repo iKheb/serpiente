@@ -89,11 +89,10 @@ function PasswordInput(props: { label: string; value: string; onChange: (v: stri
       suffix={
         <button
           type="button"
-          className={styles.linkButton}
+          className={styles.eyeButton}
           onClick={() => setShow((s) => !s)}
           aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           aria-pressed={show}
-          style={{ textDecoration: 'none', display: 'inline-flex', padding: 4 }}
         >
           {show ? <EyeOff size={16} aria-hidden /> : <Eye size={16} aria-hidden />}
         </button>
@@ -215,7 +214,7 @@ export function ProjectFields({
           <p id={`${codeId}-hint`} className={styles.hint}>
             En la computadora donde ya usas Reparo: Ajustes → Nube → "Código de conexión". Cópialo y pégalo aquí (o escanea el QR con la cámara y copia el texto).
           </p>
-          <div className={styles.actions} style={{ marginTop: 'var(--space-2)' }}>
+          <div className={styles.actionsTight}>
             <Button size="sm" variant="secondary" iconLeft={<ClipboardPaste size={15} />} onClick={paste} disabled={disabled}>
               Pegar
             </Button>

@@ -209,6 +209,36 @@
   box-shadow: var(--ring);
 }
 
+.actionsTight {
+  composes: actions;
+  margin-top: var(--space-2);
+}
+
+.eyeButton {
+  appearance: none;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-right: calc(var(--space-1) * -1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+
+.eyeButton:hover {
+  color: var(--text);
+  background: var(--surface-3);
+}
+
+.eyeButton:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
 /* -------------------------------- Avisos --------------------------------- */
 
 .notice {
