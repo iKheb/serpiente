@@ -13,7 +13,6 @@ import {
   Select,
   Tabs,
   toast,
-  useIsMobile,
   useLocalState,
   useMediaQuery,
 } from '@/ui';
@@ -72,7 +71,6 @@ function InventoryOverview() {
   const filtro = parseFiltro(route.query.get('filtro'));
   const items = useInventory();
   const stats = useInventoryStats();
-  const mobile = useIsMobile();
   const narrow = useMediaQuery('(max-width: 767px)');
   const [search, setSearch] = useState('');
   const [cat, setCat] = useState<ExpenseCategory | 'todas'>('todas');
