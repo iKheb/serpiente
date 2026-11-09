@@ -3,7 +3,7 @@
    Las alertas ya emitidas se recuerdan en `meta.notifiedKeys`, así que borrar
    una notificación no hace que se repita. */
 import { getISOWeek, getISOWeekYear } from 'date-fns';
-import type { AppNotification, Client, ID, InventoryItem, NotificationKind, Settings, Timestamp } from './types';
+import type { AppNotification, Client, ID, InventoryItem, NotificationKind, Settings, Summary, Timestamp } from './types';
 import { db, META_NOTIFIED, readSettings } from './db';
 import { newId } from './ids';
 import { deviceLabel, saldoCents, warrantyExpiresAt } from './derive';
@@ -196,26 +196,29 @@ function warrantyRule(ctx: RuleContext): NotificationDraft[] {
   return out;
 }
 
+/** Notificación de resumen de un día a partir de su resumen (null si no hubo movimiento). */
+export function dailySummaryDraft(dayTs: Timestamp, s: Summary): NotificationDraft | null {
+  if (s.servicios === 0 && s.gastadoCents === 0 && s.cobradoCents === 0) return null;
+  const balance =
+    s.gananciaCents >= 0 ? `ganaste ${formatMoney(s.gananciaCents)}` : `el balance quedó en ${formatMoney(s.gananciaCents)}`;
+  return {
+    kind: 'resumen',
+    title: 'Resumen del día',
+    body: `Cobraste ${formatMoney(s.cobradoCents)}, gastaste ${formatMoney(s.gastadoCents)} y ${balance} con ${plural(s.servicios, 'servicio', 'servicios')}.`,
+    href: '#/reportes?periodo=week',
+    entityId: null,
+    dedupeKey: `resumen:${dayKey(dayTs)}`,
+  };
+}
+
 async function dailySummaryRule(ctx: RuleContext): Promise<NotificationDraft[]> {
   const hour = Math.min(23, Math.max(0, ctx.settings.dailySummaryHour ?? 20));
   if (new Date(ctx.now).getHours() < hour) return [];
   const range = dayRange(ctx.now);
   const expenses = await db.expenses.where('fecha').between(range.start, range.end, true, false).toArray();
   const dayClients = ctx.clients.filter((c) => c.fecha >= range.start && c.fecha < range.end);
-  const s = computeSummary(range, dayClients, expenses);
-  if (s.servicios === 0 && s.gastadoCents === 0 && s.cobradoCents === 0) return [];
-  const balance =
-    s.gananciaCents >= 0 ? `ganaste ${formatMoney(s.gananciaCents)}` : `el balance quedó en ${formatMoney(s.gananciaCents)}`;
-  return [
-    {
-      kind: 'resumen',
-      title: 'Resumen del día',
-      body: `Cobraste ${formatMoney(s.cobradoCents)}, gastaste ${formatMoney(s.gastadoCents)} y ${balance} con ${plural(s.servicios, 'servicio', 'servicios')}.`,
-      href: '#/reportes?periodo=week',
-      entityId: null,
-      dedupeKey: `resumen:${dayKey(ctx.now)}`,
-    },
-  ];
+  const draft = dailySummaryDraft(ctx.now, computeSummary(range, dayClients, expenses));
+  return draft ? [draft] : [];
 }
 
 async function backupRule(ctx: RuleContext): Promise<NotificationDraft[]> {

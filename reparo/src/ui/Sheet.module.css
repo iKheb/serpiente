@@ -1,0 +1,177 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--surface-overlay);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  pointer-events: auto;
+}
+
+.panel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-1);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-xl);
+  pointer-events: auto;
+  outline: none;
+  overflow: hidden;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 var(--highlight-top);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Panel lateral (escritorio / tablet) */
+.side {
+  top: 8px;
+  right: 8px;
+  bottom: 8px;
+  width: min(520px, calc(100vw - 16px));
+  border-radius: var(--radius-xl);
+}
+
+.side.sm {
+  width: min(400px, calc(100vw - 16px));
+}
+.side.lg {
+  width: min(640px, calc(100vw - 16px));
+}
+.side.xl {
+  width: min(820px, calc(100vw - 16px));
+}
+
+/* Hoja inferior (móvil) */
+.bottom {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: calc(100dvh - 24px - var(--safe-top));
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  border-bottom: 0;
+  padding-bottom: var(--safe-bottom);
+}
+
+.header {
+  position: relative;
+  flex-shrink: 0;
+  padding: 18px 16px 14px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.bottom .header {
+  padding: 10px 14px 14px 20px;
+  touch-action: none;
+  cursor: grab;
+}
+
+.handle {
+  display: block;
+  width: 38px;
+  height: 5px;
+  margin: 0 auto 10px;
+  border-radius: var(--radius-full);
+  background: var(--border-strong);
+}
+
+.headRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--brand-soft);
+  color: var(--brand);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 22%, transparent);
+}
+
+.icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.headText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 3px;
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.022em;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.description {
+  font-size: var(--text-sm);
+  color: var(--text-3);
+  line-height: 1.45;
+}
+
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 22px 24px;
+}
+
+.bottom .body {
+  padding: 18px 20px 24px;
+}
+
+.flush {
+  padding: 0 !important;
+}
+
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-2) 70%, var(--surface-1));
+}
+
+.bottom .footer {
+  padding: 12px 16px;
+}
+
+.bottom .footer > :global(*) {
+  flex: 1;
+}

@@ -298,7 +298,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
               </g>
             ))}
             {referenceLines && referenceLines.length > 0 && (
-              <RefLines lines={referenceLines} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} />
+              <RefLines lines={referenceLines} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="line" />
             )}
             {geo.lines.map((l) => (
               <g key={l.series.key} className={[s.fade, l.visible ? '' : s.isHidden].join(' ')}>
@@ -322,6 +322,9 @@ export function BarChart<T>(props: BarChartProps<T>) {
                 )}
               </g>
             ))}
+            {referenceLines && referenceLines.length > 0 && (
+              <RefLines lines={referenceLines} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="label" />
+            )}
           </g>
         )}
       </svg>

@@ -128,8 +128,9 @@ export function Sparkline({
             anchor={active != null && dot ? { x: dot[0], y: dot[1] } : null}
             bounds={{ width, height }}
             offset={10}
+            placement="top"
             title={active != null && labels ? labels[active] : undefined}
-            rows={active != null ? [{ key: 'v', label: '', value: formatValue(data[active]), color: col }] : undefined}
+            compactValue={active != null ? formatValue(data[active]) : ''}
           />
         </>
       ) : (

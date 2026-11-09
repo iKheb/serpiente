@@ -1,0 +1,292 @@
+.wrap {
+  position: relative;
+  width: 100%;
+}
+
+.boxed {
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: clip;
+}
+
+.table {
+  width: 100%;
+  table-layout: auto;
+  font-size: var(--text-sm);
+}
+
+/* ------------------------------- Cabecera ------------------------------- */
+.table thead th {
+  height: 38px;
+  padding: 0 12px;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--text-3);
+  text-align: left;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--surface-2) 85%, var(--surface-1));
+  border-bottom: 1px solid var(--border);
+}
+
+.table thead th:first-child {
+  padding-left: 18px;
+}
+
+.table thead th:last-child {
+  padding-right: 18px;
+}
+
+.sticky thead th {
+  position: sticky;
+  top: var(--app-header-h);
+  z-index: 2;
+}
+
+.thText {
+  letter-spacing: 0.01em;
+}
+
+.sortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  margin: 0 -6px;
+  padding: 0 6px;
+  border-radius: var(--radius-xs);
+  color: inherit;
+  font: inherit;
+  letter-spacing: 0.01em;
+  transition: color var(--dur-fast), background var(--dur-fast);
+}
+
+.sortBtn:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.sortBtn svg {
+  width: 13px;
+  height: 13px;
+}
+
+.sortIdle {
+  opacity: 0;
+  transition: opacity var(--dur-fast);
+}
+
+.sortBtn:hover .sortIdle,
+.sortBtn:focus-visible .sortIdle {
+  opacity: 0.7;
+}
+
+.sortActive {
+  color: var(--text);
+}
+
+/* --------------------------------- Filas -------------------------------- */
+.table tbody td {
+  height: 52px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.dense tbody td {
+  height: 42px;
+  padding-block: 6px;
+}
+
+.table tbody td:first-child {
+  padding-left: 18px;
+}
+
+.table tbody td:last-child {
+  padding-right: 18px;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tbody tr {
+  position: relative;
+  transition: background var(--dur-instant) var(--ease-out);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.table tbody tr.clickable:hover {
+  background: var(--surface-hover);
+}
+
+.table tbody tr:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--border-focus);
+  border-radius: 0;
+}
+
+.selected,
+.table tbody tr.selected:hover {
+  background: var(--surface-selected);
+}
+
+.accented td:first-child {
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.skeletonRow td {
+  height: 52px;
+}
+
+.align-left {
+  text-align: left;
+}
+.align-right {
+  text-align: right;
+}
+.align-center {
+  text-align: center;
+}
+
+.align-right .sortBtn {
+  flex-direction: row-reverse;
+}
+
+.table td.align-right,
+.table th.align-right {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1099px) {
+  .hide-lg {
+    display: none;
+  }
+}
+
+@media (max-width: 1319px) {
+  .hide-xl {
+    display: none;
+  }
+}
+
+.empty {
+  border-top: 1px solid var(--border);
+}
+
+.footer {
+  padding: 10px 18px;
+  border-top: 1px solid var(--border);
+  font-size: var(--text-xs);
+  color: var(--text-3);
+}
+
+/* -------------------------------- Móvil --------------------------------- */
+.cards {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: clip;
+}
+
+.cardItem {
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+
+.cardItem:last-child {
+  border-bottom: 0;
+}
+
+.cardItem[style*='--accent']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent);
+}
+
+.cardButton,
+.cardStatic {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  text-align: left;
+  min-height: 56px;
+}
+
+.cardButton {
+  transition: background var(--dur-instant);
+}
+
+.cardButton:active {
+  background: var(--surface-active);
+}
+
+.cardButton:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--border-focus);
+  border-radius: 0;
+}
+
+.cardItem.selected {
+  background: var(--surface-selected);
+}
+
+.autoCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.autoRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--text-sm);
+}
+
+.autoRow dt {
+  color: var(--text-3);
+}
+
+.autoRow dd {
+  text-align: right;
+  min-width: 0;
+}
+
+.cardSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cardSkeleton:last-child {
+  border-bottom: 0;
+}
+
+.cardSkeletonText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobileFooter {
+  padding: 10px 4px;
+  font-size: var(--text-xs);
+  color: var(--text-3);
+  text-align: center;
+}

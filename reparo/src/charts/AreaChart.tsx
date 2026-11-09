@@ -224,7 +224,7 @@ export function AreaChart<T>(props: AreaChartProps<T>) {
               ) : null,
             )}
             {referenceLines && referenceLines.length > 0 && (
-              <RefLines lines={referenceLines} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} />
+              <RefLines lines={referenceLines} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="line" />
             )}
             {geo.series.map((g) => (
               <path
@@ -250,6 +250,9 @@ export function AreaChart<T>(props: AreaChartProps<T>) {
                   </g>
                 ) : null,
               )}
+            {referenceLines && referenceLines.length > 0 && (
+              <RefLines lines={referenceLines} y={geo.y} left={geo.left} right={geo.right} top={geo.top} formatAxisValue={formatAxisValue} part="label" />
+            )}
           </g>
         )}
       </svg>

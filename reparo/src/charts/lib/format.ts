@@ -20,7 +20,7 @@ export function compact(n: number, prefix = ''): string {
   return `${sign}${prefix}${plain.format(abs)}`;
 }
 
-const pct = new Intl.NumberFormat('es-MX', { style: 'percent', maximumFractionDigits: 1 });
+const pct = new Intl.NumberFormat('es-MX', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 });
 export const formatPercent = (ratio: number) => pct.format(ratio);
 
 /* ---- Medición de texto para evitar solapamientos ---- */

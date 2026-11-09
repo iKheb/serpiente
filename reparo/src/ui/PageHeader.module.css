@@ -1,0 +1,146 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: var(--space-6);
+}
+
+.crumbs ol {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  font-size: var(--text-sm);
+  color: var(--text-3);
+}
+
+.crumbs li {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.crumbs a {
+  color: var(--text-3);
+  border-radius: var(--radius-xs);
+  padding: 2px 4px;
+  margin: -2px -4px;
+  transition: color var(--dur-fast), background var(--dur-fast);
+}
+
+.crumbs a:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.crumbs [aria-current='page'] {
+  color: var(--text-2);
+}
+
+.crumbSep {
+  width: 13px;
+  height: 13px;
+  color: var(--text-4);
+  margin: 0 4px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  padding: 0 8px 0 4px;
+  margin-left: -6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-2);
+  transition: color var(--dur-fast), background var(--dur-fast);
+}
+
+.back:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.back svg {
+  width: 16px;
+  height: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.titleBlock {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  flex: 1 1 320px;
+}
+
+.leading {
+  flex-shrink: 0;
+}
+
+.titleText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.titleLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.032em;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+@media (max-width: 599px) {
+  .title {
+    font-size: 23px;
+  }
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.subtitle {
+  font-size: var(--text-base);
+  color: var(--text-3);
+  line-height: 1.45;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 599px) {
+  .actions {
+    width: 100%;
+  }
+
+  .actions > :global(*) {
+    flex: 1 1 auto;
+  }
+}

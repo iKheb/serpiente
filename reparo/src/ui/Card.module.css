@@ -88,9 +88,9 @@
   border-radius: inherit;
   padding: 1px;
   background: linear-gradient(160deg, color-mix(in srgb, var(--brand) 55%, transparent), transparent 40%, transparent 65%, color-mix(in srgb, var(--brand-2) 35%, transparent));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(black 0 0) content-box, linear-gradient(black 0 0);
   -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
   opacity: 0;
   transition: opacity var(--dur-base) var(--ease-out);
   pointer-events: none;

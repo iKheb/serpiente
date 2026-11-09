@@ -123,6 +123,7 @@ export function RefLines({
   right,
   top,
   formatAxisValue,
+  part,
 }: {
   lines: readonly ReferenceLine[];
   y: (v: number) => number;
@@ -130,6 +131,8 @@ export function RefLines({
   right: number;
   top: number;
   formatAxisValue: ValueFormatter;
+  /** `line` se dibuja bajo las series; `label` encima de todo. */
+  part: 'line' | 'label';
 }) {
   return (
     <g>
@@ -144,12 +147,17 @@ export function RefLines({
         const px = right - tw;
         return (
           <g key={i}>
-            <line className={s.refLine} x1={left} x2={right} y1={yy} y2={yy} style={{ stroke: color }} />
-            <rect className={s.refPill} x={px} y={py} width={tw} height={ph} rx={6} />
-            <circle cx={px + 9} cy={py + ph / 2} r={2.5} style={{ fill: color }} />
-            <text className={s.refText} x={px + 15} y={py + ph / 2} dy="0.34em">
-              {text}
-            </text>
+            {part === 'line' ? (
+              <line className={s.refLine} x1={left} x2={right} y1={yy} y2={yy} style={{ stroke: color }} />
+            ) : (
+              <>
+                <rect className={s.refPill} x={px} y={py} width={tw} height={ph} rx={6} />
+                <circle cx={px + 9} cy={py + ph / 2} r={2.5} style={{ fill: color }} />
+                <text className={s.refText} x={px + 15} y={py + ph / 2} dy="0.34em">
+                  {text}
+                </text>
+              </>
+            )}
           </g>
         );
       })}

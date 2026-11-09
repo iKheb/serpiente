@@ -188,6 +188,9 @@ export function summarizeClientEdit(changes: FieldChange[], after: Client): stri
   const others = changes.filter((c) => c.field !== 'estado' && c.field !== 'fechaEntrega');
   if (estado) {
     const label = REPAIR_STATUS_LABEL[after.estado];
+    if (after.estado === 'entregado' && pago && Number(pago.to) > Number(pago.from) && others.length === 1) {
+      return `Entregó el equipo y cobró ${formatMoney(Number(pago.to) - Number(pago.from))}`;
+    }
     const extra = others.length;
     if (extra === 0) return `Cambió el estado a ${label}`;
     return `Cambió el estado a ${label} y editó ${plural(extra, 'campo más', 'campos más')}`;

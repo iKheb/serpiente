@@ -47,9 +47,10 @@ export function vapidKeyObjects(publicKey, privateKey) {
   if (d.length !== 32) throw new Error('La llave privada VAPID debe tener 32 bytes.');
   const x = b64url.encode(pub.subarray(1, 33));
   const y = b64url.encode(pub.subarray(33, 65));
+  const ecdh = crypto.createECDH('prime256v1');
+  ecdh.setPrivateKey(d);
+  if (!ecdh.getPublicKey().equals(pub)) throw new Error('La llave pública VAPID no corresponde a la privada.');
   const priv = crypto.createPrivateKey({ key: { kty: 'EC', crv: 'P-256', x, y, d: b64url.encode(d) }, format: 'jwk' });
-  const derived = publicFromJwk(priv.export({ format: 'jwk' }));
-  if (!derived.equals(pub)) throw new Error('La llave pública VAPID no corresponde a la privada.');
   const pubKey = crypto.createPublicKey({ key: { kty: 'EC', crv: 'P-256', x, y }, format: 'jwk' });
   return { privateKeyObject: priv, publicKeyObject: pubKey };
 }
@@ -233,10 +234,11 @@ export function topicFor(tag) {
 /** Recorta el payload para que quepa en un registro (4 KB). */
 export function encodePayload(payload) {
   let json = JSON.stringify(payload);
-  if (Buffer.byteLength(json) > MAX_PLAINTEXT) {
+  let body = String(payload.body ?? '');
+  while (Buffer.byteLength(json) > MAX_PLAINTEXT && body.length > 0) {
     const over = Buffer.byteLength(json) - MAX_PLAINTEXT;
-    const body = String(payload.body ?? '');
-    json = JSON.stringify({ ...payload, body: body.slice(0, Math.max(0, body.length - over - 1)) + '…' });
+    body = body.slice(0, Math.max(0, body.length - over - 8));
+    json = JSON.stringify({ ...payload, body: `${body}…` });
   }
   return Buffer.from(json);
 }

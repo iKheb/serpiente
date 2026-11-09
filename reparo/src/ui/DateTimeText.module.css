@@ -1,0 +1,17 @@
+.time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--text-3);
+}
+
+.sep {
+  color: var(--text-4);
+}
+
+.exact {
+  color: inherit;
+  opacity: 0.85;
+}

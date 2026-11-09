@@ -21,6 +21,10 @@ export interface ChartTooltipProps {
   offset?: number;
   /** `center`: centrado verticalmente en el ancla. `start`: el borde superior cerca del ancla. */
   align?: 'center' | 'start';
+  /** `side` (por defecto): a un lado del ancla. `top`: centrado encima (puede salir del contenedor). */
+  placement?: 'side' | 'top';
+  /** Variante compacta de una sola línea: `título · valor`. */
+  compactValue?: string;
   title?: ReactNode;
   rows?: readonly TooltipRow[];
   /** Fila de total al pie (p. ej. barras apiladas). */
@@ -34,7 +38,21 @@ export interface ChartTooltipProps {
  * Tooltip flotante: se coloca a la derecha del ancla y se voltea a la izquierda
  * si no cabe; nunca se sale verticalmente. Se desliza suavemente entre puntos.
  */
-export function ChartTooltip({ open, anchor, bounds, offset = 14, align = 'center', title, rows, total, footer, children, className }: ChartTooltipProps) {
+export function ChartTooltip({
+  open,
+  anchor,
+  bounds,
+  offset = 14,
+  align = 'center',
+  placement = 'side',
+  compactValue,
+  title,
+  rows,
+  total,
+  footer,
+  children,
+  className,
+}: ChartTooltipProps) {
   const ref = useRef<HTMLDivElement>(null);
   const wasOpen = useRef(false);
 
@@ -49,6 +67,14 @@ export function ChartTooltip({ open, anchor, bounds, offset = 14, align = 'cente
     const tw = el.offsetWidth;
     const th = el.offsetHeight;
     const pad = 4;
+    if (placement === 'top') {
+      const left = Math.max(-pad, Math.min(bounds.width - tw + pad, anchor.x - tw / 2));
+      const top = anchor.y - offset - th;
+      el.dataset.glide = wasOpen.current ? '1' : '0';
+      el.style.transform = `translate3d(${Math.round(left)}px, ${Math.round(top)}px, 0)`;
+      wasOpen.current = true;
+      return;
+    }
     let left = anchor.x + offset;
     if (left + tw > bounds.width - pad) left = anchor.x - offset - tw;
     if (left < pad) left = Math.max(pad, Math.min(bounds.width - tw - pad, anchor.x - tw / 2));
@@ -61,8 +87,14 @@ export function ChartTooltip({ open, anchor, bounds, offset = 14, align = 'cente
   });
 
   return (
-    <div ref={ref} className={[s.tooltip, open && anchor ? s.open : '', className].filter(Boolean).join(' ')} aria-hidden role="presentation">
+    <div
+      ref={ref}
+      className={[s.tooltip, open && anchor ? s.open : '', compactValue != null ? s.compact : '', className].filter(Boolean).join(' ')}
+      aria-hidden
+      role="presentation"
+    >
       {title != null && <div className={s.title}>{title}</div>}
+      {compactValue != null && <span className={s.compactValue}>{compactValue}</span>}
       {rows && rows.length > 0 && (
         <div className={s.rows}>
           {rows.map((r) => (
