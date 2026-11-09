@@ -53,3 +53,22 @@ describe('errores traducidos', () => {
     expect(toCloudError({ message: 'boom', status: 503 }).message).toMatch(/pausado/);
   });
 });
+
+describe('config predeterminada del build (VITE_REPARO_CLOUD_URL / KEY)', () => {
+  it('se usa si no hay config del usuario; la del usuario tiene prioridad', async () => {
+    const cfgMod = await import('../config');
+    const build = { url: 'https://abcdefghijklmnopqrst.supabase.co', anonKey: FAKE_PUBLISHABLE };
+    cfgMod.__setBuildConfigForTests(build);
+    await cfgMod.clearCloudConfig();
+    expect(cfgMod.hasBuiltInConfig()).toBe(true);
+    expect(cfgMod.getCloudConfigState()).toMatchObject({ config: build, source: 'build', builtIn: true });
+    const user = { url: 'https://zyxwvutsrqponmlkjihg.supabase.co', anonKey: FAKE_ANON };
+    await cfgMod.saveCloudConfig(user);
+    expect(cfgMod.getCloudConfigState()).toMatchObject({ config: user, source: 'user', builtIn: true });
+    await cfgMod.clearCloudConfig();
+    expect(cfgMod.getCloudConfigState().source).toBe('build');
+    cfgMod.__setBuildConfigForTests(null);
+    await cfgMod.loadCloudConfig();
+    expect(cfgMod.getCloudConfigState()).toMatchObject({ config: null, builtIn: false });
+  });
+});

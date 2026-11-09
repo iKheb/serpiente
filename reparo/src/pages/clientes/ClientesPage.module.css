@@ -59,7 +59,7 @@
     flex: 1;
   }
   .sortSel {
-    flex: 0 1 150px;
+    flex: 0 0 158px;
     min-width: 0;
   }
   .sortSel button {

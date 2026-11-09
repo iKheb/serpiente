@@ -52,6 +52,22 @@
   line-height: 0;
 }
 
+.catGlyph {
+  width: 46%;
+  height: 46%;
+  stroke-width: 1.9;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+/* El placeholder genérico de PartThumb se sustituye por el glifo de la categoría. */
+.catArt > span > span {
+  display: none;
+}
+
+.catIcon:has(img) .catGlyph {
+  opacity: 0;
+}
+
 .cat-xs {
   width: 20px;
   height: 20px;
