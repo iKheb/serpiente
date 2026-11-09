@@ -272,3 +272,21 @@ describe('sincronización en la nube (Supabase falso)', () => {
     await expect(phone.client.cloudSignUp('no-es-correo', 'secreta123')).rejects.toThrow('correo no es válido');
   });
 });
+
+describe('descarga con margen', () => {
+  it('recupera una fila confirmada tarde con un seq menor al cursor', async () => {
+    await pc.client.cloudSignUp('taller@example.com', 'secreta123');
+    await pc.data.createClient(pc.helpers.clientInput());
+    await pc.sync.cloudSyncNow();
+    await phone.client.cloudSignIn('taller@example.com', 'secreta123');
+    await phone.sync.restoreFromCloud();
+    const user = server.users.get('taller@example.com')!.id;
+    const cursor = (await phone.data.db.meta.get(phone.engine.META.cursor))?.value as number;
+    // Simula una transacción lenta: su seq (cursor − 1, hueco libre) se hace visible después.
+    const late = { ...(await pc.data.db.clients.toArray())[0], id: 'tarde', nombre: 'Llegó tarde', updatedAt: Date.now() };
+    server.seq += 5;
+    server.rows.set(`${user}|clients|tarde`, { user_id: user, tbl: 'clients', id: 'tarde', data: JSON.stringify(late), updated_at: late.updatedAt, device_id: 'otro', seq: cursor - 0.5 });
+    await phone.sync.cloudSyncNow();
+    expect((await phone.data.db.clients.get('tarde'))?.nombre).toBe('Llegó tarde');
+  });
+});

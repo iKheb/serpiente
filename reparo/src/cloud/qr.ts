@@ -353,3 +353,17 @@ export function drawQrToCanvas(canvas: HTMLCanvasElement, qr: QrCode, opts: { px
     }
   }
 }
+
+/** Sólo para pruebas: piezas internas para verificar el código con un lector independiente. */
+export const __qrInternals = {
+  numRawDataModules,
+  eccCodewordsPerBlock: (ver: number, ecc: QrEcc) => ECC_CODEWORDS_PER_BLOCK[ECC_INDEX[ecc]][ver],
+  numBlocks: (ver: number, ecc: QrEcc) => NUM_ERROR_CORRECTION_BLOCKS[ECC_INDEX[ecc]][ver],
+  functionMask(ver: number): boolean[][] {
+    const m = new Matrix(ver * 4 + 17);
+    drawFunctionPatterns(m, ver, 'L');
+    return m.isFunction;
+  },
+  maskBit,
+  gfMul,
+};
