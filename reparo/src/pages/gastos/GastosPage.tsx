@@ -59,7 +59,7 @@ function periodRange(f: PeriodFilter, now: number, ws: 0 | 1): { range: DateRang
   return { range: { start: 0, end: 8_640_000_000_000 }, label: 'Todo el historial' };
 }
 
-type FormState = { key: string; mode: 'create' | 'edit'; id?: ID; initial: ExpenseInput };
+type FormState = { key: string; reqKey: string; mode: 'create' | 'edit'; id?: ID; initial: ExpenseInput };
 
 export default function GastosPage() {
   const route = useRoute();
@@ -131,7 +131,7 @@ export default function GastosPage() {
   const [formOpen, setFormOpen] = useState(false);
 
   // Abre / cierra el formulario según la query (sin desmontarlo para animar la salida).
-  if (wantKey && dataReady && (!formOpen || form?.key !== wantKey)) {
+  if (wantKey && dataReady && (!formOpen || form?.reqKey !== wantKey)) {
     let next: FormState | null = null;
     if (creating) {
       const base = emptyExpenseInput();
@@ -151,12 +151,12 @@ export default function GastosPage() {
           }
         : { ...base, fecha: Date.now() };
       if (prefillClient && clientsById.has(prefillClient)) initial.clienteId = prefillClient;
-      next = { key: wantKey + ':' + Date.now(), mode: 'create', initial };
-      next.key = wantKey;
+      next = { key: `${wantKey}#${Date.now()}`, reqKey: wantKey, mode: 'create', initial };
     } else if (editing && routeExpense) {
       const x = routeExpense;
       next = {
-        key: wantKey,
+        key: `${wantKey}#${Date.now()}`,
+        reqKey: wantKey,
         mode: 'edit',
         id: x.id,
         initial: {
