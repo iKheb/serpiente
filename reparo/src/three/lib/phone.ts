@@ -108,25 +108,25 @@ export interface PhoneMaterials {
 }
 
 export function createPhoneMaterials(screen: Texture | null, opts: { pcbSize?: number } = {}): PhoneMaterials {
-  const pcb = createPcbTextures(opts.pcbSize ?? 1024);
-  const pinsTex = createPinsTexture();
-  return {
-    titanium: new MeshPhysicalMaterial({
+  let pcbMemo: ReturnType<typeof createPcbTextures> | null = null;
+  const pcbTex = () => (pcbMemo ??= createPcbTextures(opts.pcbSize ?? 1024));
+  const f: { [K in keyof PhoneMaterials]: () => PhoneMaterials[K] } = {
+    titanium: () => new MeshPhysicalMaterial({
       color: new Color(MAT.titanium),
       metalness: 1,
       roughness: 0.3,
       clearcoat: 0.25,
       clearcoatRoughness: 0.35,
     }),
-    titaniumPolished: new MeshPhysicalMaterial({ color: new Color('#b8bbc3'), metalness: 1, roughness: 0.14 }),
-    frontGlass: new MeshPhysicalMaterial({
+    titaniumPolished: () => new MeshPhysicalMaterial({ color: new Color('#b8bbc3'), metalness: 1, roughness: 0.14 }),
+    frontGlass: () => new MeshPhysicalMaterial({
       color: new Color('#030304'),
       metalness: 0,
       roughness: 0.05,
       clearcoat: 1,
       clearcoatRoughness: 0.02,
     }),
-    display: new MeshPhysicalMaterial({
+    display: () => new MeshPhysicalMaterial({
       color: new Color('#000000'),
       emissive: new Color('#ffffff'),
       emissiveMap: screen,
@@ -137,21 +137,21 @@ export function createPhoneMaterials(screen: Texture | null, opts: { pcbSize?: n
       clearcoatRoughness: 0.02,
       toneMapped: false,
     }),
-    backGlass: new MeshPhysicalMaterial({
+    backGlass: () => new MeshPhysicalMaterial({
       color: new Color(MAT.backGlass),
       metalness: 0,
       roughness: 1,
       roughnessMap: createBackRoughness(),
       specularIntensity: 1,
     }),
-    plateau: new MeshPhysicalMaterial({
+    plateau: () => new MeshPhysicalMaterial({
       color: new Color(MAT.backGlass),
       metalness: 0,
       roughness: 0.1,
       clearcoat: 1,
       clearcoatRoughness: 0.03,
     }),
-    lensGlass: new MeshPhysicalMaterial({
+    lensGlass: () => new MeshPhysicalMaterial({
       color: new Color('#ffffff'),
       map: createLensTexture(),
       metalness: 0,
@@ -163,36 +163,46 @@ export function createPhoneMaterials(screen: Texture | null, opts: { pcbSize?: n
       iridescenceThicknessMinimum: 240,
       iridescenceThicknessMaximum: 560,
     }),
-    matteBlack: new MeshStandardMaterial({ color: new Color('#050506'), roughness: 0.6, metalness: 0 }),
-    glossBlack: new MeshPhysicalMaterial({
+    matteBlack: () => new MeshStandardMaterial({ color: new Color('#050506'), roughness: 0.6, metalness: 0 }),
+    glossBlack: () => new MeshPhysicalMaterial({
       color: new Color('#040405'),
       roughness: 0.12,
       clearcoat: 1,
       clearcoatRoughness: 0.05,
     }),
-    flash: new MeshPhysicalMaterial({ map: createFlashTexture(), roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.05 }),
-    antenna: new MeshStandardMaterial({ color: new Color('#34363c'), roughness: 0.55, metalness: 0 }),
-    pcb: new MeshStandardMaterial({ map: pcb.map, roughnessMap: pcb.mr, metalnessMap: pcb.mr, roughness: 1, metalness: 1 }),
-    chip: new MeshStandardMaterial({ color: new Color('#15161b'), roughness: 0.45, metalness: 0.15 }),
-    socTop: new MeshStandardMaterial({ map: createChipLabel('RP A1', 'RP · 2646', true), roughness: 0.42, metalness: 0.15 }),
-    nandTop: new MeshStandardMaterial({ map: createChipLabel('NAND', 'RP 256G'), roughness: 0.45, metalness: 0.15 }),
-    shield: new MeshStandardMaterial({ color: new Color('#c9ccd4'), metalness: 1, roughness: 0.3 }),
-    gold: new MeshStandardMaterial({ color: new Color('#d8ae5a'), metalness: 1, roughness: 0.25 }),
-    pins: new MeshStandardMaterial({ map: pinsTex, roughness: 0.4, metalness: 0.5 }),
-    smd: new MeshStandardMaterial({ color: new Color('#ffffff'), roughness: 0.5, metalness: 0.1 }),
-    batteryBody: new MeshStandardMaterial({ color: new Color('#16171c'), roughness: 0.45, metalness: 0.25 }),
-    batteryLabel: new MeshPhysicalMaterial({
+    flash: () => new MeshPhysicalMaterial({ map: createFlashTexture(), roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.05 }),
+    antenna: () => new MeshStandardMaterial({ color: new Color('#34363c'), roughness: 0.55, metalness: 0 }),
+    pcb: () => new MeshStandardMaterial({ map: pcbTex().map, roughnessMap: pcbTex().mr, metalnessMap: pcbTex().mr, roughness: 1, metalness: 1 }),
+    chip: () => new MeshStandardMaterial({ color: new Color('#15161b'), roughness: 0.45, metalness: 0.15 }),
+    socTop: () => new MeshStandardMaterial({ map: createChipLabel('RP A1', 'RP · 2646', true), roughness: 0.42, metalness: 0.15 }),
+    nandTop: () => new MeshStandardMaterial({ map: createChipLabel('NAND', 'RP 256G'), roughness: 0.45, metalness: 0.15 }),
+    shield: () => new MeshStandardMaterial({ color: new Color('#c9ccd4'), metalness: 1, roughness: 0.3 }),
+    gold: () => new MeshStandardMaterial({ color: new Color('#d8ae5a'), metalness: 1, roughness: 0.25 }),
+    pins: () => new MeshStandardMaterial({ map: createPinsTexture(), roughness: 0.4, metalness: 0.5 }),
+    smd: () => new MeshStandardMaterial({ color: new Color('#ffffff'), roughness: 0.5, metalness: 0.1 }),
+    batteryBody: () => new MeshStandardMaterial({ color: new Color('#16171c'), roughness: 0.45, metalness: 0.25 }),
+    batteryLabel: () => new MeshPhysicalMaterial({
       map: createBatteryLabel(),
       roughness: 0.42,
       clearcoat: 0.6,
       clearcoatRoughness: 0.28,
     }),
-    flex: new MeshStandardMaterial({ color: new Color(MAT.flex), roughness: 0.35, metalness: 0.35 }),
-    steel: new MeshStandardMaterial({ color: new Color(MAT.steel), metalness: 1, roughness: 0.22 }),
-    coating: new MeshStandardMaterial({ color: new Color('#0d0e12'), roughness: 0.7, metalness: 0.2 }),
-    coil: new MeshStandardMaterial({ map: createCoilTexture(), transparent: true, roughness: 0.32, metalness: 0.85 }),
-    magnet: new MeshStandardMaterial({ color: new Color('#5a5d66'), roughness: 0.38, metalness: 0.9 }),
+    flex: () => new MeshStandardMaterial({ color: new Color(MAT.flex), roughness: 0.35, metalness: 0.35 }),
+    steel: () => new MeshStandardMaterial({ color: new Color(MAT.steel), metalness: 1, roughness: 0.22 }),
+    coating: () => new MeshStandardMaterial({ color: new Color('#0d0e12'), roughness: 0.7, metalness: 0.2 }),
+    coil: () => new MeshStandardMaterial({ map: createCoilTexture(), transparent: true, roughness: 0.32, metalness: 0.85 }),
+    magnet: () => new MeshStandardMaterial({ color: new Color('#5a5d66'), roughness: 0.38, metalness: 0.9 }),
   };
+  // Creación perezosa: cada material (y sus texturas) se crea al primer uso.
+  const cache: Partial<PhoneMaterials> = {};
+  const out = {} as PhoneMaterials;
+  for (const k of Object.keys(f) as (keyof PhoneMaterials)[]) {
+    Object.defineProperty(out, k, {
+      enumerable: true,
+      get: () => (cache[k] ??= f[k]() as never),
+    });
+  }
+  return out;
 }
 
 /* ============================================================== Utilidades */

@@ -1,4 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { Blob as NodeBlob } from 'node:buffer';
+
+// fake-indexeddb clona con structuredClone de Node, que no conserva el Blob de jsdom
+// (en el navegador IndexedDB guarda Blobs de forma nativa). Usamos el Blob de Node.
+globalThis.Blob = NodeBlob as unknown as typeof Blob;
 import { db } from '../db';
 import { createClient, updateClient } from '../clients';
 import { createExpense } from '../expenses';
@@ -12,7 +17,7 @@ import { clientInput, expenseInput, itemInput, resetDb } from './helpers';
 beforeEach(resetDb);
 
 async function readBlob(b: Blob): Promise<string> {
-  return new TextDecoder().decode(new Uint8Array(await b.arrayBuffer()));
+  return new TextDecoder('utf-8', { ignoreBOM: true }).decode(new Uint8Array(await b.arrayBuffer()));
 }
 
 async function seedSmall() {

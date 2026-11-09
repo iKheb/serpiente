@@ -1,4 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { Blob as NodeBlob } from 'node:buffer';
+
+// fake-indexeddb clona con structuredClone de Node, que no conserva el Blob de jsdom
+// (en el navegador IndexedDB guarda Blobs de forma nativa). Usamos el Blob de Node.
+globalThis.Blob = NodeBlob as unknown as typeof Blob;
 import { db } from '../db';
 import { createClient } from '../clients';
 import { addClientPhotos, deleteClientPhoto, updateClientPhoto } from '../photos';
