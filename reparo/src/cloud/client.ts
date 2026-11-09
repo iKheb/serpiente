@@ -304,10 +304,23 @@ export async function testCloudConfig(cfg: CloudConfig): Promise<{ ok: boolean; 
     if (!authRes.ok) return { ok: false, message: `Esa URL respondió con un error (${authRes.status}). ¿Es la "Project URL" correcta?` };
     const settings = (await authRes.json().catch(() => null)) as { external?: { email?: boolean }; mailer_autoconfirm?: boolean } | null;
 
-    const rest = await fetch(`${cfg.url}/rest/v1/reparo_rows?select=id&limit=1`, { headers, signal: ctrl.signal, cache: 'no-store' });
-    if (!rest.ok) {
-      const body = (await rest.json().catch(() => null)) as { code?: string; message?: string } | null;
-      const e = toCloudError({ ...body, status: rest.status });
+    // Sin sesión, una tabla/función existente responde "permiso denegado" (42501):
+    // eso confirma que schema.sql ya se ejecutó. "No existe" (PGRST205/PGRST202) indica que falta.
+    const probes = [
+      fetch(`${cfg.url}/rest/v1/reparo_rows?select=id&limit=1`, { headers, signal: ctrl.signal, cache: 'no-store' }),
+      fetch(`${cfg.url}/rest/v1/rpc/reparo_push`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: '{"rows":[]}',
+        signal: ctrl.signal,
+        cache: 'no-store',
+      }),
+    ];
+    for (const res of await Promise.all(probes)) {
+      if (res.ok) continue;
+      const body = (await res.json().catch(() => null)) as { code?: string; message?: string } | null;
+      if (body?.code === '42501') continue;
+      const e = toCloudError({ ...body, status: res.status });
       return { ok: false, message: e.kind === 'schema' ? e.message : `Conectado, pero la base respondió con un error: ${e.message}` };
     }
     if (settings?.external && settings.external.email === false) {
