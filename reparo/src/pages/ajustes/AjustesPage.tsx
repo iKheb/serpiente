@@ -15,9 +15,11 @@ import { SincronizacionSection } from './sections/Sincronizacion';
 import { AplicacionSection } from './sections/Aplicacion';
 import { DatosSection } from './sections/Datos';
 import { AcercaSection } from './sections/Acerca';
+import { CloudSettingsSection } from '@/cloud';
+import { Cloud } from 'lucide-react';
 import styles from './Ajustes.module.css';
 
-type SectionId = 'negocio' | 'preferencias' | 'notificaciones' | 'sincronizacion' | 'aplicacion' | 'datos' | 'acerca';
+type SectionId = 'negocio' | 'preferencias' | 'notificaciones' | 'nube' | 'sincronizacion' | 'aplicacion' | 'datos' | 'acerca';
 
 interface SectionDef {
   id: SectionId;
@@ -32,7 +34,8 @@ const SECTIONS: SectionDef[] = [
   { id: 'negocio', label: 'Negocio', description: 'Nombre, contacto y recibo', icon: Store, group: 'Tu taller', render: NegocioSection },
   { id: 'preferencias', label: 'Preferencias', description: 'Moneda, semana, tema y meta', icon: SlidersHorizontal, group: 'Tu taller', render: PreferenciasSection },
   { id: 'notificaciones', label: 'Notificaciones', description: 'Avisos de stock, entregas y resumen', icon: Bell, group: 'Avisos y conexión', render: NotificacionesSection },
-  { id: 'sincronizacion', label: 'Sincronización', description: 'Varios dispositivos con un servidor', icon: RefreshCcw, group: 'Avisos y conexión', render: SincronizacionSection },
+  { id: 'nube', label: 'Nube', description: 'Mismos datos en tu PC y tu celular', icon: Cloud, group: 'Avisos y conexión', render: () => <CloudSettingsSection /> },
+  { id: 'sincronizacion', label: 'Servidor local', description: 'Avanzado: servidor propio en el taller', icon: RefreshCcw, group: 'Avisos y conexión', render: SincronizacionSection },
   { id: 'aplicacion', label: 'Aplicación', description: 'Instalar, actualizar y almacenamiento', icon: Smartphone, group: 'Sistema', render: AplicacionSection },
   { id: 'datos', label: 'Datos y respaldo', description: 'Respaldo, CSV y borrado', icon: Database, group: 'Sistema', render: DatosSection },
   { id: 'acerca', label: 'Acerca de', description: 'Versión e información', icon: Info, group: 'Sistema', render: AcercaSection },

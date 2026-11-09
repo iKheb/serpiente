@@ -23,6 +23,8 @@ import { CURRENCIES, formatMoney, seedDemoData, updateSettings, useSettings, Val
 import { useNotificationPermission } from '@/pwa';
 import { BrandMark } from '@/shell/BrandMark';
 import { OnboardingScene } from '@/three';
+import { CloudOnboardingStep } from '@/cloud';
+import { Sheet } from '@/ui';
 import { Button, Input, Select, cx, toast, useIsMobile, usePrefersReducedMotion } from '@/ui';
 import { COUNTRIES, COUNTRY_CURRENCY, COUNTRY_OPTIONS, countryFor, rememberCountry } from '../ajustes/shared';
 import styles from './Onboarding.module.css';
@@ -39,6 +41,7 @@ export default function Onboarding() {
   const reduced = usePrefersReducedMotion();
   const { permission, request, supported } = useNotificationPermission();
   const [step, setStep] = useState(0);
+  const [cloudOpen, setCloudOpen] = useState(false);
   const [dir, setDir] = useState(1);
   const [name, setName] = useState('');
   const [owner, setOwner] = useState('');
@@ -172,6 +175,9 @@ export default function Onboarding() {
 
   return (
     <div className={styles.root} data-step={step}>
+      <Sheet open={cloudOpen} onClose={() => setCloudOpen(false)} title="Traer mis datos" description="Inicia sesión con la cuenta que usas en tu otro dispositivo.">
+        <CloudOnboardingStep onDone={() => setCloudOpen(false)} onSkip={() => setCloudOpen(false)} />
+      </Sheet>
       <div className={styles.bg} aria-hidden>
         <span className={styles.blobA} />
         <span className={styles.blobB} />
@@ -260,6 +266,9 @@ export default function Onboarding() {
                         <strong>Funciona sin internet.</strong> Tus datos viven en este dispositivo.
                       </span>
                     </div>
+                    <Button type="button" variant="secondary" size="lg" fullWidth onClick={() => setCloudOpen(true)}>
+                      ¿Ya usas Reparo en otro dispositivo? Inicia sesión
+                    </Button>
                   </>
                 )}
 

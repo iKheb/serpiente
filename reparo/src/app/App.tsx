@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { startAutoSync } from '@/data/sync';
+import { startCloudSync } from '@/cloud';
 import { useRoute, type RouteName } from './router';
 import { AppShell } from '@/shell/AppShell';
 import { Spinner } from '@/ui';
@@ -20,6 +21,7 @@ const pages: Record<RouteName, React.LazyExoticComponent<React.ComponentType>> =
 export function App() {
   const route = useRoute();
   useEffect(() => startAutoSync(), []);
+  useEffect(() => startCloudSync(), []);
   const Page = pages[route.name];
   return (
     <AppShell route={route}>
