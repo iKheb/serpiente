@@ -94,7 +94,7 @@ export class ScreenPainter {
     this.texture = canvasTexture(canvas, { anisotropy: 16 });
   }
 
-  private begin(bg = UI.bg) {
+  private begin(bg: string = UI.bg) {
     const { ctx, canvas } = this;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);

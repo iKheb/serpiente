@@ -30,7 +30,7 @@ const monthLong = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numer
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 export const longDay = (ts: number) => cap(dayLong.format(ts).replace(' de ', ' ').replace(' de ', ' '));
-export const longMonth = (ts: number) => cap(monthLong.format(ts));
+export const longMonth = (ts: number) => cap(monthLong.format(ts).replace(' de ', ' '));
 export const weekRange = (start: number, end: number) =>
   `Semana del ${dayShort.format(start)} al ${dayShort.format(end - 1)}`;
 
@@ -67,17 +67,20 @@ function genDays(days: number, seed: number): Day[] {
     const d = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() - k);
     const dow = d.getDay();
     const idx = days - 1 - k;
-    const base = dow === 0 ? 900 : dow === 6 ? 5600 : dow === 1 ? 2600 : 3500;
-    const trend = 1 + idx * 0.004;
-    const cobrado = round10(base * (0.55 + r() * 0.85) * trend);
-    let gastado = 0;
-    if (dow === 1) gastado = round10(2200 + r() * 4200); // reposición de los lunes
-    else if (r() < 0.42) gastado = round10(250 + r() * 2600);
-    const servicios = Math.max(0, Math.round(cobrado / 100 / (520 + r() * 260)));
-    const ef = 0.38 + r() * 0.2;
-    const tr = 0.3 + r() * 0.18;
-    const efectivo = Math.round(cobrado * ef);
-    const transferencia = Math.round(cobrado * tr);
+    // Domingo medio día, sábado fuerte, lunes tranquilo.
+    const base = dow === 0 ? 1200 : dow === 6 ? 5200 : dow === 1 ? 3000 : 3700;
+    const trend = 1 + idx * 0.003;
+    const cobrado = round10(base * (0.78 + r() * 0.44) * trend);
+    // Compras pequeñas casi diarias (micas, adhesivos) + reposición fuerte los lunes
+    // y algún pedido grande ocasional (deja días en negativo).
+    let gastado = r() < 0.72 ? round10(140 + r() * 620) : 0;
+    if (dow === 1) gastado = round10(2600 + r() * 1900);
+    else if (r() < 0.07) gastado += round10(3800 + r() * 2200);
+    const servicios = Math.max(0, Math.round(cobrado / 100 / (560 + r() * 160)));
+    const ef = 0.4 + r() * 0.12;
+    const tr = 0.3 + r() * 0.1;
+    const efectivo = Math.round((cobrado * ef) / 100) * 100;
+    const transferencia = Math.round((cobrado * tr) / 100) * 100;
     out.push({ ts: d.getTime(), cobrado, gastado, servicios, efectivo, transferencia, tarjeta: cobrado - efectivo - transferencia });
   }
   return out;
@@ -143,8 +146,8 @@ export function monthly12(seed = 23): DemoPoint[] {
     const growth = 1 + (12 - m) * 0.018;
     const cobrado = round10(84_000 * season[d.getMonth()] * growth * (0.92 + r() * 0.16));
     const gastado = round10((cobrado / 100) * (0.36 + r() * 0.14));
-    const ef = Math.round(cobrado * (0.42 + r() * 0.08));
-    const tr = Math.round(cobrado * (0.33 + r() * 0.06));
+    const ef = Math.round((cobrado * (0.42 + r() * 0.08)) / 100) * 100;
+    const tr = Math.round((cobrado * (0.33 + r() * 0.06)) / 100) * 100;
     out.push({
       start: d.getTime(),
       end: e.getTime(),
