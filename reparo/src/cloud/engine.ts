@@ -15,7 +15,8 @@
      cambio más). movements/audit: sólo se insertan (append-only).
    - Ajustes del negocio: fila tbl='settings', id='negocio' con un subconjunto
      de Settings (sin tema, notificaciones ni sync).
-   - Fotos y notificaciones NO viajan. `numFotos` remoto nunca pisa el local.
+   - Fotos: metadatos como tbl='photos' y archivos en Storage (ver photos.ts).
+     Notificaciones NO viajan. `numFotos` siempre = fotos guardadas aquí.
    - Purgas definitivas: viajan como auditoría 'purgar' y se replican.
    ========================================================================== */
 import type { Table } from 'dexie';
@@ -25,6 +26,7 @@ import { setCachedSettings } from '@/data/settings-cache';
 import type { AuditEntry, Settings } from '@/data/types';
 import type { CloudClient } from './client';
 import { CloudError, toCloudError } from './errors';
+import { PHOTOS_TBL, applyRemotePhotoRows, hasPhotoWork, preparePhotoPush, processRemovals, resetPhotoState, runPhotoDownloads, type ProgressFn } from './photos';
 
 /* ------------------------------ Constantes ------------------------------- */
 
@@ -122,6 +124,7 @@ async function saveMeta(m: CloudMeta): Promise<void> {
 /** Olvida cursores y marcas: la próxima sincronización baja y revisa todo. */
 export async function resetCloudState(): Promise<void> {
   await db.meta.bulkDelete([META.account, META.cursor, META.pushedAt, META.pushedIds, META.settings, META.lastSyncAt]);
+  await resetPhotoState();
 }
 
 /* ------------------------------ Utilidades ------------------------------- */
@@ -211,7 +214,7 @@ export async function hasCloudPending(): Promise<boolean> {
   await dbReady();
   const meta = await loadMeta();
   const p = await collectPending(meta, getDeviceId(), Date.now());
-  return (await localSettingsState(meta)).changed || CLOUD_TABLES.some((t) => p.rows[t].length > 0);
+  return (await localSettingsState(meta)).changed || CLOUD_TABLES.some((t) => p.rows[t].length > 0) || (await hasPhotoWork());
 }
 
 /* ---------------------------- Aplicar remotos ---------------------------- */
@@ -263,7 +266,12 @@ async function applySettings(r: RemoteRow, ctx: ApplyContext): Promise<boolean> 
 async function applyRemote(page: RemoteRow[], ctx: ApplyContext): Promise<number> {
   let applied = 0;
   const byTable = new Map<CloudTable, Row[]>();
+  const photoRows: RemoteRow[] = [];
   for (const r of page) {
+    if (r.tbl === PHOTOS_TBL) {
+      if (typeof r.id === 'string' && r.data && typeof r.data === 'object') photoRows.push(r);
+      continue;
+    }
     if (r.tbl === SETTINGS_TBL) {
       if (r.id === SETTINGS_ID && (await applySettings(r, ctx))) applied++;
       continue;
@@ -279,7 +287,7 @@ async function applyRemote(page: RemoteRow[], ctx: ApplyContext): Promise<number
     else list.push(row);
     byTable.set(r.tbl, list);
   }
-  if (!byTable.size) return applied;
+  if (!byTable.size) return applied + (await applyRemotePhotoRows(photoRows));
 
   let clientsTouched = false;
   await db.transaction('rw', [db.clients, db.expenses, db.inventory, db.movements, db.audit, db.photos], async () => {
@@ -296,7 +304,7 @@ async function applyRemote(page: RemoteRow[], ctx: ApplyContext): Promise<number
       });
       if (!toPut.length) continue;
       if (t === 'clients') {
-        // Las fotos no viajan: numFotos refleja las fotos guardadas en ESTE dispositivo.
+        // numFotos refleja las fotos guardadas en ESTE dispositivo (las remotas se cuentan al descargarse).
         for (const r of toPut) r.numFotos = await db.photos.where('clientId').equals(r.id).count();
         clientsTouched = true;
       }
@@ -323,7 +331,7 @@ async function applyRemote(page: RemoteRow[], ctx: ApplyContext): Promise<number
       /* se corrige en la próxima alta */
     }
   }
-  return applied;
+  return applied + (await applyRemotePhotoRows(photoRows));
 }
 
 /* --------------------------------- Red ----------------------------------- */
@@ -350,6 +358,17 @@ async function pushBatch(client: CloudClient, rows: RemoteRow[]): Promise<number
 export interface CloudSyncResult {
   pushed: number;
   pulled: number;
+  /** Fotos que no se pudieron subir (se reintentan en la próxima sincronización). */
+  photoFailures?: number;
+  /** Problema general con las fotos (p. ej. falta supabase/storage.sql); los datos sí se sincronizaron. */
+  photoError?: string | null;
+}
+
+export interface CloudCycleOptions {
+  /** Progreso de subida/descarga de fotos (null al terminar). */
+  onProgress?: ProgressFn;
+  /** false = no descargar fotos en este ciclo (quedan en cola). Por defecto true. */
+  downloadPhotos?: boolean;
 }
 
 /**
@@ -380,13 +399,14 @@ async function pullAll(client: CloudClient, ctx: ApplyContext): Promise<number> 
  * Una sincronización completa (pull → push → pull) para la cuenta `userId`
  * del proyecto `projectUrl`. Si la cuenta cambió, reinicia cursores.
  */
-export async function runCloudCycle(client: CloudClient, account: { projectUrl: string; userId: string }): Promise<CloudSyncResult> {
+export async function runCloudCycle(client: CloudClient, account: { projectUrl: string; userId: string }, opts: CloudCycleOptions = {}): Promise<CloudSyncResult> {
   await dbReady();
   const accountKey = `${account.projectUrl}|${account.userId}`;
   let meta = await loadMeta();
   if (meta.account !== accountKey) {
     meta = emptyMeta(accountKey);
     await saveMeta(meta);
+    await resetPhotoState();
   }
   const deviceId = getDeviceId();
   const startedAt = Date.now();
@@ -420,9 +440,14 @@ export async function runCloudCycle(client: CloudClient, account: { projectUrl: 
     out.push({ tbl: SETTINGS_TBL, id: SETTINGS_ID, data: settingsToPush.data, updated_at: settingsToPush.data.updatedAt, device_id: deviceId });
   }
 
+  // Fotos: primero los archivos (a storage), luego sus filas.
+  const photoPlan = await preparePhotoPush(client, account.userId, opts.onProgress);
+  out.push(...photoPlan.rows);
+
   for (let i = 0; i < out.length; i += PUSH_BATCH) {
     await pushBatch(client, out.slice(i, i + PUSH_BATCH));
   }
+  await photoPlan.commit();
 
   // 3) Marcas de "ya enviado" (sólo si todos los lotes llegaron).
   for (const t of CLOUD_TABLES) {
@@ -439,8 +464,13 @@ export async function runCloudCycle(client: CloudClient, account: { projectUrl: 
   // 4) Lo que haya entrado mientras tanto (incluye el eco de lo enviado).
   if (out.length) pulled += await pullAll(client, { seen: new Map(), meta });
 
+  // 5) Fotos que llegaron: miniaturas y luego completas; borrados pendientes en storage.
+  if (opts.downloadPhotos !== false) pulled += await runPhotoDownloads(client, account.userId, opts.onProgress);
+  await processRemovals(client, account.userId);
+  opts.onProgress?.(null);
+
   await db.meta.put({ key: META.lastSyncAt, value: Date.now() });
-  return { pushed: out.length, pulled };
+  return { pushed: out.length, pulled, photoFailures: photoPlan.failures, photoError: photoPlan.error };
 }
 
 export async function readLastCloudSyncAt(): Promise<number | null> {

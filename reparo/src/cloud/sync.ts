@@ -10,6 +10,7 @@ import { setCachedSettings } from '@/data/settings-cache';
 import { getCloudAuth, getCloudClient, subscribeCloudAuth, useCloudAuth, cloudSignOut } from './client';
 import { getCloudConfig, getCloudConfigState, saveCloudConfig, subscribeCloudConfig, useCloudConfig, validateCloudConfig, type CloudConfig } from './config';
 import { CloudError, toCloudError, type CloudErrorKind } from './errors';
+import type { PhotoProgress } from './photos';
 import { CLOUD_TABLES, hasCloudPending, readLastCloudSyncAt, resetCloudState, runCloudCycle, type CloudSyncResult } from './engine';
 
 /* ------------------------------- Estado ---------------------------------- */
@@ -27,6 +28,12 @@ export interface CloudStatus {
   errorKind: CloudErrorKind | null;
   /** Resultado de la última sincronización correcta de esta sesión. */
   lastResult: CloudSyncResult | null;
+  /** Progreso de fotos en curso, p. ej. { phase: 'upload', done: 3, total: 10 }. */
+  photos: PhotoProgress | null;
+  /** Texto listo para mostrar: "Subiendo fotos 3/10" / "Descargando fotos 2/8". */
+  photosLabel: string | null;
+  /** Aviso sobre fotos (p. ej. falta storage.sql); los datos sí se sincronizan. */
+  photoWarning: string | null;
 }
 
 interface Internal {
@@ -35,9 +42,10 @@ interface Internal {
   errorKind: CloudErrorKind | null;
   lastSyncAt: number | null;
   lastResult: CloudSyncResult | null;
+  photos: PhotoProgress | null;
 }
 
-let status: Internal = { running: false, error: null, errorKind: null, lastSyncAt: null, lastResult: null };
+let status: Internal = { running: false, error: null, errorKind: null, lastSyncAt: null, lastResult: null, photos: null };
 const listeners = new Set<() => void>();
 
 function setStatus(patch: Partial<Internal>): void {
@@ -99,6 +107,9 @@ export function useCloudStatus(): CloudStatus {
       error: state === 'error' ? s.error : null,
       errorKind: state === 'error' ? s.errorKind : null,
       lastResult: s.lastResult,
+      photos: signedIn ? s.photos : null,
+      photosLabel: signedIn && s.photos ? `${s.photos.phase === 'upload' ? 'Subiendo' : 'Descargando'} fotos ${Math.min(s.photos.done, s.photos.total)}/${s.photos.total}` : null,
+      photoWarning: signedIn ? (s.lastResult?.photoError ?? null) : null,
     };
   }, [cfg.config, auth.userId, auth.email, s, online]);
 }
@@ -115,7 +126,7 @@ async function runOnce(): Promise<CloudSyncResult> {
   const user = data.session?.user;
   if (!user) throw new CloudError('Inicia sesión para sincronizar.', 'auth');
   try {
-    return await runCloudCycle(client, { projectUrl: cfg.url, userId: user.id });
+    return await runCloudCycle(client, { projectUrl: cfg.url, userId: user.id }, { onProgress: (p) => setStatus({ photos: p }) });
   } catch (err) {
     throw toCloudError(err, 'No se pudo sincronizar.');
   }
@@ -133,12 +144,12 @@ export function cloudSyncNow(): Promise<CloudSyncResult> {
     setStatus({ running: true });
     current = runOnce()
       .then((r) => {
-        setStatus({ running: false, error: null, errorKind: null, lastSyncAt: Date.now(), lastResult: r });
+        setStatus({ running: false, error: null, errorKind: null, lastSyncAt: Date.now(), lastResult: r, photos: null });
         return r;
       })
       .catch((err: unknown) => {
         const e = toCloudError(err, 'No se pudo sincronizar.');
-        setStatus({ running: false, error: e.message, errorKind: e.kind });
+        setStatus({ running: false, error: e.message, errorKind: e.kind, photos: null });
         throw e;
       })
       .finally(() => {
@@ -251,6 +262,8 @@ function runAuto(): () => void {
           .then((r: { id?: string; ts?: number; updatedAt?: number } | undefined) => `${r?.id ?? ''}@${r?.updatedAt ?? r?.ts ?? 0}`),
       ),
       db.settings.get('settings').then((s) => String(s?.updatedAt ?? 0)),
+      db.photos.count(),
+      db.meta.get('photoTombstones').then((r) => Object.keys((r?.value as object) ?? {}).length),
       db.clients.count(),
       db.expenses.count(),
       db.inventory.count(),

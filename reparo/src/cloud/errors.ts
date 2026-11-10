@@ -14,6 +14,8 @@ export class CloudError extends Error {
 
 const SCHEMA_MSG = 'Falta preparar la base de datos de tu proyecto: abre el SQL Editor de Supabase, pega el contenido de supabase/schema.sql y pulsa Run.';
 
+const STORAGE_MSG = 'Falta preparar el espacio de fotos: abre el SQL Editor de Supabase, pega el contenido de supabase/storage.sql y pulsa Run. Tus datos sí se sincronizan; las fotos se enviarán después.';
+
 const AUTH_CODES: Record<string, [string, CloudErrorKind]> = {
   invalid_credentials: ['Correo o contraseña incorrectos. Revisa que estén bien escritos.', 'auth'],
   email_not_confirmed: [
@@ -70,6 +72,17 @@ export function toCloudError(err: unknown, fallback = 'Ocurrió un error con la 
     return new CloudError('La clave del proyecto no es válida. Cópiala de nuevo desde Project Settings → API Keys.', 'config');
   }
   if (lower.includes('rate limit')) return new CloudError(...AUTH_CODES.over_request_rate_limit);
+
+  // Storage (fotos)
+  if (lower.includes('bucket not found') || (lower.includes('row-level security') && lower.includes('violates') && !lower.includes('reparo_rows'))) {
+    return new CloudError(STORAGE_MSG, 'schema');
+  }
+  if (lower.includes('exceeded the maximum allowed size') || lower.includes('payload too large') || e.status === 413) {
+    return new CloudError('Una foto supera el tamaño máximo permitido por la nube (10 MB).', 'server');
+  }
+  if (lower.includes('mime type') && lower.includes('not supported')) {
+    return new CloudError('La nube sólo acepta fotos JPG, WebP o PNG.', 'server');
+  }
 
   // PostgREST / Postgres
   if (['PGRST202', 'PGRST205', '42P01', '42883', 'PGRST204'].includes(code) || lower.includes('could not find the function') || lower.includes('relation "reparo_rows"')) {
