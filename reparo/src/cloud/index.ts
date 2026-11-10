@@ -62,3 +62,6 @@ export { encodeQr, drawQrToCanvas, type QrCode, type QrEcc } from './qr';
 export { CloudSettingsSection } from './ui/CloudSettingsSection';
 export { CloudOnboardingStep, type CloudOnboardingStepProps } from './ui/CloudOnboardingStep';
 export { ConnectionCodePanel } from './ui/parts';
+
+// Fotos de evidencia (Storage)
+export { PHOTO_BUCKET, photoPath, type PhotoProgress } from './photos';

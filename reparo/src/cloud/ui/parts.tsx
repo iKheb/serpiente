@@ -505,6 +505,9 @@ export function CloudGuide({ builtIn }: { builtIn: boolean }) {
             En el proyecto abre <strong>SQL Editor</strong>, pega el archivo <code>supabase/schema.sql</code> y pulsa <strong>Run</strong>.
           </li>
           <li>
+            Para las fotos: en otra consulta del <strong>SQL Editor</strong> pega <code>supabase/storage.sql</code> y pulsa <strong>Run</strong>.
+          </li>
+          <li>
             En <strong>Authentication → Sign In / Providers → Email</strong> desactiva <strong>"Confirm email"</strong> (más simple), o configura la Site URL con la dirección de la app.
           </li>
           <li>

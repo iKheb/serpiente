@@ -1,8 +1,8 @@
 /* Ajustes → Nube: conectar el proyecto de Supabase, crear cuenta / iniciar
    sesión y ver el estado de la sincronización. */
 import { useState } from 'react';
-import { Cloud, CloudOff, LogOut, Pencil, RefreshCw, ShieldCheck } from 'lucide-react';
-import { Badge, Button, DateTimeText, SegmentedControl, confirm, toast, type BadgeTone } from '@/ui';
+import { Cloud, CloudOff, Images, LogOut, Pencil, RefreshCw, ShieldCheck } from 'lucide-react';
+import { Badge, Button, DateTimeText, ProgressBar, SegmentedControl, confirm, toast, type BadgeTone } from '@/ui';
 import { cloudSignIn, cloudSignOut, cloudSignUp, useCloudAuth } from '../client';
 import { clearCloudConfig, useCloudConfig } from '../config';
 import { cloudSyncNow, connectCloudProject, useCloudStatus, type CloudState } from '../sync';
@@ -190,7 +190,11 @@ function StatusPanel() {
     setBusy(true);
     try {
       const r = await cloudSyncNow();
-      toast({ title: 'Sincronización completa', description: `${r.pushed} enviados · ${r.pulled} recibidos`, tone: 'success' });
+      toast(
+        r.photoFailures
+          ? { title: 'Datos sincronizados', description: `${r.pushed} enviados · ${r.pulled} recibidos. ${r.photoFailures === 1 ? '1 foto no se pudo subir' : `${r.photoFailures} fotos no se pudieron subir`}; se reintentará.`, tone: 'warning' }
+          : { title: 'Sincronización completa', description: `${r.pushed} enviados · ${r.pulled} recibidos`, tone: 'success' },
+      );
     } catch (e) {
       toast({ title: 'No se pudo sincronizar', description: (e as Error).message, tone: 'danger' });
     } finally {
@@ -238,6 +242,21 @@ function StatusPanel() {
           )}
         </div>
       </div>
+
+      {status.photosLabel && status.photos && (
+        <div className={styles.photoProgress} role="status" aria-live="polite">
+          <span className={styles.photoProgressText}>
+            <Images size={15} aria-hidden />
+            {status.photosLabel}
+          </span>
+          <ProgressBar value={status.photos.done} max={Math.max(1, status.photos.total)} tone="info" size="xs" />
+        </div>
+      )}
+      {status.photoWarning && !status.photos && (
+        <Notice tone="warning" title="Fotos pendientes">
+          {status.photoWarning}
+        </Notice>
+      )}
 
       {status.state === 'error' && status.error && (
         <Notice tone="danger" title="No se pudo sincronizar" live>
@@ -343,8 +362,8 @@ export function CloudSettingsSection() {
       {hasProject && !builtIn && cfg.config && <ConnectionCodePanel config={cfg.config} />}
 
       <Notice tone="info">
-        Se sincronizan clientes, gastos, inventario, movimientos, el registro de actividad y los datos del negocio. Las <strong>fotos de evidencia</strong>, las notificaciones, el tema y las preferencias de
-        avisos se quedan sólo en cada dispositivo.
+        Se sincronizan clientes, gastos, inventario, movimientos, el registro de actividad, los datos del negocio y las <strong>fotos de evidencia</strong> (primero la miniatura, luego la foto completa).
+        Las notificaciones, el tema y las preferencias de avisos se quedan en cada dispositivo.
       </Notice>
 
       <CloudGuide builtIn={builtIn} />

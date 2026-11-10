@@ -75,7 +75,7 @@ export function CloudOnboardingStep({ onDone, onSkip }: CloudOnboardingStepProps
                 <Badge tone="info">{counts.inventory.toLocaleString('es')} repuestos</Badge>
               </div>
             )}
-            <p className={styles.obLead}>De ahora en adelante este dispositivo se sincroniza solo. Las fotos de evidencia se quedan en el dispositivo donde se tomaron.</p>
+            <p className={styles.obLead}>De ahora en adelante este dispositivo se sincroniza solo. Las fotos de evidencia se siguen descargando en segundo plano.</p>
             <Button variant="primary" size="lg" onClick={onDone} autoFocus>
               Entrar a Reparo
             </Button>

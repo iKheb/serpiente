@@ -165,6 +165,9 @@ export async function applyRemotePhotoRows(rows: { id: string; data: Record<stri
       state[r.id] = { s: Math.max(stamp, state[r.id]?.s ?? 0), f: state[r.id]?.f ?? true };
       continue;
     }
+    // Ya la teníamos y desapareció aquí (p. ej. purga del cliente): se enviará su lápida.
+    const known = state[r.id];
+    if (known && stamp <= known.s) continue;
     const prev = downloads[r.id];
     downloads[r.id] = {
       id: r.id,

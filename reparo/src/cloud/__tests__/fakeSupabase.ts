@@ -13,7 +13,7 @@ interface StoredRow {
   seq: number;
 }
 
-const LWW = new Set(['clients', 'expenses', 'inventory', 'settings']);
+const LWW = new Set(['clients', 'expenses', 'inventory', 'settings', 'photos']);
 const APPEND = new Set(['movements', 'audit']);
 
 /** Reordena claves al azar (jsonb no conserva el orden). */
@@ -30,6 +30,11 @@ export class FakeSupabaseServer {
   users = new Map<string, { id: string; password: string }>();
   pushCalls = 0;
   selectCalls = 0;
+  /** Storage en memoria: `${bucket}/${path}` → Blob. */
+  files = new Map<string, Blob>();
+  /** Si > 0, las siguientes N operaciones de storage fallan (simula red caída). */
+  storageFailures = 0;
+  storageCalls = { upload: 0, download: 0, remove: 0 };
   /** Si se define, la próxima llamada de red falla con este error. */
   failNext: { message: string; code?: string; status?: number } | null = null;
 
@@ -124,6 +129,47 @@ export function fakeClient(server: FakeSupabaseServer): CloudClient & { session:
         const u = [...server.users.entries()].find(([, v]) => v.id === s.user.id);
         if (u && password) u[1].password = password;
         return { data: { user: s.user }, error: null };
+      },
+    },
+    storage: {
+      from(bucket: string) {
+        const guard = (path: string) => {
+          if (bucket !== 'reparo-fotos') return { message: 'Bucket not found', status: 404 };
+          if (!self.session) return { message: 'new row violates row-level security policy', status: 403 };
+          if (path.split('/')[0] !== self.session.user.id) return { message: 'new row violates row-level security policy', status: 403 };
+          if (server.storageFailures > 0) {
+            server.storageFailures--;
+            return { message: 'TypeError: Failed to fetch', name: 'StorageUnknownError' };
+          }
+          return null;
+        };
+        return {
+          async upload(path: string, body: Blob, opts?: { upsert?: boolean; contentType?: string }) {
+            server.storageCalls.upload++;
+            const err = guard(path);
+            if (err) return { data: null, error: err };
+            if (!['image/jpeg', 'image/webp', 'image/png'].includes(opts?.contentType ?? '')) {
+              return { data: null, error: { message: 'mime type text/plain is not supported', status: 415 } };
+            }
+            if (!opts?.upsert && server.files.has(`${bucket}/${path}`)) return { data: null, error: { message: 'The resource already exists', status: 409 } };
+            server.files.set(`${bucket}/${path}`, body);
+            return { data: { path }, error: null };
+          },
+          async download(path: string) {
+            server.storageCalls.download++;
+            const err = guard(path);
+            if (err) return { data: null, error: err };
+            const b = server.files.get(`${bucket}/${path}`);
+            return b ? { data: b, error: null } : { data: null, error: { message: 'Object not found', status: 404 } };
+          },
+          async remove(paths: string[]) {
+            server.storageCalls.remove++;
+            const err = guard(paths[0] ?? '');
+            if (err) return { data: null, error: err };
+            for (const p of paths) server.files.delete(`${bucket}/${p}`);
+            return { data: [], error: null };
+          },
+        };
       },
     },
     async rpc(fn: string, args: Record<string, unknown>) {

@@ -29,6 +29,11 @@ puede verlos: cada cuenta sólo puede leer y escribir lo suyo.
      pégalo en el editor.
    - Pulsa **Run** (o Ctrl + Enter). Debe decir *Success. No rows returned*.
    - Se puede ejecutar más de una vez sin problema.
+   - **Para las fotos de evidencia:** pulsa otra vez **New query**, pega **todo** el
+     archivo `supabase/storage.sql` y pulsa **Run**. Crea un espacio **privado**
+     llamado `reparo-fotos` (máx. 10 MB por foto) donde cada cuenta sólo ve sus fotos.
+     Si ya usabas la nube antes, basta con ejecutar este archivo: las fotos que ya
+     tenías se suben solas en la siguiente sincronización.
 4. Configura el inicio de sesión con correo:
    - Menú **Authentication** → **Sign In / Providers** → **Email**: debe estar
      activado.
@@ -97,11 +102,22 @@ puede verlos: cada cuenta sólo puede leer y escribir lo suyo.
 
 | Se sincroniza | Se queda en cada dispositivo |
 |---|---|
-| Clientes / servicios (incluida la papelera) | **Fotos de evidencia** (pesan mucho; quedan en el dispositivo donde se tomaron) |
-| Gastos | Notificaciones |
-| Inventario y sus movimientos | Tema (oscuro/claro) y preferencias de avisos |
-| Registro de actividad | Configuración del servidor local opcional |
+| Clientes / servicios (incluida la papelera) | Notificaciones |
+| Gastos | Tema (oscuro/claro) y preferencias de avisos |
+| Inventario y sus movimientos | Configuración del servidor local opcional |
+| Registro de actividad | |
 | Datos del negocio: nombre, dueño, teléfono, dirección, pie del recibo, código de país, moneda, formato regional, inicio de semana, meta mensual | |
+| **Fotos de evidencia** (y su descripción); al borrar una foto se borra en todos lados | |
+
+### Fotos
+
+- Cada foto se sube con su miniatura. En el otro dispositivo primero aparecen las
+  miniaturas y después se descargan las fotos completas (3 a la vez).
+- En **Ajustes → Nube** verás el avance ("Subiendo fotos 3/10").
+- Si una foto no se puede subir (sin internet, o falta `storage.sql`), tus datos se
+  sincronizan igual y la foto se reintenta sola la próxima vez.
+- El plan gratis de Supabase incluye 1 GB de almacenamiento (miles de fotos
+  comprimidas de ~200–400 KB).
 
 Si un mismo registro se cambia en los dos dispositivos, **gana el cambio más
 reciente**. Por eso conviene que la fecha y hora de ambos equipos estén correctas
@@ -114,6 +130,7 @@ reciente**. Por eso conviene que la fecha y hora de ambos equipos estén correct
 - **"Tu correo aún no está confirmado"**: abre el enlace del correo (revisa *Spam*) o
   desactiva *Confirm email* (Parte 1, paso 4).
 - **"Falta preparar la base de datos"**: ejecuta `supabase/schema.sql` en el SQL Editor.
+- **"Falta preparar el espacio de fotos"**: ejecuta `supabase/storage.sql` en el SQL Editor.
 - **"Supabase tuvo un problema (5xx)"**: los proyectos gratis se **pausan tras ~7 días
   sin uso**. Entra a supabase.com y pulsa *Restore project*.
 - **Sin internet**: no pasa nada; sigue trabajando y se enviará al volver.
@@ -137,4 +154,7 @@ Detalles técnicos: tabla genérica `public.reparo_rows` (una fila JSON por regi
 `seq` asignado por trigger), RPC `public.reparo_push(rows jsonb)` con LWW por
 `updated_at` (append-only para `movements` y `audit`), descarga por `seq > cursor`
 paginada de 1000 en 1000 con un margen de 200 para no perder transacciones lentas.
-Los cambios remotos se aplican sin generar auditoría nueva. Código en `src/cloud/`.
+Los cambios remotos se aplican sin generar auditoría nueva. Fotos: fila `tbl='photos'`
+(metadatos, sin blobs, LWW) + archivos en el bucket privado `reparo-fotos`
+(`<userId>/<photoId>.jpg` y `<userId>/<photoId>_t.jpg`; `.webp`/`.png` según el tipo).
+Los borrados viajan como lápidas (`deletedAt`). Código en `src/cloud/`.

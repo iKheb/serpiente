@@ -364,6 +364,30 @@
   min-width: 0;
 }
 
+.photoProgress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--info-soft);
+  border: 1px solid color-mix(in srgb, var(--info) 25%, transparent);
+}
+
+.photoProgressText {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.photoProgressText svg {
+  color: var(--info);
+}
+
 /* --------------------------- Código de conexión -------------------------- */
 
 .codeLayout {

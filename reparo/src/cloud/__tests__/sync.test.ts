@@ -112,7 +112,7 @@ describe('sincronización en la nube (Supabase falso)', () => {
 
     // Una segunda vuelta sin cambios no envía ni aplica nada.
     const again = await phone.sync.cloudSyncNow();
-    expect(again).toEqual({ pushed: 0, pulled: 0 });
+    expect(again).toMatchObject({ pushed: 0, pulled: 0 });
     expect(await phone.engine.hasCloudPending()).toBe(false);
   });
 
