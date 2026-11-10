@@ -550,7 +550,7 @@
 
 /* Gráfico de referencia (periodo anterior): un punto más tenue que el real. */
 .chartRef {
-  opacity: 0.86;
+  opacity: 1;
 }
 
 .refBadge {
@@ -1396,12 +1396,9 @@
   .pipeArrow {
     display: none;
   }
-  .flowFacts {
-    display: none;
-  }
   .chartFill {
-    flex: 0 0 200px;
-    min-height: 200px;
+    flex: 0 0 220px;
+    min-height: 220px;
     margin-bottom: 0;
   }
 

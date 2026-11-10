@@ -154,11 +154,23 @@ function layout(ctx: Ctx, m: ReceiptModel, ox: number, oy: number, draw: boolean
     }
   };
   // Rejilla etiqueta/valor: la etiqueta a la izquierda y el valor alineado a la
-  // derecha (también los textos largos, que se ajustan en varias líneas).
+  // derecha. Los textos largos (block) van en bloque: etiqueta arriba y el valor
+  // debajo, alineado a la izquierda y a todo el ancho.
   const rows = (list: ReceiptRow[]) => {
     const lf = font(450, 12.5);
     const vf = font(520, 13);
     for (const r of list) {
+      if (r.block) {
+        y += 24;
+        text(r.label, left, y, lf, PAPER.ink3);
+        ctx.font = vf;
+        for (const l of wrap(ctx, r.value, inner)) {
+          y += 18;
+          text(l, left, y, vf, PAPER.ink);
+        }
+        y += 4;
+        continue;
+      }
       ctx.font = lf;
       const lw = Math.max(ctx.measureText(r.label).width, 64);
       ctx.font = vf;

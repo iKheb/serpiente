@@ -49,6 +49,9 @@ function plural(n: number, one: string, many: string) {
   return `${n} ${n === 1 ? one : many}`;
 }
 
+/** Más caracteres que esto ya no caben junto a la etiqueta en un ticket de 80 mm. */
+const LONG_VALUE = 30;
+
 export function buildReceiptModel(c: Client, s: Settings, piezas: ReceiptPiece[] = []): ReceiptModel {
   const money = (cents: number) => formatMoney(cents, { currency: s.currency, locale: s.locale });
   const client: ReceiptRow[] = [{ label: 'Cliente', value: c.nombre.trim() || '—' }];
@@ -70,6 +73,9 @@ export function buildReceiptModel(c: Client, s: Settings, piezas: ReceiptPiece[]
     const days = plural(c.garantiaDias, 'día', 'días');
     garantia = exp ? `${days} · vence el ${formatDate(exp)}` : `${days} a partir de la entrega`;
   }
+
+  // Textos largos (que se ajustarían en varias líneas): en bloque, bajo su etiqueta y alineados a la izquierda.
+  for (const r of [...client, ...device]) if (!r.mono && r.value.length > LONG_VALUE) r.block = true;
 
   return {
     business: {
@@ -105,7 +111,7 @@ export const PAPER = {
   ink: '#11141b',
   ink2: '#4a5162',
   ink3: '#687083',
-  rule: '#d5d9e1',
+  rule: '#b4bac6',
   income: '#0f9f76',
   pending: '#b97c06',
   chip: '#f2f3f7',

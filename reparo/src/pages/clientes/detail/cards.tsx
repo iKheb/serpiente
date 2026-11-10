@@ -66,9 +66,9 @@ function CopyButton({ value, label }: { value: string; label: string }) {
   );
 }
 
-function Def({ label, children, wide }: { label: string; children: ReactNode; wide?: boolean }) {
+function Def({ label, children, wide, className }: { label: string; children: ReactNode; wide?: boolean; className?: string }) {
   return (
-    <div className={cx(styles.def, wide && styles.defWide)}>
+    <div className={cx(styles.def, wide && styles.defWide, className)}>
       <dt>{label}</dt>
       <dd>{children}</dd>
     </div>
@@ -132,10 +132,10 @@ export function ContactCard({ client }: { client: Client }) {
 export function DeviceCard({ client }: { client: Client }) {
   return (
     <Card as="section" className={styles.card} title="Equipo" icon={<Smartphone />}>
-      <dl className={styles.defs}>
+      <dl className={cx(styles.defs, styles.defsDense)}>
         <Def label="Marca">{client.marca || '—'}</Def>
         <Def label="Modelo">{client.modelo || '—'}</Def>
-        <Def label="IMEI / serie" wide>
+        <Def label="IMEI / serie" className={styles.defImei}>
           {client.imei.trim() ? (
             <span className={styles.inlineCopy}>
               <span className={styles.mono}>{client.imei}</span>
@@ -145,13 +145,13 @@ export function DeviceCard({ client }: { client: Client }) {
             <span className={styles.muted}>No registrado</span>
           )}
         </Def>
-        <Def label="Servicio" wide>
+        <Def label="Servicio" className={styles.defServicio}>
           <span className={styles.serviceChip}>
             <Wrench aria-hidden />
             {client.servicio || '—'}
           </span>
         </Def>
-        <Def label="Falla reportada" wide>
+        <Def label="Falla reportada" className={styles.defFalla}>
           {client.falla.trim() ? <p className={styles.prose}>{client.falla}</p> : <span className={styles.muted}>Sin descripción</span>}
         </Def>
       </dl>

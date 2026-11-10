@@ -83,20 +83,21 @@ function ThemePicker({ value, onChange }: { value: ThemePreference; onChange: (v
             className={cx(styles.themeCard, on && styles.themeOn)}
             onClick={() => onChange(t.value)}
           >
-            <span className={cx(styles.themePreview, styles[`tp-${t.value}`])} aria-hidden>
-              <span className={styles.tpHalf}>
-                <span className={styles.tpSide} />
-                <span className={styles.tpMain}>
-                  <span className={styles.tpBar} />
-                  <span className={styles.tpCards}>
-                    <span />
-                    <span />
-                  </span>
-                  <span className={styles.tpLine} />
-                  <span className={styles.tpLine} style={{ width: '60%' }} />
+            {t.value === 'system' ? (
+              /* Sistema: la misma maqueta, mitad oscura y mitad clara (corte vertical limpio). */
+              <span className={styles.themePreview} aria-hidden>
+                <span className={cx(styles.tpLayer, styles['tp-dark'])}>
+                  <ThemeMock />
+                </span>
+                <span className={cx(styles.tpLayer, styles.tpLayerRight, styles['tp-light'])}>
+                  <ThemeMock />
                 </span>
               </span>
-            </span>
+            ) : (
+              <span className={cx(styles.themePreview, styles[`tp-${t.value}`])} aria-hidden>
+                <ThemeMock />
+              </span>
+            )}
             <span className={styles.themeMeta}>
               <Icon aria-hidden />
               <span className={styles.themeText}>
@@ -150,5 +151,23 @@ function GoalInput({ saved }: { saved: number }) {
         hint={value > 0 ? `≈ ${formatMoney(Math.round(value / 30))} de ganancia por día` : 'Sin meta definida'}
       />
     </div>
+  );
+}
+
+/** Maqueta mínima de la app para las tarjetas de tema. */
+function ThemeMock() {
+  return (
+    <span className={styles.tpHalf}>
+      <span className={styles.tpSide} />
+      <span className={styles.tpMain}>
+        <span className={styles.tpBar} />
+        <span className={styles.tpCards}>
+          <span />
+          <span />
+        </span>
+        <span className={styles.tpLine} />
+        <span className={styles.tpLine} style={{ width: '60%' }} />
+      </span>
+    </span>
   );
 }

@@ -696,11 +696,28 @@
   background: radial-gradient(120% 80% at 80% 0%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 60%), var(--tp-bg);
 }
 
-.tp-system {
-  background: linear-gradient(115deg, color-mix(in srgb, black 88%, var(--brand) 6%) 50%, color-mix(in srgb, white 94%, var(--brand) 3%) 50%);
-  --tp-panel: color-mix(in srgb, white 50%, black);
-  --tp-line: color-mix(in srgb, white 30%, transparent);
-  --tp-side: color-mix(in srgb, white 20%, transparent);
+/* Sistema: dos capas idénticas (oscura y clara); la clara se recorta a la mitad derecha. */
+/* Hereda el relleno de .themePreview (también el compacto del teléfono). */
+.tpLayer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  padding: inherit;
+}
+
+.tpLayerRight {
+  clip-path: inset(0 0 0 50%);
+}
+
+.tpLayerRight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: color-mix(in srgb, black 18%, transparent);
+  z-index: 1;
 }
 
 .tpHalf {
@@ -713,10 +730,6 @@
   border-bottom: 0;
   background: var(--tp-panel);
   box-shadow: 0 8px 24px -8px color-mix(in srgb, black 40%, transparent);
-}
-
-.tp-system .tpHalf {
-  background: linear-gradient(115deg, color-mix(in srgb, white 8%, black) 46%, white 46%);
 }
 
 .tpSide {

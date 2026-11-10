@@ -368,11 +368,12 @@ export function ClientForm({ open, clientId, onClose }: ClientFormProps) {
                   optional
                   autoComplete="off"
                   spellCheck={false}
-                  placeholder="Marca *#06# en el equipo para verlo"
+                  placeholder="15 dígitos"
+                  hint="Marca *#06# en el equipo para verlo."
                   value={draft.imei}
                   onValueChange={(v) => set('imei', v)}
                   error={errors.imei}
-                  className="mono"
+                  className={styles.imei}
                 />
               </div>
             </FormGrid>

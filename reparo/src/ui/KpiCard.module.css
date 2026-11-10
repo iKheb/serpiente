@@ -43,6 +43,11 @@
   display: none;
 }
 
+/* Sin halo decorativo: el tono vive en el ícono. */
+.glow {
+  display: none;
+}
+
 .inner {
   position: relative;
   display: flex;

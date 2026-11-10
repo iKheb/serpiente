@@ -210,3 +210,15 @@
     justify-content: flex-end;
   }
 }
+
+/* IMEI: el valor en monoespaciada (se lee dígito a dígito); el placeholder en la fuente normal. */
+.imei {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.imei::placeholder {
+  font-family: var(--font-sans);
+  letter-spacing: normal;
+}

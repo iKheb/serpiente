@@ -297,12 +297,19 @@ function BrandMark({ size = 36 }: { size?: number }) {
 function Rows({ rows }: { rows: ReceiptRow[] }) {
   return (
     <dl className={styles.rows}>
-      {rows.map((r) => (
-        <div key={r.label} className={styles.row}>
-          <dt>{r.label}</dt>
-          <dd className={r.mono ? styles.mono : undefined}>{r.value}</dd>
-        </div>
-      ))}
+      {rows.map((r) =>
+        r.block ? (
+          <div key={r.label} className={styles.rowBlock}>
+            <dt>{r.label}</dt>
+            <dd>{r.value}</dd>
+          </div>
+        ) : (
+          <div key={r.label} className={styles.row}>
+            <dt>{r.label}</dt>
+            <dd className={r.mono ? styles.mono : undefined}>{r.value}</dd>
+          </div>
+        ),
+      )}
     </dl>
   );
 }

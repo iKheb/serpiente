@@ -418,18 +418,26 @@
   grid-column: 1 / -1;
 }
 
-.def dt,
-.kicker {
-  font-size: var(--text-xs);
-  color: var(--text-2);
-  font-weight: var(--weight-medium);
+/* Equipo: marca, modelo e IMEI en una fila; servicio y falla en la siguiente. */
+.defsDense {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-5);
 }
 
-.def dd {
-  font-size: var(--text-base);
-  color: var(--text);
-  min-width: 0;
-  overflow-wrap: anywhere;
+.defsDense .defFalla {
+  grid-column: span 2;
+}
+
+@media (max-width: 599px) {
+  .defsDense {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3) var(--space-4);
+  }
+  .defsDense .defImei,
+  .defsDense .defServicio,
+  .defsDense .defFalla {
+    grid-column: 1 / -1;
+  }
 }
 
 .mono {
@@ -447,7 +455,7 @@
 .prose {
   white-space: pre-wrap;
   line-height: var(--leading-normal);
-  color: var(--text-2);
+  color: var(--text);
   font-size: var(--text-base);
 }
 
@@ -817,21 +825,35 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Vacío en línea: una fila compacta (ícono · texto · acción), sin caja punteada alta. */
 .inlineEmpty {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-5) var(--space-4);
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-3);
   border-radius: var(--radius-md);
-  border: 1px dashed var(--border-strong);
-  text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
 }
 
 .inlineEmpty p {
+  flex: 1;
+  min-width: 0;
   font-size: var(--text-sm);
   color: var(--text-2);
-  max-width: 340px;
+}
+
+.inlineEmpty > :last-child:not(p) {
+  flex-shrink: 0;
+}
+
+@media (max-width: 599px) {
+  .inlineEmpty {
+    flex-wrap: wrap;
+  }
+  .inlineEmpty > :last-child:not(p) {
+    margin-left: calc(36px + var(--space-3));
+  }
 }
 
 .inlineEmptyIcon {
@@ -840,8 +862,9 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-md);
+  flex-shrink: 0;
   background: var(--surface-3);
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 .inlineEmptyIcon svg {

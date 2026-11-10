@@ -258,7 +258,7 @@ export function FlowChart({ data, kind }: { data: PeriodData; kind: PeriodKind }
   // El gráfico ocupa todo el alto que deja la columna derecha (sin hueco al pie de la tarjeta).
   const [fillRef, fillSize] = useMeasure<HTMLDivElement>();
   const phone = useMediaQuery('(max-width: 599px)');
-  const chartH = phone ? 200 : Math.max(260, Math.min(460, fillSize.height || 300));
+  const chartH = phone ? 220 : Math.max(260, Math.min(460, fillSize.height || 300));
   return (
     <Card
       className={s.chartCard}

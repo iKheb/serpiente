@@ -109,7 +109,7 @@
 
   --text: #eef0f6;
   --text-2: #a7adbb;
-  --text-3: #6f7686;
+  --text-3: #848b9b;
   --text-4: #4a505d;
   --text-on-brand: #ffffff;
 
@@ -194,7 +194,7 @@
 
   --text: #0d1017;
   --text-2: #4b5263;
-  --text-3: #7a8193;
+  --text-3: #636a7b;
   --text-4: #a8aebb;
 
   --brand: #6250f0;
@@ -211,12 +211,12 @@
   --expense-soft: rgba(226, 58, 90, 0.09);
   --profit: #6250f0;
   --profit-soft: rgba(98, 80, 240, 0.1);
-  --pending: #c98a10;
+  --pending: #9f6a00;
   --pending-soft: rgba(201, 138, 16, 0.11);
 
   --success: #0f9f76;
   --success-soft: rgba(15, 159, 118, 0.1);
-  --warning: #c98a10;
+  --warning: #9f6a00;
   --warning-soft: rgba(201, 138, 16, 0.11);
   --danger: #e23a5a;
   --danger-soft: rgba(226, 58, 90, 0.09);

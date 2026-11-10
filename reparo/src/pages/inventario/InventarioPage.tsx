@@ -12,6 +12,7 @@ import {
   SegmentedControl,
   Select,
   Tabs,
+  cx,
   toast,
   useLocalState,
   useMediaQuery,
@@ -185,6 +186,29 @@ function InventoryOverview() {
         }
       />
 
+      {narrow && filtro !== 'todos' ? (
+        /* Teléfono en Por pedir / Pedidos / Agotados: indicadores en una sola franja para que la lista suba. */
+        <div className={styles.statStrip}>
+          <button type="button" className={styles.stat} onClick={() => setFiltro('todos')}>
+            <span className={styles.statLabel}>
+              <Wallet aria-hidden /> Inventario
+            </span>
+            <span className={styles.statValue}>{stats ? formatMoney(stats.valorCents, { decimals: false }) : '—'}</span>
+          </button>
+          <button type="button" className={cx(styles.stat, styles.statPend, filtro === 'pedir' && styles.statOn)} aria-pressed={filtro === 'pedir'} onClick={() => setFiltro('pedir')}>
+            <span className={styles.statLabel}>
+              <ShoppingCart aria-hidden /> Por pedir
+            </span>
+            <span className={styles.statValue}>{stats ? formatNumber(stats.porPedir) : '—'}</span>
+          </button>
+          <button type="button" className={cx(styles.stat, styles.statOut, filtro === 'agotados' && styles.statOn)} aria-pressed={filtro === 'agotados'} onClick={() => setFiltro('agotados')}>
+            <span className={styles.statLabel}>
+              <PackageX aria-hidden /> Agotados
+            </span>
+            <span className={styles.statValue}>{stats ? formatNumber(stats.agotados) : '—'}</span>
+          </button>
+        </div>
+      ) : (
       <div className={styles.kpis}>
         <KpiCard label="Artículos" icon={<Package />} value={stats?.articulos ?? 0} format={(n) => formatNumber(n)} loading={!stats} footer={<span>{plural(EXPENSE_CATEGORIES.filter((c) => catCounts.get(c)).length, 'categoría', 'categorías')}</span>} />
         <KpiCard label="Unidades" icon={<Boxes />} value={unidades} format={(n) => formatNumber(n)} loading={!stats} footer={<span>piezas en existencia</span>} />
@@ -201,6 +225,7 @@ function InventoryOverview() {
         />
         <KpiCard label="Agotados" tone="expense" icon={<PackageX />} value={stats?.agotados ?? 0} format={(n) => formatNumber(n)} loading={!stats} onClick={() => setFiltro('agotados')} footer={<span>{stats?.agotados ? 'sin unidades' : 'todo con stock'}</span>} />
       </div>
+      )}
 
       <div className={styles.controls}>
         <Tabs value={filtro} onChange={setFiltro} items={tabs} aria-label="Vistas del inventario" idPrefix="inv" className={styles.tabs} />

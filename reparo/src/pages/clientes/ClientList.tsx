@@ -249,7 +249,7 @@ export function ClientList() {
         return (
           <div className={styles.pay}>
             <PayBadge c={c} />
-            {s > 0 && c.estado !== 'cancelado' && <span className={styles.saldo}>Saldo {formatMoney(s)}</span>}
+            {s > 0 && s < c.cobroCents && c.estado !== 'cancelado' && <span className={styles.saldo}>Saldo {formatMoney(s)}</span>}
           </div>
         );
       },
@@ -307,7 +307,8 @@ export function ClientList() {
           </div>
           <div className={styles.cardMoney}>
             <MoneyText cents={c.cobroCents} weight="semibold" strike={c.estado === 'cancelado'} tone={c.estado === 'cancelado' ? 'muted' : 'neutral'} />
-            {s > 0 && c.estado !== 'cancelado' && <span className={styles.saldo}>Saldo {formatMoney(s)}</span>}
+            {/* Sólo con abono parcial: si no ha pagado nada, el saldo es el mismo total (lo dice la insignia). */}
+            {s > 0 && s < c.cobroCents && c.estado !== 'cancelado' && <span className={styles.saldo}>Saldo {formatMoney(s)}</span>}
           </div>
         </div>
         <DateTimeText value={c.fecha} variant="relative-datetime" muted className={styles.cardDate} />
@@ -343,7 +344,7 @@ export function ClientList() {
     <div className={styles.page}>
       <PageHeader
         title="Clientes"
-        subtitle={clients ? `${clients.length} ${clients.length === 1 ? 'servicio registrado' : 'servicios registrados'} · equipos, reparaciones y cobros` : 'Equipos, reparaciones y cobros'}
+        subtitle={clients ? `${clients.length} ${clients.length === 1 ? 'servicio' : 'servicios'} · equipos, reparaciones y cobros` : 'Equipos, reparaciones y cobros'}
         actions={
           <>
             <Button variant="ghost" iconLeft={<Download />} onClick={exportar} className={styles.hideMobile}>
@@ -450,7 +451,7 @@ export function ClientList() {
             <Select<SortKey> size="sm" aria-label="Ordenar" value={sort} onChange={setSort} options={SORT_OPTIONS} icon={<ArrowDownUp />} width={170} containerClassName={styles.sortSel} />
           </Toolbar>
         )}
-        <FilterChips<StatusFilter> aria-label="Filtrar por estado" value={status} onChange={setStatus} options={statusOptions} />
+        <FilterChips<StatusFilter> aria-label="Filtrar por estado" value={status} onChange={setStatus} options={statusOptions} className={styles.statusChips} />
       </div>
 
       {compact && (

@@ -221,7 +221,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
               items={providers}
               max={5}
               formatValue={money}
-              color="var(--expense)"
+              color="var(--brand)"
               variant="stacked"
               otherLabel="Otros proveedores"
               emptyMessage="Sin compras en este período"
