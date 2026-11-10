@@ -23,12 +23,14 @@ export interface FormSectionProps {
   children: ReactNode;
   className?: string;
   style?: CSSProperties;
+  /** Ancla (p. ej. para un índice de secciones). */
+  id?: string;
 }
 
 /** Grupo con título dentro de un formulario (separado por línea del anterior). */
-export function FormSection({ title, description, children, className, style }: FormSectionProps) {
+export function FormSection({ title, description, children, className, style, id }: FormSectionProps) {
   return (
-    <div role="group" aria-label={typeof title === 'string' ? title : undefined} className={cx(styles.section, className)} style={style}>
+    <div id={id} role="group" aria-label={typeof title === 'string' ? title : undefined} className={cx(styles.section, className)} style={style}>
       {title && <div className={styles.legend}>{title}</div>}
       {description && <p className={styles.description}>{description}</p>}
       <div className={styles.body}>{children}</div>

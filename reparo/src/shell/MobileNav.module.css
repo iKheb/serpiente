@@ -18,6 +18,20 @@
 /* El borde inferior sólo aparece al desplazar, como en las barras nativas. */
 .headerScrolled {
   border-bottom-color: var(--border);
+  box-shadow: 0 1px 0 var(--border), 0 8px 18px -12px rgba(0, 0, 0, 0.45);
+}
+
+/* Al desplazarse, el contenido se desvanece bajo la barra: un título a medio
+   pasar no se ve "cortado a cuchillo". */
+.headerScrolled::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 16px;
+  background: linear-gradient(var(--bg), color-mix(in srgb, var(--bg) 0%, transparent));
+  pointer-events: none;
 }
 
 .mark {

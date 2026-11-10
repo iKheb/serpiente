@@ -128,6 +128,11 @@
   }
 }
 
+/* Anclas y foco por teclado: nada queda escondido bajo la barra superior fija. */
+main :where(section, [id]) {
+  scroll-margin-top: calc(var(--app-header-h, 64px) + 12px);
+}
+
 /* --------------------------------- Reset --------------------------------- */
 *,
 *::before,

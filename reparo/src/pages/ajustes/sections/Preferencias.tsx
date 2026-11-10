@@ -84,7 +84,7 @@ function ThemePicker({ value, onChange }: { value: ThemePreference; onChange: (v
             onClick={() => onChange(t.value)}
           >
             {t.value === 'system' ? (
-              /* Sistema: la misma maqueta, mitad oscura y mitad clara (corte vertical limpio). */
+              /* Sistema: la misma maqueta, mitad oscura y mitad clara (corte diagonal limpio). */
               <span className={styles.themePreview} aria-hidden>
                 <span className={cx(styles.tpLayer, styles['tp-dark'])}>
                   <ThemeMock />
@@ -92,6 +92,7 @@ function ThemePicker({ value, onChange }: { value: ThemePreference; onChange: (v
                 <span className={cx(styles.tpLayer, styles.tpLayerRight, styles['tp-light'])}>
                   <ThemeMock />
                 </span>
+                <span className={styles.tpSeam} />
               </span>
             ) : (
               <span className={cx(styles.themePreview, styles[`tp-${t.value}`])} aria-hidden>

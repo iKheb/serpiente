@@ -40,7 +40,7 @@ hr { border: 0; border-top: 1px dashed ${PAPER.rule}; margin: 3mm 0; }
 .total { display: flex; justify-content: space-between; align-items: baseline; font-weight: 600; font-size: 13px; }
 .total .m { font-size: 16px; }
 .inc { color: ${PAPER.income}; } .pen { color: ${PAPER.pending}; font-weight: 600; }
-.foot { font-style: italic; color: ${PAPER.ink2}; text-align: center; }
+.foot { color: ${PAPER.ink3}; text-align: center; text-wrap: balance; }
 </style></head><body>
 <div class="c">
   <img class="logo" alt="" src="data:image/svg+xml;utf8,${encodeURIComponent(brandMarkSVG(64))}">

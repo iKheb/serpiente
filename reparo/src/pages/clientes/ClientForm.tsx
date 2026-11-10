@@ -312,8 +312,9 @@ export function ClientForm({ open, clientId, onClose }: ClientFormProps) {
         )
       ) : (
         <form id={FORM_ID} ref={formRef} onSubmit={submit} onKeyDown={onKeyDown} noValidate className={styles.form}>
+          <SectionIndex formRef={formRef} />
           {/* ------------------------------ Cliente ------------------------------ */}
-          <FormSection title="Cliente">
+          <FormSection id="cf-cliente" title="Cliente">
             <FormGrid>
               <div data-field="nombre" className="span-all">
                 <Combobox
@@ -354,7 +355,7 @@ export function ClientForm({ open, clientId, onClose }: ClientFormProps) {
           </FormSection>
 
           {/* ------------------------------ Equipo ------------------------------- */}
-          <FormSection title="Equipo">
+          <FormSection id="cf-equipo" title="Equipo">
             <FormGrid>
               <div data-field="marca">
                 <Combobox label="Marca" value={draft.marca} onChange={(v) => set('marca', v)} options={DEVICE_BRANDS} placeholder="Apple, Samsung…" error={errors.marca} maxResults={14} />
@@ -438,12 +439,12 @@ export function ClientForm({ open, clientId, onClose }: ClientFormProps) {
           </FormSection>
 
           {/* --------------------------- Evidencia ------------------------------- */}
-          <FormSection title="Evidencia fotográfica" description={editing ? 'Fotos guardadas del equipo. Agrega más en cada etapa.' : undefined}>
+          <FormSection id="cf-fotos" title="Evidencia fotográfica" description={editing ? 'Fotos guardadas del equipo. Agrega más en cada etapa.' : undefined}>
             {editing && clientId ? <PhotoGallery clientId={clientId} editable /> : <PhotoCapture files={files} onChange={setFiles} />}
           </FormSection>
 
           {/* ---------------------------- Servicio ------------------------------- */}
-          <FormSection title="Servicio">
+          <FormSection id="cf-servicio" title="Servicio">
             <div className={styles.stack}>
               <div data-field="servicio">
                 <Field label="Tipo de servicio" error={errors.servicio} labelAs="span">
@@ -478,7 +479,7 @@ export function ClientForm({ open, clientId, onClose }: ClientFormProps) {
           </FormSection>
 
           {/* ------------------------------ Cobro -------------------------------- */}
-          <FormSection title="Cobro">
+          <FormSection id="cf-cobro" title="Cobro">
             <div className={styles.stack}>
               <FormGrid>
                 <div data-field="cobroCents">
@@ -552,5 +553,73 @@ export function ClientForm({ open, clientId, onClose }: ClientFormProps) {
         </form>
       )}
     </Sheet>
+  );
+}
+
+const SECTION_INDEX = [
+  { id: 'cf-cliente', label: 'Cliente' },
+  { id: 'cf-equipo', label: 'Equipo' },
+  { id: 'cf-fotos', label: 'Fotos' },
+  { id: 'cf-servicio', label: 'Servicio' },
+  { id: 'cf-cobro', label: 'Cobro' },
+];
+
+/** Índice de secciones (teléfono): fijo arriba de la hoja, marca dónde vas y salta a cada parte. */
+function SectionIndex({ formRef }: { formRef: React.RefObject<HTMLFormElement | null> }) {
+  const [active, setActive] = useState(SECTION_INDEX[0].id);
+  const navRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const form = formRef.current;
+    const scroller = form?.parentElement;
+    if (!form || !scroller) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const top = scroller.getBoundingClientRect().top + (navRef.current?.offsetHeight ?? 0) + 24;
+      let current = SECTION_INDEX[0].id;
+      for (const s of SECTION_INDEX) {
+        const el = form.querySelector<HTMLElement>(`#${s.id}`);
+        if (el && el.getBoundingClientRect().top <= top) current = s.id;
+      }
+      if (scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4) current = SECTION_INDEX[SECTION_INDEX.length - 1].id;
+      setActive(current);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      scroller.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [formRef]);
+
+  const go = (id: string) => {
+    const form = formRef.current;
+    const scroller = form?.parentElement;
+    const el = form?.querySelector<HTMLElement>(`#${id}`);
+    if (!scroller || !el) return;
+    const offset = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top - (navRef.current?.offsetHeight ?? 0) - 8;
+    scroller.scrollTo({ top: scroller.scrollTop + offset, behavior: 'smooth' });
+    setActive(id);
+  };
+
+  return (
+    <nav ref={navRef} className={styles.sectionIndex} aria-label="Secciones del formulario">
+      {SECTION_INDEX.map((s) => (
+        <button
+          key={s.id}
+          type="button"
+          className={styles.sectionStep}
+          data-active={active === s.id || undefined}
+          aria-current={active === s.id ? 'step' : undefined}
+          onClick={() => go(s.id)}
+        >
+          {s.label}
+        </button>
+      ))}
+    </nav>
   );
 }

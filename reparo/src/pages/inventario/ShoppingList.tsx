@@ -188,6 +188,7 @@ function SupplierHeader({ group: g, business, cc }: { group: OrderGroup; busines
             onClick={() => openWhatsApp(buildOrderText([g], { businessName: business, forSupplier: true }), cc)}
           >
             <span className={styles.hideSm}>Enviar pedido</span>
+            <span className={styles.showSm}>Enviar</span>
           </Button>
         </Tooltip>
       </div>

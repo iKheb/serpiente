@@ -414,6 +414,18 @@
   min-width: 0;
 }
 
+.def > dt {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--text-3);
+}
+
+.def > dd {
+  font-size: var(--text-base);
+  color: var(--text);
+  min-width: 0;
+}
+
 .defWide {
   grid-column: 1 / -1;
 }

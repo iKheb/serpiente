@@ -42,6 +42,24 @@ function wrap(ctx: Ctx, text: string, maxWidth: number): string[] {
   return out.length ? out : [''];
 }
 
+/** Como `wrap`, pero con renglones parejos (equivale a `text-wrap: balance`): sin palabras huérfanas. */
+function wrapBalanced(ctx: Ctx, text: string, maxWidth: number): string[] {
+  const base = wrap(ctx, text, maxWidth);
+  if (base.length < 2) return base;
+  let lo = maxWidth / base.length;
+  let hi = maxWidth;
+  let best = base;
+  for (let i = 0; i < 14; i++) {
+    const mid = (lo + hi) / 2;
+    const t = wrap(ctx, text, mid);
+    if (t.length <= base.length && t.every((l) => ctx.measureText(l).width <= mid + 0.5)) {
+      best = t;
+      hi = mid;
+    } else lo = mid;
+  }
+  return best;
+}
+
 function drawMark(ctx: Ctx, x: number, y: number, size: number) {
   const k = size / 64;
   ctx.save();
@@ -132,7 +150,7 @@ function layout(ctx: Ctx, m: ReceiptModel, ox: number, oy: number, draw: boolean
     });
   };
   const rule = (dashed = true) => {
-    y += 12;
+    y += 10;
     if (draw) {
       ctx.save();
       ctx.strokeStyle = PAPER.rule;
@@ -144,11 +162,11 @@ function layout(ctx: Ctx, m: ReceiptModel, ox: number, oy: number, draw: boolean
       ctx.stroke();
       ctx.restore();
     }
-    y += 16;
+    y += 14;
   };
   const centered = (s: string, f: string, color: string, lh: number) => {
     ctx.font = f;
-    for (const l of wrap(ctx, s, inner)) {
+    for (const l of wrapBalanced(ctx, s, inner - 24)) {
       y += lh;
       text(l, cx, y, f, color, 'center');
     }
@@ -253,9 +271,10 @@ function layout(ctx: Ctx, m: ReceiptModel, ox: number, oy: number, draw: boolean
 
   if (m.footer) {
     rule();
-    centered(m.footer, `italic ${font(450, 12)}`, PAPER.ink2, 17);
+    y -= 4;
+    centered(m.footer, font(450, 12), PAPER.ink3, 17);
   }
-  y += 22;
+  y += 18;
   return y - oy + TOOTH;
 }
 

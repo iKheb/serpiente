@@ -2,6 +2,7 @@
 .layout {
   display: grid;
   grid-template-columns: 216px minmax(0, 1fr);
+  max-width: 1240px;
   gap: var(--space-10);
   align-items: start;
 }
@@ -114,7 +115,7 @@
 
 .content {
   min-width: 0;
-  max-width: 820px;
+  max-width: 980px;
 }
 
 .contentHead {
@@ -706,18 +707,24 @@
 }
 
 .tpLayerRight {
-  clip-path: inset(0 0 0 50%);
+  clip-path: polygon(62% 0, 100% 0, 100% 100%, 38% 100%);
 }
 
-.tpLayerRight::before {
-  content: '';
+/* Filo del corte diagonal: una línea fina sobre el borde, sin franjas claras. */
+.tpSeam {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: color-mix(in srgb, black 18%, transparent);
-  z-index: 1;
+  left: 38%;
+  width: 24%;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(
+    to bottom right,
+    transparent calc(50% - 0.75px),
+    color-mix(in srgb, var(--brand) 55%, transparent) 50%,
+    transparent calc(50% + 0.75px)
+  );
 }
 
 .tpHalf {

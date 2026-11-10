@@ -318,9 +318,10 @@
 
 .foot {
   text-align: center;
-  font-style: italic;
-  color: var(--paper-ink-2);
+  color: var(--paper-ink-3);
   font-size: 12px;
+  text-wrap: balance;
+  padding-inline: var(--space-2);
 }
 
 .ticketSkeleton {
@@ -383,5 +384,31 @@
   .stage {
     padding-left: var(--space-3);
     padding-right: var(--space-3);
+  }
+}
+
+/* Teléfono: ticket compacto para que total, estado de pago y garantía quepan
+   en la primera vista sobre el pie de acciones (el PNG no cambia). */
+@media (max-width: 639px) {
+  .stage {
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-4);
+  }
+  .ticket {
+    padding-top: calc(var(--space-4) + var(--tooth));
+    padding-bottom: calc(var(--space-4) + var(--tooth));
+    line-height: 1.38;
+  }
+  .mark {
+    width: 28px;
+    height: 28px;
+    margin-bottom: var(--space-1);
+    border-radius: 7px;
+  }
+  .rule {
+    margin: 10px 0;
+  }
+  .rows {
+    gap: 3px;
   }
 }

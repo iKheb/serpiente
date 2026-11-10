@@ -9,9 +9,16 @@
   display: inline;
 }
 
+.showSm {
+  display: none;
+}
+
 @media (max-width: 639px) {
   .hideSm {
     display: none;
+  }
+  .showSm {
+    display: inline;
   }
 }
 
@@ -906,6 +913,50 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+}
+
+/* Escritorio ancho: el resumen pasa a una columna lateral fija y los renglones
+   quedan más compactos (sin vacío central entre nombre y cantidades). */
+@media (min-width: 1280px) {
+  .shop:has(> .shopSummary) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    align-items: start;
+    gap: 0 var(--space-5);
+  }
+  .shop:has(> .shopSummary) > * {
+    grid-column: 1;
+  }
+  .shop:has(> .shopSummary) > * + * {
+    margin-top: var(--space-4);
+  }
+  .shop:has(> .shopSummary) > .shopSummary + * {
+    margin-top: 0;
+  }
+  .shop > .shopSummary {
+    grid-column: 2;
+    grid-row: 1 / span 40;
+    margin-top: 0;
+    position: sticky;
+    top: calc(var(--app-header-h, 64px) + var(--space-5));
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-5);
+  }
+  .shop > .shopSummary .shopActions {
+    flex-direction: column;
+  }
+  .shop > .shopSummary .shopActions > * {
+    width: 100%;
+  }
+  .shop > .shopSummary .shopActions > :last-child {
+    order: -1;
+  }
+  .shop:has(> .shopSummary) .supplierHead,
+  .shop:has(> .shopSummary) .line {
+    grid-template-columns: minmax(0, 1fr) 132px 80px 96px 92px;
+    gap: var(--space-3);
+  }
 }
 
 .shopSummary {
