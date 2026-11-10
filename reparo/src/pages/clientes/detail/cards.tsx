@@ -208,7 +208,6 @@ export function UnlockCard({ client }: { client: Client }) {
                 {tipo === 'patron' ? (
                   <div className={styles.patternWrap}>
                     <PatternLock value={client.desbloqueoPatron} readOnly animate size={176} />
-                    <span className={styles.unlockHint}>Patrón · {client.desbloqueoPatron.length} puntos</span>
                   </div>
                 ) : (
                   <div className={styles.codeRow}>

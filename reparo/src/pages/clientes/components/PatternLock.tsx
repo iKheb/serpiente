@@ -252,7 +252,9 @@ export function PatternLock({ value, onChange, readOnly = false, size = 240, ani
   const seqText = path.length
     ? showPos
       ? `Posiciones: ${path.map((d) => d + 1).join(' · ')}`
-      : `${path.length} ${path.length === 1 ? 'punto' : 'puntos'} · empieza ${POS_LABEL[path[0]]}`
+      : readOnly
+        ? `${path.length} ${path.length === 1 ? 'punto' : 'puntos'} · sigue el orden 1→${path.length}`
+        : `${path.length} ${path.length === 1 ? 'punto' : 'puntos'} · empieza ${POS_LABEL[path[0]]}`
     : '';
   const label = readOnly
     ? path.length
