@@ -121,7 +121,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
     <div className={styles.summary}>
       <div className={styles.kpis}>
         <KpiCard
-          label={narrow ? 'Semana' : 'Gastado esta semana'}
+          label={narrow ? 'Semana' : 'Esta semana'}
           tone="expense"
           icon={<CalendarDays />}
           value={k.week.total}
@@ -133,7 +133,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
           sparkline={<Sparkline data={k.weekSpark} tone="expense" height={36} ariaLabel="Gasto diario de la semana" />}
         />
         <KpiCard
-          label={narrow ? 'Mes' : 'Gastado este mes'}
+          label={narrow ? 'Mes' : 'Este mes'}
           tone="expense"
           icon={<CalendarRange />}
           value={k.month.total}
@@ -145,7 +145,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
           sparkline={<Sparkline data={k.monthSpark} tone="expense" height={36} ariaLabel="Gasto diario del mes" />}
         />
         <KpiCard
-          label={narrow ? 'Por día' : 'Promedio diario del mes'}
+          label={narrow ? 'Por día' : 'Promedio diario'}
           tone="pending"
           icon={<Gauge />}
           value={k.avg}
@@ -162,7 +162,7 @@ export function ExpenseSummary({ expenses, now, weekStartsOn, range, rangeLabel,
           sparkline={<Sparkline data={k.avgSpark} tone="pending" height={36} ariaLabel="Promedio diario acumulado del mes" />}
         />
         <KpiCard
-          label={narrow ? 'Compras' : 'Compras este mes'}
+          label={narrow ? 'Compras' : 'Compras del mes'}
           tone="brand"
           icon={<ShoppingCart />}
           value={k.month.count}

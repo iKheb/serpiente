@@ -206,7 +206,8 @@
   }
 }
 
-@container (max-width: 168px) {
+/* En la tarjeta estrecha el ícono cede su sitio a la etiqueta (nunca "Gasta…"). */
+@container (max-width: 200px) {
   .icon {
     display: none;
   }

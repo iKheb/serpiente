@@ -7,7 +7,7 @@ import { Avatar, Badge, Button, DateTimeText, EmptyState, IconButton, MoneyText,
 import { needsReorder, useSettings, whatsappUrl, type InventoryItem } from '@/data';
 import { markManyOrdered, openAction, toggleOrdered } from './actions';
 import { NO_SUPPLIER, buildOrderText, compatLabel, copyText, groupBySupplier, plural, suggestedQty, type OrderGroup, type OrderLine } from './lib';
-import { ItemThumb } from './parts';
+import { CategoryIcon } from '../gastos/categories';
 import styles from './inventario.module.css';
 
 const QTY_KEY = 'reparo.inventario.cantidadesPedido';
@@ -74,7 +74,7 @@ export function ShoppingList({ items, onlyOrdered }: ShoppingListProps) {
         {enCamino.map((i) => (
           <li key={i.id} className={styles.orderRow}>
             <a href={`#/inventario/${i.id}`} className={styles.orderMain}>
-              <ItemThumb categoria={i.categoria} size={36} />
+              <CategoryIcon categoria={i.categoria} />
               <span className={styles.lineText}>
                 <span className={styles.lineName}>{i.nombre}</span>
                 <span className={styles.lineSub}>
@@ -220,7 +220,7 @@ function OrderLineRow({ line, onQty }: { line: OrderLine; onQty: (n: number) => 
   return (
     <li className={cx(styles.line, qty === 0 && styles.lineOff)}>
       <a href={`#/inventario/${i.id}`} className={styles.lineMain}>
-        <ItemThumb categoria={i.categoria} size={36} />
+        <CategoryIcon categoria={i.categoria} />
         <span className={styles.lineText}>
           <span className={styles.lineName}>{i.nombre}</span>
           <span className={styles.lineSub}>

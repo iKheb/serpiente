@@ -1,12 +1,41 @@
 /* Fotos de evidencia del equipo: se comprimen en el dispositivo (≤1600 px, JPEG
-   0.82) con miniatura (≤360 px) y se guardan como Blob en IndexedDB. Sólo locales
-   (no se sincronizan). Se auditan como entity 'cliente'. */
+   0.82) con miniatura (≤360 px) y se guardan como Blob en IndexedDB. Se auditan
+   como entity 'cliente'. La nube (src/cloud) las sincroniza: por eso cada edición
+   marca `updatedAt` y cada borrado deja una "lápida" en meta ('photoTombstones'). */
 import type { ClientPhoto, ID, PhotoKind } from './types';
 import { db, dbReady, getDeviceId } from './db';
 import { newId } from './ids';
 import { NotFoundError, ValidationError } from './errors';
 import { clientTitle } from './derive';
 import { diffFields, summarizePhotosAdded, summarizePhotosRemoved, writeAudit } from './audit';
+
+/** Clave de `meta`: { [photoId]: { clientId, deletedAt } } de fotos borradas aún no propagadas. */
+export const META_PHOTO_TOMBSTONES = 'photoTombstones';
+
+export interface PhotoTombstone {
+  clientId: ID;
+  deletedAt: number;
+}
+
+/** Foto tal como se guarda: `updatedAt` (opcional) marca la última edición de sus datos. */
+export type StoredPhoto = ClientPhoto & { updatedAt?: number };
+
+/** Lápidas de fotos borradas en este dispositivo (para la sincronización). */
+export async function readPhotoTombstones(): Promise<Record<ID, PhotoTombstone>> {
+  const row = await db.meta.get(META_PHOTO_TOMBSTONES);
+  const v = row?.value;
+  return v && typeof v === 'object' ? { ...(v as Record<ID, PhotoTombstone>) } : {};
+}
+
+/** Olvida lápidas ya propagadas. */
+export async function clearPhotoTombstones(ids: ID[]): Promise<void> {
+  if (!ids.length) return;
+  await db.transaction('rw', db.meta, async () => {
+    const all = await readPhotoTombstones();
+    for (const id of ids) delete all[id];
+    await db.meta.put({ key: META_PHOTO_TOMBSTONES, value: all });
+  });
+}
 
 export const PHOTO_MAX_SIDE = 1600;
 export const PHOTO_THUMB_SIDE = 360;
@@ -174,10 +203,13 @@ export async function addClientPhotos(
 /** Elimina una foto de evidencia. Actualiza numFotos y audita. */
 export async function deleteClientPhoto(id: ID): Promise<void> {
   await dbReady();
-  await db.transaction('rw', [db.clients, db.photos, db.audit], async () => {
+  await db.transaction('rw', [db.clients, db.photos, db.audit, db.meta], async () => {
     const photo = await db.photos.get(id);
     if (!photo) return;
     await db.photos.delete(id);
+    const tombstones = await readPhotoTombstones();
+    tombstones[id] = { clientId: photo.clientId, deletedAt: Date.now() };
+    await db.meta.put({ key: META_PHOTO_TOMBSTONES, value: tombstones });
     const client = await db.clients.get(photo.clientId);
     if (!client) return;
     const numFotos = await countPhotos(photo.clientId);
@@ -202,7 +234,7 @@ export async function updateClientPhoto(id: ID, patch: { caption?: string; kind?
   await db.transaction('rw', [db.clients, db.photos, db.audit], async () => {
     const photo = await db.photos.get(id);
     if (!photo) throw new NotFoundError('La foto ya no existe');
-    const next: ClientPhoto = { ...photo };
+    const next: StoredPhoto = { ...photo };
     if (patch.caption !== undefined) next.caption = patch.caption.trim().slice(0, 300);
     if (patch.kind !== undefined) {
       if (!PHOTO_KINDS.includes(patch.kind)) throw new ValidationError({ kind: 'Elige cuándo se tomó la foto' });
@@ -214,6 +246,7 @@ export async function updateClientPhoto(id: ID, patch: { caption?: string; kind?
       { caption: next.caption, kind: next.kind },
     );
     if (!changes.length) return;
+    next.updatedAt = Math.max(Date.now(), ((photo as StoredPhoto).updatedAt ?? photo.ts) + 1);
     await db.photos.put(next);
     const client = await db.clients.get(photo.clientId);
     await writeAudit({

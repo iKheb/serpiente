@@ -47,6 +47,16 @@ export interface CloudClient {
   };
   rpc(fn: string, args: Record<string, unknown>): Res<unknown>;
   from(table: string): { select(columns: string): CloudQuery };
+  storage: {
+    from(bucket: string): CloudBucket;
+  };
+}
+
+/** Subconjunto de StorageFileApi (supabase-js) que usa Reparo para las fotos. */
+export interface CloudBucket {
+  upload(path: string, body: Blob, opts?: { upsert?: boolean; contentType?: string; cacheControl?: string }): Res<unknown>;
+  download(path: string): Res<Blob | null>;
+  remove(paths: string[]): Res<unknown>;
 }
 
 export const AUTH_STORAGE_KEY = 'reparo-auth';
