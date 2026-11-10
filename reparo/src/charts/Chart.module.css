@@ -50,7 +50,7 @@
 
 .axisText {
   fill: var(--chart-axis);
-  font-size: var(--text-2xs);
+  font-size: 12px;
   font-weight: var(--weight-medium);
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;

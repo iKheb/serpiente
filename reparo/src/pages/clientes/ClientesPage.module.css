@@ -436,22 +436,13 @@
   }
 }
 
-/* Teléfono: los chips de estado llegan al borde de la pantalla (se ve que la fila continúa),
-   con desvanecido en el borde y ajuste por chip al deslizar. */
+/* Teléfono: los cinco estados caben en dos filas; nada queda recortado ni escondido. */
 @media (max-width: 899px) {
   .filters .statusChips {
-    margin-inline: calc(-1 * var(--gutter));
-    padding-inline: var(--gutter);
-    scroll-padding-inline: var(--gutter);
-    scroll-snap-type: x proximity;
-    -webkit-mask: linear-gradient(90deg, transparent 0, black 12px, black calc(100% - 44px), transparent);
-    mask: linear-gradient(90deg, transparent 0, black 12px, black calc(100% - 44px), transparent);
-  }
-  .filters .statusChips > * {
-    scroll-snap-align: start;
-  }
-  .filters .statusChips::after {
-    content: '';
-    flex: 0 0 28px;
+    flex-wrap: wrap;
+    overflow: visible;
+    row-gap: 8px;
+    -webkit-mask: none;
+    mask: none;
   }
 }

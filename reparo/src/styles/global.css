@@ -118,6 +118,16 @@
   }
 }
 
+/* Escala tipográfica de escritorio: con puntero fino y pantallas anchas los
+   metadatos no bajan de 12 px y el texto secundario de 13 px (en el teléfono la
+   escala compacta de tokens.css se mantiene). */
+@media (min-width: 900px) {
+  :root {
+    --text-2xs: 12px;
+    --text-xs: 13px;
+  }
+}
+
 /* --------------------------------- Reset --------------------------------- */
 *,
 *::before,

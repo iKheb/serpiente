@@ -4,7 +4,7 @@ import s from '../Chart.module.css';
 import { measureText } from './format';
 import type { ChartSeries, ReferenceLine, ValueFormatter } from './types';
 
-export const AXIS_FONT = '500 11px "Geist Variable", ui-sans-serif, system-ui, sans-serif';
+export const AXIS_FONT = '500 12px "Geist Variable", ui-sans-serif, system-ui, sans-serif';
 
 /** Estado de series ocultas desde la leyenda (nunca permite ocultarlas todas). */
 export function useSeriesToggle(all: readonly ChartSeries[]) {

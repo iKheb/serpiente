@@ -38,9 +38,15 @@ export function niceDomain(values: Iterable<number>, count = 4): NiceDomain {
     min = Math.floor(lo / step) * step;
     max = Math.ceil(hi / step) * step;
   }
+  // Excursiones mínimas al otro lado del cero (p. ej. −$200 con pasos de $5k):
+  // en lugar de reservar un paso entero vacío, el dominio se ajusta a los datos
+  // con un margen pequeño y el eje no rotula ese tramo.
+  const pad = (hi - lo) * 0.06;
+  if (lo < 0 && hi > 0 && -lo < step * 0.5) min = lo - pad;
+  if (hi > 0 && lo < 0 && hi < step * 0.5) max = hi + pad;
   const ticks: number[] = [];
-  const n = Math.round((max - min) / step);
-  for (let i = 0; i <= n; i++) ticks.push(roundFloat(min + i * step));
+  const first = Math.ceil(roundFloat(min / step)) * step;
+  for (let t = first; t <= max + step * 1e-9; t += step) ticks.push(roundFloat(t));
   return { min: roundFloat(min), max: roundFloat(max), ticks };
 }
 
