@@ -3,6 +3,7 @@
   --kpi-soft: var(--surface-active);
   overflow: clip;
   min-height: 132px;
+  container-type: inline-size;
 }
 
 .income {
@@ -165,4 +166,48 @@
   flex-direction: column;
   gap: 10px;
   padding-top: 2px;
+}
+
+/* Tarjeta estrecha (rejilla 2×2 en teléfonos): misma información, más compacta. */
+@container (max-width: 200px) {
+  .inner {
+    gap: 8px;
+    padding: 12px 12px 12px 14px;
+  }
+  .top {
+    min-height: 22px;
+    gap: 6px;
+  }
+  .labelRow {
+    gap: 7px;
+  }
+  .icon {
+    width: 22px;
+    height: 22px;
+  }
+  .icon svg {
+    width: 13px;
+    height: 13px;
+  }
+  .value {
+    font-size: 21px;
+  }
+  .delta {
+    height: 20px;
+    padding: 0 6px 0 4px;
+  }
+  .delta svg {
+    width: 12px;
+    height: 12px;
+  }
+  .footer {
+    margin-top: -2px;
+    line-height: 1.4;
+  }
+}
+
+@container (max-width: 168px) {
+  .icon {
+    display: none;
+  }
 }

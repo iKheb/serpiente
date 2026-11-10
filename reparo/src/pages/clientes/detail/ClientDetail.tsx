@@ -116,7 +116,9 @@ function DetailView({ client }: { client: Client }) {
   const print = () => settings && printReceipt(buildReceiptModel(client, settings, piezas));
 
   const menu: MenuItem[] = [
-    { label: 'Editar servicio', icon: <Pencil />, onSelect: edit },
+    { label: 'Compartir recibo como imagen', icon: <ImageDown />, onSelect: () => void share() },
+    { label: 'Imprimir recibo', icon: <Printer />, onSelect: print },
+    { type: 'separator' },
     { label: 'Ver en Actividad', icon: <History />, href: `#/actividad?entidad=cliente&id=${client.id}` },
     { type: 'separator' },
     client.estado === 'cancelado'
@@ -153,22 +155,24 @@ function DetailView({ client }: { client: Client }) {
             <Button variant="primary" iconLeft={<MessageCircle />} onClick={() => setReceiptOpen(true)} className={styles.ctaWa}>
               Enviar recibo por WhatsApp
             </Button>
-            <div className={styles.iconRow}>
-              <IconButton variant="secondary" icon={<ImageDown />} label="Compartir recibo (imagen)" onClick={share} loading={sharing} />
-              <IconButton variant="secondary" icon={<Printer />} label="Imprimir recibo" onClick={print} />
-              <IconButton
+            <div className={styles.secondaryRow}>
+              <Button
                 variant="secondary"
-                icon={<Phone />}
-                label={tel ? `Llamar a ${tel}` : 'Sin teléfono'}
+                iconLeft={<Phone />}
                 disabled={!telHref}
+                title={tel ? `Llamar a ${tel}` : 'Sin teléfono registrado'}
                 onClick={() => telHref && (location.href = telHref)}
-              />
-              <IconButton variant="secondary" icon={<Pencil />} label="Editar" onClick={edit} shortcut="E" />
+              >
+                Llamar
+              </Button>
+              <Button variant="secondary" iconLeft={<Pencil />} onClick={edit} title="Editar (E)">
+                Editar
+              </Button>
               <DropdownMenu
                 label="Más acciones"
                 align="end"
                 items={menu}
-                trigger={<IconButton variant="secondary" icon={<MoreHorizontal />} label="Más acciones" />}
+                trigger={<IconButton variant="secondary" icon={<MoreHorizontal />} label="Más acciones" loading={sharing} />}
               />
             </div>
           </div>

@@ -9,12 +9,11 @@ const MARGIN = 28; // fondo alrededor del papel
 const PAD = 26; // padding interno del papel
 const TOOTH = 7; // alto del borde dentado
 const SANS = `'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif`;
-const MONO = `'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace`;
 
 type Ctx = CanvasRenderingContext2D;
 
-function font(weight: number, size: number, mono = false) {
-  return `${weight} ${size}px ${mono ? MONO : SANS}`;
+function font(weight: number, size: number) {
+  return `${weight} ${size}px ${SANS}`;
 }
 
 function wrap(ctx: Ctx, text: string, maxWidth: number): string[] {
@@ -106,13 +105,31 @@ function layout(ctx: Ctx, m: ReceiptModel, ox: number, oy: number, draw: boolean
   const cx = ox + PAPER_W / 2;
   let y = oy + TOOTH + 24;
 
-  const text = (s: string, x: number, yy: number, f: string, color: string, align: CanvasTextAlign = 'left') => {
+  /**
+   * Texto en la familia sans. Con `tab`, las cifras se dibujan en celdas de ancho
+   * fijo (el canvas no admite `font-variant-numeric`): importes, fechas, folio y
+   * teléfono quedan tabulares sin mezclar una segunda familia monoespaciada.
+   */
+  const text = (s: string, x: number, yy: number, f: string, color: string, align: CanvasTextAlign = 'left', tab = false) => {
     if (!draw) return;
     ctx.font = f;
     ctx.fillStyle = color;
-    ctx.textAlign = align;
     ctx.textBaseline = 'alphabetic';
-    ctx.fillText(s, x, yy);
+    if (!tab || !/\d/.test(s)) {
+      ctx.textAlign = align;
+      ctx.fillText(s, x, yy);
+      return;
+    }
+    const digitW = Math.max(...'0123456789'.split('').map((d) => ctx.measureText(d).width));
+    const chars = [...s];
+    const widths = chars.map((ch) => (/\d/.test(ch) ? digitW : ctx.measureText(ch).width));
+    const total = widths.reduce((a, w) => a + w, 0);
+    let cx0 = align === 'right' ? x - total : align === 'center' ? x - total / 2 : x;
+    ctx.textAlign = 'center';
+    chars.forEach((ch, i) => {
+      ctx.fillText(ch, cx0 + widths[i] / 2, yy);
+      cx0 += widths[i];
+    });
   };
   const rule = (dashed = true) => {
     y += 12;
@@ -136,29 +153,20 @@ function layout(ctx: Ctx, m: ReceiptModel, ox: number, oy: number, draw: boolean
       text(l, cx, y, f, color, 'center');
     }
   };
+  // Rejilla etiqueta/valor: la etiqueta a la izquierda y el valor alineado a la
+  // derecha (también los textos largos, que se ajustan en varias líneas).
   const rows = (list: ReceiptRow[]) => {
+    const lf = font(450, 12.5);
+    const vf = font(520, 13);
     for (const r of list) {
-      const lf = font(450, 12.5);
-      const vf = font(r.mono ? 450 : 520, r.mono ? 12.5 : 13, r.mono);
-      if (r.block) {
-        y += 24;
-        text(r.label, left, y, lf, PAPER.ink3);
-        ctx.font = vf;
-        for (const l of wrap(ctx, r.value, inner)) {
-          y += 18;
-          text(l, left, y, vf, PAPER.ink);
-        }
-        y += 6;
-        continue;
-      }
       ctx.font = lf;
-      const lw = ctx.measureText(r.label).width;
+      const lw = Math.max(ctx.measureText(r.label).width, 64);
       ctx.font = vf;
-      const lines = wrap(ctx, r.value, inner - lw - 16);
+      const lines = wrap(ctx, r.value, inner - lw - 20);
       lines.forEach((l, i) => {
         y += i === 0 ? 20 : 17;
         if (i === 0) text(r.label, left, y, lf, PAPER.ink3);
-        text(l, right, y, vf, PAPER.ink, 'right');
+        text(l, right, y, vf, PAPER.ink, 'right', true);
       });
     }
   };
@@ -175,9 +183,9 @@ function layout(ctx: Ctx, m: ReceiptModel, ox: number, oy: number, draw: boolean
   y += 6;
   text('RECIBO DE SERVICIO', cx, y + 6, font(600, 10.5), PAPER.ink3, 'center');
   y += 32;
-  text(m.folio, cx, y, font(600, 24, true), PAPER.ink, 'center');
+  text(m.folio, cx, y, font(650, 24), PAPER.ink, 'center', true);
   y += 20;
-  text(m.dateText, cx, y, font(450, 12.5, true), PAPER.ink2, 'center');
+  text(m.dateText, cx, y, font(450, 12.5), PAPER.ink2, 'center', true);
   rule();
 
   rows(m.client);
@@ -193,7 +201,7 @@ function layout(ctx: Ctx, m: ReceiptModel, ox: number, oy: number, draw: boolean
       const lines = wrap(ctx, p.nombre, inner - 44);
       lines.forEach((l, i) => {
         y += i === 0 ? 20 : 17;
-        if (i === 0) text(`${p.cantidad} ×`, left, y, font(500, 12.5, true), PAPER.ink2);
+        if (i === 0) text(`${p.cantidad} ×`, left, y, font(500, 13), PAPER.ink2, 'left', true);
         text(l, left + 36, y, font(500, 13), PAPER.ink);
       });
     }
@@ -203,15 +211,15 @@ function layout(ctx: Ctx, m: ReceiptModel, ox: number, oy: number, draw: boolean
   // Importes
   y += 4;
   text('Total', left, y + 10, font(600, 15), PAPER.ink);
-  text(m.totals.total, right, y + 10, font(650, 18, true), PAPER.ink, 'right');
+  text(m.totals.total, right, y + 10, font(650, 18), PAPER.ink, 'right', true);
   y += 14;
   y += 22;
   text('Abonado', left, y, font(450, 13), PAPER.ink2);
-  text(m.totals.abonado, right, y, font(500, 13.5, true), PAPER.income, 'right');
+  text(m.totals.abonado, right, y, font(520, 13), PAPER.income, 'right', true);
   y += 22;
   const pending = m.totals.saldoCents > 0;
   text(pending ? 'Saldo pendiente' : 'Saldo', left, y, font(pending ? 600 : 450, 13), pending ? PAPER.pending : PAPER.ink2);
-  text(m.totals.saldo, right, y, font(600, 13.5, true), pending ? PAPER.pending : PAPER.ink, 'right');
+  text(m.totals.saldo, right, y, font(600, 13), pending ? PAPER.pending : PAPER.ink, 'right', true);
   // Pastilla de estado de pago
   y += 16;
   {
@@ -244,7 +252,7 @@ async function ensureFonts() {
     if (typeof document === 'undefined' || !document.fonts) return;
     await Promise.all([
       document.fonts.load(`600 16px 'Geist Variable'`),
-      document.fonts.load(`500 16px 'Geist Mono Variable'`),
+      document.fonts.load(`450 16px 'Geist Variable'`),
     ]);
   } catch {
     /* sin fuentes propias: usa las del sistema */

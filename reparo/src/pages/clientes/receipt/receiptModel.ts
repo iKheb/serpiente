@@ -104,7 +104,7 @@ export const PAPER = {
   paper: '#ffffff',
   ink: '#11141b',
   ink2: '#4a5162',
-  ink3: '#8a90a0',
+  ink3: '#687083',
   rule: '#d5d9e1',
   income: '#0f9f76',
   pending: '#b97c06',

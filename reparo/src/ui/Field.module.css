@@ -27,7 +27,7 @@
 }
 
 .optional {
-  color: var(--text-4);
+  color: var(--text-3);
   font-size: var(--text-xs);
   font-weight: var(--weight-regular);
 }
@@ -231,7 +231,7 @@
   right: 10px;
   bottom: 6px;
   font-size: var(--text-2xs);
-  color: var(--text-4);
+  color: var(--text-3);
   font-variant-numeric: tabular-nums;
   pointer-events: none;
 }

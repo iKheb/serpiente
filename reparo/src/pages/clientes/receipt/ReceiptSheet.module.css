@@ -7,26 +7,33 @@
 /* ------------------------------ Avisos ---------------------------------- */
 .notice {
   display: flex;
-  gap: var(--space-2-5);
-  align-items: flex-start;
-  padding: var(--space-2-5) var(--space-3);
-  border-radius: var(--radius-md);
-  background: var(--info-soft);
-  border: 1px solid color-mix(in srgb, var(--info) 22%, transparent);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+  margin: 0;
   color: var(--text-2);
   font-size: var(--text-sm);
-  line-height: 1.45;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.noticeText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .notice svg {
   flex-shrink: 0;
-  width: 15px;
-  height: 15px;
-  margin-top: 2px;
+  width: 14px;
+  height: 14px;
   color: var(--info);
 }
 
 .notice a {
+  flex-shrink: 0;
   color: var(--text);
   font-weight: var(--weight-medium);
   text-decoration: underline;
@@ -65,7 +72,7 @@
 
 .privacy {
   font-size: var(--text-xs);
-  color: var(--text-3);
+  color: var(--text-2);
   text-align: center;
 }
 
@@ -143,7 +150,8 @@
 }
 
 .folio {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   font-size: 22px;
   font-weight: var(--weight-semibold);
   letter-spacing: -0.02em;
@@ -151,7 +159,8 @@
 }
 
 .date {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   font-size: 12px;
   color: var(--paper-ink-2);
   font-variant-numeric: tabular-nums;
@@ -195,7 +204,8 @@
 }
 
 .mono {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -214,7 +224,8 @@
 }
 
 .qty {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   color: var(--paper-ink-2);
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
@@ -236,7 +247,8 @@
 }
 
 .totalAmount {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   font-size: 19px;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -249,7 +261,8 @@
 }
 
 .sumRow > span:last-child {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   font-variant-numeric: tabular-nums;
 }
 

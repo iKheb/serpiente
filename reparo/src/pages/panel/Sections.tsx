@@ -46,7 +46,7 @@ import {
   type RepairStatus,
   type SeriesPoint,
 } from '@/data';
-import { Badge, Button, Card, DateTimeText, EmptyState, KpiCard, Skeleton, StatusBadge, cx } from '@/ui';
+import { Badge, Button, Card, DateTimeText, EmptyState, KpiCard, Skeleton, StatusBadge, cx, useMediaQuery } from '@/ui';
 import { navigate } from '@/app/router';
 import { DeltaPill, compareLabel } from './Hero';
 import { daysWaiting, ratio, type PeriodData, type WorkshopData } from './usePanelData';
@@ -75,6 +75,9 @@ export function PeriodKpis({ data, kind }: { data: PeriodData; kind: PeriodKind 
         {suffix}
       </span>
     ) : undefined;
+  // Con menos de 3 días transcurridos la comparación (mismo tramo del periodo anterior) es muy volátil:
+  // se muestra en tono neutro para no alarmar con un "−75 %" el lunes por la mañana.
+  const early = todayIndex >= 0 && todayIndex < 2;
   const delta = (a: number | undefined, b: number | undefined) => (quiet ? undefined : a !== undefined && b !== undefined && cur && prev ? ratio(a, b) : undefined);
 
   return (
@@ -87,6 +90,7 @@ export function PeriodKpis({ data, kind }: { data: PeriodData; kind: PeriodKind 
         format={money}
         delta={delta(cur?.cobradoCents, prev?.cobradoCents)}
         deltaLabel={label}
+        deltaNeutral={early}
         sparkline={spark('cobradoCents', 'income')}
         footer={ref(closed?.cobradoCents)}
         loading={loading}
@@ -101,6 +105,7 @@ export function PeriodKpis({ data, kind }: { data: PeriodData; kind: PeriodKind 
         invertDelta
         delta={delta(cur?.gastadoCents, prev?.gastadoCents)}
         deltaLabel={label}
+        deltaNeutral={early}
         sparkline={spark('gastadoCents', 'expense')}
         footer={ref(closed?.gastadoCents)}
         loading={loading}
@@ -114,6 +119,7 @@ export function PeriodKpis({ data, kind }: { data: PeriodData; kind: PeriodKind 
         format={money}
         delta={delta(cur?.gananciaCents, prev?.gananciaCents)}
         deltaLabel={label}
+        deltaNeutral={early}
         sparkline={spark('gananciaCents', 'profit')}
         footer={ref(closed?.gananciaCents)}
         loading={loading}
@@ -128,6 +134,7 @@ export function PeriodKpis({ data, kind }: { data: PeriodData; kind: PeriodKind 
         invertDelta
         delta={delta(cur?.porCobrarCents, prev?.porCobrarCents)}
         deltaLabel={label}
+        deltaNeutral={early}
         footer={
           quiet ? (
             <span className={s.kpiRef}>
@@ -181,7 +188,8 @@ export function FreshPeriodNote({ data, kind }: { data: PeriodData; kind: Period
 
 export function SecondaryMetrics({ data }: { data: PeriodData }) {
   const fmt = useFormatters();
-  const { summary: cur, previousSummary: base, quiet } = data;
+  const { summary: cur, previousSummary: base, quiet, todayIndex } = data;
+  const early = todayIndex >= 0 && todayIndex < 2;
   // Sin movimientos aún: no se muestran variaciones contra un corte vacío.
   const prev = quiet ? undefined : base;
   const items = [
@@ -214,12 +222,12 @@ export function SecondaryMetrics({ data }: { data: PeriodData }) {
           <dd>
             {it.value == null ? <Skeleton width={70} height={18} /> : <span className={cx(s.metricValue, 'tabular-nums')}>{it.value}</span>}
             {it.points && typeof it.delta === 'number' ? (
-              <span className={cx(s.deltaPill, it.delta > 0.0005 ? s.good : it.delta < -0.0005 ? s.bad : s.flat)}>
+              <span className={cx(s.deltaPill, early ? s.flat : it.delta > 0.0005 ? s.good : it.delta < -0.0005 ? s.bad : s.flat)}>
                 {it.delta > 0 ? '+' : it.delta < 0 ? '−' : ''}
                 {formatNumber(Math.abs(it.delta * 100), 1)} pts
               </span>
             ) : (
-              !it.points && <DeltaPill value={it.delta} />
+              !it.points && <DeltaPill value={it.delta} neutral={early} />
             )}
           </dd>
         </div>
@@ -240,19 +248,22 @@ export function FlowChart({ data, kind }: { data: PeriodData; kind: PeriodKind }
   const fmt = useFormatters();
   const { period, previous, quiet } = data;
   // Periodo recién iniciado y vacío: se muestra el anterior completo, rotulado como referencia.
-  const showPrev = quiet && !!data.previousFullSummary && (data.previousFullSummary.cobradoCents !== 0 || data.previousFullSummary.gastadoCents !== 0);
+  // También en sus dos primeros días: un día con datos y el resto en cero dibujaría una caída a $0 que no ocurrió.
+  const early = data.todayIndex >= 0 && data.todayIndex < 2;
+  const showPrev = (quiet || early) && !!data.previousFullSummary && (data.previousFullSummary.cobradoCents !== 0 || data.previousFullSummary.gastadoCents !== 0);
   const series = showPrev ? data.previousSeries : data.series;
   const summary = showPrev ? data.previousFullSummary : data.summary;
   const shown = showPrev ? previous : period;
   const prevNoun = kind === 'week' ? 'la semana pasada' : 'el mes pasado';
   // El gráfico ocupa todo el alto que deja la columna derecha (sin hueco al pie de la tarjeta).
   const [fillRef, fillSize] = useMeasure<HTMLDivElement>();
-  const chartH = Math.max(260, Math.min(460, fillSize.height || 300));
+  const phone = useMediaQuery('(max-width: 599px)');
+  const chartH = phone ? 200 : Math.max(260, Math.min(460, fillSize.height || 300));
   return (
     <Card
       className={s.chartCard}
       title={showPrev ? `Así cerró ${prevNoun}` : 'Cobrado vs. gastado por día'}
-      description={showPrev ? `${shown.label} · referencia mientras ${kind === 'week' ? 'esta semana' : 'este mes'} toma forma` : `${period.label} · la línea muestra la ganancia diaria`}
+      description={showPrev ? `${shown.shortLabel ?? shown.label} · referencia mientras ${kind === 'week' ? 'esta semana' : 'este mes'} toma forma` : `${period.label} · la línea muestra la ganancia diaria`}
       actions={
         <Button variant="ghost" size="sm" iconRight={<ArrowRight />} onClick={() => navigate(`#/reportes?periodo=${kind}${showPrev ? `&fecha=${previous.start}` : ''}`)}>
           Reportes
@@ -290,6 +301,7 @@ export function FlowChart({ data, kind }: { data: PeriodData; kind: PeriodKind }
                 </div>
               )}
               legend="none"
+              curve="linear"
               emptyMessage={kind === 'week' ? 'Aún no hay cobros ni gastos esta semana' : 'Aún no hay cobros ni gastos este mes'}
               ariaLabel={`Cobrado, gastado y ganancia por día · ${shown.label}`}
             />
@@ -390,7 +402,16 @@ export function Pipeline({ counts }: { counts: WorkshopData['statusCounts'] }) {
                 </span>
               </span>
               <span className={cx(s.pipeCount, 'tabular-nums')}>{counts ? counts[k] : <Skeleton width={28} height={26} />}</span>
-              <span className={s.pipeLabel}>{REPAIR_STATUS_LABEL[k]}</span>
+              <span className={s.pipeLabel}>
+                {k === 'listo' ? (
+                  <>
+                    <span className={s.labelLong}>{REPAIR_STATUS_LABEL[k]}</span>
+                    <span className={s.labelShort}>Listos</span>
+                  </>
+                ) : (
+                  REPAIR_STATUS_LABEL[k]
+                )}
+              </span>
               <ArrowRight className={s.pipeArrow} aria-hidden />
             </a>
           </li>

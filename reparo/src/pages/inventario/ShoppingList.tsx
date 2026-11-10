@@ -155,13 +155,6 @@ export function ShoppingList({ items, onlyOrdered }: ShoppingListProps) {
                   <OrderLineRow key={l.item.id} line={l} onQty={(n) => qty.set(l.item, n)} />
                 ))}
               </ul>
-              <div className={styles.supplierFoot}>
-                <span className={styles.supplierFootLabel}>
-                  Subtotal <span className={styles.supplierFootMeta}>· {plural(g.piezas, 'pieza', 'piezas')}</span>
-                </span>
-                <MoneyText cents={g.totalCents} weight="semibold" className={styles.lineTotal} />
-                <span aria-hidden />
-              </div>
             </motion.section>
           ))}
         </>
@@ -175,28 +168,46 @@ function SupplierHeader({ group: g, business, cc }: { group: OrderGroup; busines
   const activeLines = g.lines.filter((l) => l.qty > 0);
   return (
     <header className={styles.supplierHead}>
-      <Avatar name={g.proveedor} size="sm" />
-      <div className={styles.supplierText}>
-        <h3 className={styles.supplierName}>{g.proveedor}</h3>
-        <span className={styles.supplierMeta}>
-          {plural(g.lines.length, 'artículo', 'artículos')} · {plural(g.piezas, 'pieza', 'piezas')}
-        </span>
+      <div className={styles.supplierId}>
+        <Avatar name={g.proveedor} size="sm" />
+        <div className={styles.supplierText}>
+          <h3 className={styles.supplierName}>{g.proveedor}</h3>
+          <span className={styles.supplierMeta}>
+            {plural(g.lines.length, 'artículo', 'artículos')} · {plural(g.piezas, 'pieza', 'piezas')}
+          </span>
+        </div>
       </div>
-      <div className={styles.supplierActions}>
-        <Tooltip content={`Enviar pedido a ${g.proveedor} (sin costos)`}>
-          <IconButton
-            icon={<MessageCircle />}
-            label={`Enviar pedido a ${g.proveedor} por WhatsApp`}
-            tooltip={false}
+      <div className={styles.supplierSend}>
+        <Tooltip content={`Enviar pedido a ${g.proveedor} por WhatsApp (sin costos)`}>
+          <Button
             size="sm"
             variant="ghost"
+            iconLeft={<MessageCircle />}
+            aria-label={`Enviar pedido a ${g.proveedor} por WhatsApp`}
             disabled={!activeLines.length}
             onClick={() => openWhatsApp(buildOrderText([g], { businessName: business, forSupplier: true }), cc)}
-          />
+          >
+            <span className={styles.hideSm}>Enviar pedido</span>
+          </Button>
         </Tooltip>
-        <Button size="sm" variant="ghost" iconLeft={<CheckCheck />} disabled={!activeLines.length} onClick={() => void markManyOrdered(activeLines.map((l) => l.item))}>
-          <span className={styles.hideSm}>Marcar pedido</span>
-        </Button>
+      </div>
+      <div className={styles.supplierTotal}>
+        <span className={styles.supplierTotalLabel}>Total</span>
+        <MoneyText cents={g.totalCents} weight="semibold" />
+      </div>
+      <div className={styles.supplierActions}>
+        <Tooltip content={`Marcar ${plural(activeLines.length, 'artículo', 'artículos')} de ${g.proveedor} como pedidos`}>
+          <Button
+            size="sm"
+            variant="secondary"
+            iconLeft={<CheckCheck />}
+            aria-label={`Marcar todo lo de ${g.proveedor} como pedido`}
+            disabled={!activeLines.length}
+            onClick={() => void markManyOrdered(activeLines.map((l) => l.item))}
+          >
+            Todo
+          </Button>
+        </Tooltip>
       </div>
     </header>
   );
@@ -236,8 +247,17 @@ function OrderLineRow({ line, onQty }: { line: OrderLine; onQty: (n: number) => 
       </span>
       <MoneyText cents={qty * i.costoUnitarioCents} weight="semibold" className={styles.lineTotal} tone={qty ? 'neutral' : 'muted'} />
       <div className={styles.lineActions}>
-        <Tooltip content="Marcar como pedido">
-          <IconButton icon={<Check />} label={`Marcar ${i.nombre} como pedido`} tooltip={false} size="sm" variant="secondary" disabled={qty === 0} onClick={() => void toggleOrdered(i, true)} />
+        <Tooltip content="Marcar como pedido al proveedor (pasa a «En camino»)">
+          <Button
+            size="sm"
+            variant="secondary"
+            iconLeft={<Check />}
+            aria-label={`Marcar ${i.nombre} como pedido`}
+            disabled={qty === 0}
+            onClick={() => void toggleOrdered(i, true)}
+          >
+            Pedido
+          </Button>
         </Tooltip>
       </div>
     </li>

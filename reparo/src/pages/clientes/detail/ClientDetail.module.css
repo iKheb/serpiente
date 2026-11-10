@@ -1,4 +1,6 @@
 .page {
+  /* Texto terciario de la ficha con contraste AA (≥ 4.5:1) en ambos temas. */
+  --text-3: color-mix(in oklab, var(--text-2) 82%, var(--surface-1));
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
@@ -15,7 +17,7 @@
   align-items: center;
   column-gap: var(--space-2);
   row-gap: 2px;
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 .subtitle > span + span::before,
@@ -75,9 +77,9 @@
   flex-wrap: wrap;
 }
 
-.iconRow {
+.secondaryRow {
   display: flex;
-  gap: var(--space-1-5);
+  gap: var(--space-2);
 }
 
 /* WhatsApp: verde reconocible al instante (derivado de --success). */
@@ -103,11 +105,12 @@
     width: 100%;
     min-height: 46px;
   }
-  .iconRow {
+  .secondaryRow {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
   }
-  .iconRow :global(button) {
+  .secondaryRow > :global(button),
+  .secondaryRow > * > :global(button) {
     width: 100%;
     min-height: 44px;
   }
@@ -197,7 +200,7 @@
   padding: 0 var(--space-1) var(--space-1);
   border-radius: var(--radius-md);
   text-align: center;
-  color: var(--text-3);
+  color: var(--text-2);
   cursor: pointer;
   transition: background var(--dur-fast), color var(--dur-fast);
 }
@@ -302,8 +305,8 @@
 }
 
 .stepTime {
-  font-size: var(--text-2xs);
-  color: var(--text-3);
+  font-size: var(--text-xs);
+  color: var(--text-2);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   overflow: hidden;
@@ -322,8 +325,8 @@
     padding-right: 0;
   }
   .stepLabel {
-    font-size: var(--text-2xs);
-    letter-spacing: -0.01em;
+    font-size: var(--text-xs);
+    letter-spacing: -0.015em;
   }
   .stepDot {
     width: 28px;
@@ -418,7 +421,7 @@
 .def dt,
 .kicker {
   font-size: var(--text-xs);
-  color: var(--text-3);
+  color: var(--text-2);
   font-weight: var(--weight-medium);
 }
 
@@ -437,7 +440,7 @@
 }
 
 .muted {
-  color: var(--text-3);
+  color: var(--text-2);
   font-size: var(--text-sm);
 }
 
@@ -528,7 +531,7 @@
 
 .payGrid dt {
   font-size: var(--text-xs);
-  color: var(--text-3);
+  color: var(--text-2);
   margin-bottom: 2px;
 }
 
@@ -592,7 +595,7 @@
 
 .abonoPreview {
   font-size: var(--text-sm);
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 .abonoPreview strong {
@@ -627,7 +630,7 @@
 .ledgerNote {
   margin-top: var(--space-2);
   font-size: var(--text-xs);
-  color: var(--text-3);
+  color: var(--text-2);
   line-height: 1.5;
 }
 
@@ -694,7 +697,7 @@
 
 .unlockText span {
   font-size: var(--text-xs);
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 .unlockEye {
@@ -730,7 +733,7 @@
 
 .codeLabel {
   font-size: var(--text-xs);
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 .code {
@@ -745,7 +748,7 @@
 
 .unlockHint {
   font-size: var(--text-xs);
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 /* -------------------------------- Listas ---------------------------------- */
@@ -810,7 +813,7 @@
 
 .listSub {
   font-size: var(--text-xs);
-  color: var(--text-3);
+  color: var(--text-2);
   font-variant-numeric: tabular-nums;
 }
 
@@ -827,7 +830,7 @@
 
 .inlineEmpty p {
   font-size: var(--text-sm);
-  color: var(--text-3);
+  color: var(--text-2);
   max-width: 340px;
 }
 
@@ -966,7 +969,7 @@
 }
 
 .diffLabel {
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 .diffVals {
@@ -979,7 +982,7 @@
 }
 
 .diffFrom {
-  color: var(--text-3);
+  color: var(--text-2);
   text-decoration: line-through;
   text-decoration-color: color-mix(in srgb, var(--expense) 60%, transparent);
   overflow-wrap: anywhere;
@@ -1011,7 +1014,7 @@
 
 .metaFoot {
   font-size: var(--text-xs);
-  color: var(--text-3);
+  color: var(--text-2);
   text-align: center;
   line-height: 1.6;
   padding: 0 var(--space-2);

@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { ArrowDownRight, ArrowUpRight, Minus, Target, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { ProgressRing } from '@/charts';
 import { formatDayMonth, formatPercent, useFormatters, type DateRange, type Settings } from '@/data';
-import { AnimatedNumber, Skeleton, cx, formatDelta, useIsMobile, usePrefersReducedMotion } from '@/ui';
+import { AnimatedNumber, Skeleton, cx, formatDelta, useIsMobile, useMediaQuery, usePrefersReducedMotion } from '@/ui';
 import { HeroDevice } from '@/three';
 import { DeviceFallback } from '@/three/DeviceFallback';
 import { cumulative, ratio, type PeriodData } from './usePanelData';
@@ -19,11 +19,11 @@ export function compareLabel(kind: 'week' | 'month', prev: DateRange): string {
   return 'vs. semana pasada al mismo corte';
 }
 
-export function DeltaPill({ value, invert, label }: { value: number | null | undefined; invert?: boolean; label?: string }) {
+export function DeltaPill({ value, invert, label, neutral }: { value: number | null | undefined; invert?: boolean; label?: string; neutral?: boolean }) {
   if (value === undefined) return null;
   const dir = value == null ? 1 : value > 0.0005 ? 1 : value < -0.0005 ? -1 : 0;
   const good = invert ? dir < 0 : dir > 0;
-  const tone = dir === 0 ? s.flat : good ? s.good : s.bad;
+  const tone = dir === 0 || neutral ? s.flat : good ? s.good : s.bad;
   const Icon = dir > 0 ? ArrowUpRight : dir < 0 ? ArrowDownRight : Minus;
   return (
     <span className={cx(s.deltaPill, tone)} title={label}>
@@ -42,6 +42,8 @@ interface HeroProps {
 export function Hero({ month, settings, closedPrevious }: HeroProps) {
   const fmt = useFormatters();
   const isMobile = useIsMobile();
+  // En teléfonos el número manda: el teléfono 3D se omite para que el panel sea escaneable.
+  const isPhone = useMediaQuery('(max-width: 599px)');
   const reduced = usePrefersReducedMotion();
   const { summary, previousSummary, series, todayIndex, period, previousToDate } = month;
   const goal = settings?.monthlyGoalCents ?? 0;
@@ -95,7 +97,7 @@ export function Hero({ month, settings, closedPrevious }: HeroProps) {
           <div className={s.heroValueRow}>
             <AnimatedNumber value={profit} format={(n) => fmt.money(n)} duration={1100} className={cx(s.heroValue, profit < 0 && s.heroValueNeg)} />
             <div className={s.heroDelta}>
-              <DeltaPill value={delta} label={compareLabel('month', previousToDate)} />
+              <DeltaPill value={delta} label={compareLabel('month', previousToDate)} neutral={dayOfMonth < 3} />
               <span className={s.muted}>{compareLabel('month', previousToDate)}</span>
             </div>
           </div>
@@ -156,6 +158,7 @@ export function Hero({ month, settings, closedPrevious }: HeroProps) {
         </div>
       </div>
 
+      {!isPhone && (
       <div className={s.heroDevice}>
         {/* Mientras la escena 3D carga (o en equipos lentos) se ve el teléfono ilustrado, no sólo un halo. */}
         <div className={s.heroDevicePre} aria-hidden>
@@ -163,6 +166,7 @@ export function Hero({ month, settings, closedPrevious }: HeroProps) {
         </div>
         <HeroDevice screen={screen} variant={isMobile ? 'compact' : 'hero'} className={s.heroDeviceCanvas} />
       </div>
+      )}
     </motion.section>
   );
 }

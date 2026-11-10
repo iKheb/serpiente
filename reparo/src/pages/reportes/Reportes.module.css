@@ -320,6 +320,34 @@
   cursor: pointer;
 }
 
+.spikeNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: var(--space-3);
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+.spikeNote strong {
+  color: var(--text);
+  font-weight: var(--weight-medium);
+}
+
+.spikeDot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 2px;
+  background: var(--expense);
+}
+
 .chartSkeleton {
   display: grid;
   grid-template-columns: repeat(12, 1fr);

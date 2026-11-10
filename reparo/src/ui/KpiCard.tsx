@@ -25,6 +25,11 @@ export interface KpiCardProps {
   previous?: number;
   /** Invierte la semántica del color (en gastos, subir es malo). */
   invertDelta?: boolean;
+  /**
+   * Muestra el delta en tono neutro (sin rojo/verde): p. ej. periodos que llevan
+   * pocos días, donde un "−75 %" sería ruido y no una alarma.
+   */
+  deltaNeutral?: boolean;
   /** Texto tras el delta (por defecto "vs. período anterior"). */
   deltaLabel?: string;
   /** Slot para un sparkline (de @/charts). */
@@ -57,6 +62,7 @@ export function KpiCard({
   delta: deltaProp,
   previous,
   invertDelta,
+  deltaNeutral,
   deltaLabel = 'vs. período anterior',
   sparkline,
   footer,
@@ -69,7 +75,7 @@ export function KpiCard({
     deltaProp !== undefined ? deltaProp : previous !== undefined ? (previous === 0 ? (value === 0 ? 0 : null) : (value - previous) / Math.abs(previous)) : undefined;
   const dir = delta == null ? 0 : delta > 0.0005 ? 1 : delta < -0.0005 ? -1 : 0;
   const good = invertDelta ? dir < 0 : dir > 0;
-  const deltaTone = dir === 0 ? 'flat' : good ? 'good' : 'bad';
+  const deltaTone = dir === 0 || deltaNeutral ? 'flat' : good ? 'good' : 'bad';
   const DeltaIcon = dir > 0 ? ArrowUpRight : dir < 0 ? ArrowDownRight : Minus;
 
   return (

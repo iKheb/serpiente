@@ -1311,11 +1311,6 @@
   }
 }
 
-@media (max-width: 420px) {
-  .kpiGrid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .pipeStep,
@@ -1326,16 +1321,10 @@
   }
 }
 
-/* Periodo sin movimientos en móvil: los cuatro $0.00 en 2×2 en lugar de una columna larga. */
-@media (max-width: 420px) {
-  .kpiGrid.kpiQuiet {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 
 @media (max-width: 599px) {
   .hero {
-    margin-top: var(--space-1);
+    margin-top: var(--space-2);
   }
 }
 
@@ -1343,5 +1332,113 @@
 @media (max-width: 420px) {
   .rowMeta .paidPct {
     display: none;
+  }
+}
+
+/* Contenedores de los bloques del grid (permiten reordenar en teléfonos). */
+.slot {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.slot > * {
+  flex: 1;
+}
+
+/* ------------------------- Teléfono: panel escaneable ------------------------
+   Prioridad: ganancia → KPIs 2×2 → listos para entregar → repuestos por pedir →
+   taller → por cobrar → gráfico → actividad. Las listas se resumen a 3 filas
+   (el resto está a un toque en "Ver todos"). */
+@media (max-width: 599px) {
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .slotSide,
+  .slotSide .stack {
+    display: contents;
+  }
+  .slotReady { order: 1; }
+  .slotInv { order: 2; }
+  .slotPipe { order: 3; }
+  .slotRecv { order: 4; }
+  .slotChart { order: 5; }
+  .slotAct { order: 6; }
+
+  .kpiGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2-5);
+  }
+  .metrics {
+    display: none;
+  }
+  .block {
+    gap: var(--space-3);
+  }
+
+  .rows li:nth-child(n + 4),
+  .timeline li:nth-child(n + 4),
+  .invList li:nth-child(n + 4) {
+    display: none;
+  }
+  .folio {
+    display: none;
+  }
+  .row,
+  .event {
+    min-height: 52px;
+    padding: 8px var(--space-2-5);
+  }
+
+  .pipeIdx,
+  .pipeArrow {
+    display: none;
+  }
+  .flowFacts {
+    display: none;
+  }
+  .chartFill {
+    flex: 0 0 200px;
+    min-height: 200px;
+    margin-bottom: 0;
+  }
+
+  /* Taller en 2×2 horizontal: conteo y estado en una línea, sin truncar. */
+  .pipeSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pipeStep {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 8px;
+    min-height: 48px;
+    padding: 6px 10px;
+  }
+  .pipeCount {
+    margin-top: 0;
+    font-size: var(--text-lg);
+  }
+}
+
+/* Teléfono: sin el teléfono 3D encima, el héroe necesita su propio aire superior. */
+@media (max-width: 599px) {
+  .heroMain {
+    padding-top: var(--space-5);
+  }
+}
+
+.labelShort {
+  display: none;
+}
+
+@media (max-width: 599px) {
+  .labelLong {
+    display: none;
+  }
+  .labelShort {
+    display: inline;
   }
 }

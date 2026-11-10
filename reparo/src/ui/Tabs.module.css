@@ -11,6 +11,37 @@
   display: none;
 }
 
+.list {
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+}
+
+.list > * {
+  scroll-snap-align: start;
+}
+
+/* Degradado de borde sólo cuando hay pestañas ocultas en ese lado. */
+.fadeEnd {
+  -webkit-mask: linear-gradient(90deg, black calc(100% - 32px), transparent);
+  mask: linear-gradient(90deg, black calc(100% - 32px), transparent);
+}
+
+.fadeStart {
+  -webkit-mask: linear-gradient(90deg, transparent, black 32px);
+  mask: linear-gradient(90deg, transparent, black 32px);
+}
+
+.fadeStart.fadeEnd {
+  -webkit-mask: linear-gradient(90deg, transparent, black 32px, black calc(100% - 32px), transparent);
+  mask: linear-gradient(90deg, transparent, black 32px, black calc(100% - 32px), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .list {
+    scroll-behavior: auto;
+  }
+}
+
 .tab {
   position: relative;
   display: inline-flex;

@@ -57,9 +57,21 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
+
+  /* Legibilidad (AA): el texto secundario nunca baja de 12 px y el terciario
+     supera 4.5:1 sobre todas las superficies. Ajusta los tokens base. */
+  --text-2xs: 12px;
+  --text-3: #868d9d;
+  --chart-axis: #7d8495;
+  --text-4: #5b6271;
 }
 
 :root[data-theme='light'] {
+  /* AA sobre --surface-3 (≥ 4.6:1) */
+  --text-3: #626979;
+  --chart-axis: #6c7284;
+  --text-4: #959baa;
+
   --surface-hover: rgba(16, 20, 30, 0.04);
   --surface-active: rgba(16, 20, 30, 0.07);
   --surface-selected: rgba(98, 80, 240, 0.08);

@@ -174,22 +174,6 @@ export function ReceiptSheet({ client, open, onClose }: ReceiptSheetProps) {
         </div>
       }
     >
-      {missing && (
-        <div className={styles.notice} role="note">
-          <Info aria-hidden />
-          <p>
-            {model.missingBusiness.phone && model.missingBusiness.address
-              ? "Tu recibo aún no muestra el teléfono ni la dirección del negocio."
-              : model.missingBusiness.phone
-                ? "Tu recibo aún no muestra el teléfono del negocio."
-                : "Tu recibo aún no muestra la dirección del negocio."}{" "}
-            <a href="#/ajustes" onClick={onClose}>
-              Completar en Ajustes
-            </a>
-          </p>
-        </div>
-      )}
-
       {!hasPhone && (
         <div className={styles.phoneBox}>
           <Input
@@ -228,6 +212,21 @@ export function ReceiptSheet({ client, open, onClose }: ReceiptSheetProps) {
       <div className={styles.stage}>
         {model ? <Ticket model={model} /> : <TicketSkeleton />}
       </div>
+      {missing && (
+        <p className={styles.notice} role="note">
+          <Info aria-hidden />
+          <span className={styles.noticeText}>
+            {model.missingBusiness.phone && model.missingBusiness.address
+              ? 'Falta el teléfono y la dirección del negocio.'
+              : model.missingBusiness.phone
+                ? 'Falta el teléfono del negocio.'
+                : 'Falta la dirección del negocio.'}
+          </span>
+          <a href="#/ajustes" onClick={onClose}>
+            Completar en Ajustes
+          </a>
+        </p>
+      )}
       <p className={styles.privacy}>
         El recibo nunca incluye el PIN, la contraseña ni el patrón de
         desbloqueo.
@@ -299,7 +298,7 @@ function Rows({ rows }: { rows: ReceiptRow[] }) {
   return (
     <dl className={styles.rows}>
       {rows.map((r) => (
-        <div key={r.label} className={r.block ? styles.rowBlock : styles.row}>
+        <div key={r.label} className={styles.row}>
           <dt>{r.label}</dt>
           <dd className={r.mono ? styles.mono : undefined}>{r.value}</dd>
         </div>

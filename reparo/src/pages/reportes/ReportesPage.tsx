@@ -311,6 +311,7 @@ export default function ReportesPage() {
         closed={empty && isCurrent ? prevSummary : undefined}
         closedLabel={kind === 'week' ? 'La semana pasada' : 'El mes pasado'}
         money={money}
+        early={isCurrent && now - period.start < 3 * 86_400_000}
       />
 
       {empty && !loading ? (
@@ -365,12 +366,14 @@ export default function ReportesPage() {
                   )}
                   maxBarWidth={series.length <= 8 ? 28 : series.length <= 16 ? 18 : 12}
                   barGap={series.length <= 16 ? 3 : 1}
+                  curve="linear"
                   ariaLabel={`Cobrado, gastado y ganancia por día, ${period.label}`}
                 />
               ) : (
                 <ChartSkeleton height={mobile ? 220 : 280} />
               )}
             </div>
+            {series && <SpikeNote series={series} money={money} />}
           </Card>
 
           <div className={styles.breakdowns}>
@@ -444,6 +447,7 @@ function Hero({
   closed,
   closedLabel,
   money,
+  early,
 }: {
   summary?: Summary;
   prev?: Summary;
@@ -452,6 +456,8 @@ function Hero({
   closed?: Summary;
   closedLabel: string;
   money: (c: number) => string;
+  /** El período en curso lleva menos de 3 días: variaciones en tono neutro (son muy volátiles). */
+  early?: boolean;
 }) {
   if (!summary || !prev) {
     return (
@@ -480,9 +486,9 @@ function Hero({
   return (
     <Card padding="none" className={styles.hero}>
       <div className={styles.equation}>
-        <Term tone="income" label="Cobrado" hint="Dinero que entró" value={summary.cobradoCents} prev={prev.cobradoCents} prevLabel={prevLabel} closed={closed && `${closedLabel} cerró en ${money(closed.cobradoCents)}`} money={money} />
+        <Term tone="income" label="Cobrado" hint="Dinero que entró" value={summary.cobradoCents} prev={prev.cobradoCents} prevLabel={prevLabel} closed={closed && `${closedLabel} cerró en ${money(closed.cobradoCents)}`} money={money} neutral={early} />
         <Operator icon={<Minus />} label="menos" />
-        <Term tone="expense" label="Gastado" hint="Repuestos y otros gastos" value={summary.gastadoCents} prev={prev.gastadoCents} prevLabel={prevLabel} closed={closed && `${closedLabel} cerró en ${money(closed.gastadoCents)}`} money={money} invert />
+        <Term tone="expense" label="Gastado" hint="Repuestos y otros gastos" value={summary.gastadoCents} prev={prev.gastadoCents} prevLabel={prevLabel} closed={closed && `${closedLabel} cerró en ${money(closed.gastadoCents)}`} money={money} invert neutral={early} />
         <Operator icon={<Equal />} label="igual a" />
         <Term
           tone={negative ? 'loss' : 'profit'}
@@ -494,6 +500,7 @@ function Hero({
           closed={closed && `${closedLabel} cerró en ${money(closed.gananciaCents)}`}
           money={money}
           emphasis
+          neutral={early}
         />
       </div>
       <dl className={styles.stats}>
@@ -527,6 +534,7 @@ function Term({
   invert,
   emphasis,
   closed,
+  neutral,
 }: {
   tone: 'income' | 'expense' | 'profit' | 'loss';
   label: string;
@@ -538,11 +546,12 @@ function Term({
   invert?: boolean;
   emphasis?: boolean;
   closed?: string;
+  neutral?: boolean;
 }) {
   const delta = value === 0 && prev === 0 ? 0 : percentChange(value, prev);
   const dir = delta == null ? 1 : delta > 0.0005 ? 1 : delta < -0.0005 ? -1 : 0;
   const good = invert ? dir < 0 : dir > 0;
-  const deltaTone = dir === 0 ? styles.flat : good ? styles.good : styles.bad;
+  const deltaTone = dir === 0 || neutral ? styles.flat : good ? styles.good : styles.bad;
   const Icon = dir > 0 ? ArrowUpRight : dir < 0 ? ArrowDownRight : Minus;
   return (
     <div className={cx(styles.term, styles[tone], emphasis && styles.emphasis)}>
@@ -833,6 +842,34 @@ function categoryDonut(rows: { categoria: string; label: string; totalCents: num
 /** "las últimas 8 semanas" / "los últimos 4 meses". */
 function periodsLabel(kind: PeriodKind, n: number): string {
   return kind === 'week' ? `las últimas ${n} semanas` : `los últimos ${n} meses`;
+}
+
+/**
+ * Anota el día con un gasto fuera de lo normal: explica por qué la ganancia del día
+ * cae bajo cero (p. ej. una compra grande de repuestos), en lugar de dejar un pico sin contexto.
+ */
+function SpikeNote({ series, money }: { series: SeriesPoint[]; money: (c: number) => string }) {
+  const spike = useMemo(() => {
+    const gastos = series.filter((p) => p.gastadoCents > 0);
+    if (gastos.length === 0) return null;
+    const total = series.reduce((a, p) => a + p.gastadoCents, 0);
+    const top = gastos.reduce((a, p) => (p.gastadoCents > a.gastadoCents ? p : a), gastos[0]);
+    const avg = total / series.length;
+    // Sólo si destaca de verdad: ≥ 35 % del gasto del período, ≥ 2.5× el promedio diario y deja la ganancia en negativo.
+    if (top.gananciaCents >= 0 || top.gastadoCents < total * 0.35 || top.gastadoCents < avg * 2.5) return null;
+    return top;
+  }, [series]);
+  if (!spike) return null;
+  return (
+    <p className={styles.spikeNote}>
+      <span className={styles.spikeDot} aria-hidden />
+      <span>
+        <strong>{capitalize(longDayLabel(spike.start))}:</strong> gasto grande de{' '}
+        <span className="tabular-nums">{money(spike.gastadoCents)}</span>. Por eso la ganancia de ese día quedó en{' '}
+        <span className={cx(styles.negText, 'tabular-nums')}>{money(spike.gananciaCents)}</span>; no es una tendencia.
+      </span>
+    </p>
+  );
 }
 
 function capitalize(s: string): string {

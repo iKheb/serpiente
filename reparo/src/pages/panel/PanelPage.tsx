@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarDays, CalendarRange, Plus, Receipt } from 'lucide-react';
 import { usePeriodHistory, useSettings, type PeriodKind } from '@/data';
-import { Button, PageHeader, SegmentedControl, Skeleton, useLocalState } from '@/ui';
+import { Button, PageHeader, SegmentedControl, Skeleton, cx, useLocalState } from '@/ui';
 import { useClock } from './useClock';
 import { navigate } from '@/app/router';
 import { Hero } from './Hero';
@@ -117,24 +117,28 @@ export default function PanelPage() {
       </section>
 
       <div className={s.grid}>
-        <div className={s.span8}>
+        <div className={cx(s.span8, s.slotChart)}>
           <FlowChart data={period} kind={periodKind} />
         </div>
-        <div className={s.span4}>
+        <div className={cx(s.span4, s.slotSide)}>
           <div className={s.stack}>
-            <Pipeline counts={workshop.statusCounts} />
-            <InventoryAlert items={workshop.reorderItems} stats={workshop.inventoryStats} />
+            <div className={cx(s.slot, s.slotPipe)}>
+              <Pipeline counts={workshop.statusCounts} />
+            </div>
+            <div className={cx(s.slot, s.slotInv)}>
+              <InventoryAlert items={workshop.reorderItems} stats={workshop.inventoryStats} />
+            </div>
           </div>
         </div>
 
-        <div className={s.span6}>
+        <div className={cx(s.span6, s.slotReady)}>
           <ReadyList ready={workshop.ready} now={now} />
         </div>
-        <div className={s.span6}>
+        <div className={cx(s.span6, s.slotRecv)}>
           <ReceivableList receivable={workshop.receivable} total={workshop.receivableTotal} />
         </div>
 
-        <div className={s.span12}>
+        <div className={cx(s.span12, s.slotAct)}>
           <RecentActivity />
         </div>
       </div>

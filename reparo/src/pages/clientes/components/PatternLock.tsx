@@ -245,7 +245,15 @@ export function PatternLock({ value, onChange, readOnly = false, size = 240, ani
   }
   const segPath = segs.map((s) => `M${s.x1} ${s.y1}L${s.x2} ${s.y2}`).join('');
 
-  const seqText = path.length ? path.map((d) => d + 1).join(' → ') : '';
+  // Los números sobre los puntos indican el ORDEN de trazo; el texto describe el
+  // patrón con las mismas referencias (no con índices de posición, que confundían).
+  // En el modo "Números" los puntos pasan a mostrar su posición 1–9.
+  const showPos = !readOnly && typing;
+  const seqText = path.length
+    ? showPos
+      ? `Posiciones: ${path.map((d) => d + 1).join(' · ')}`
+      : `${path.length} ${path.length === 1 ? 'punto' : 'puntos'} · empieza ${POS_LABEL[path[0]]}`
+    : '';
   const label = readOnly
     ? path.length
       ? `Patrón de desbloqueo de ${path.length} puntos: ${path.map((d) => d + 1).join(', ')}`
@@ -291,10 +299,16 @@ export function PatternLock({ value, onChange, readOnly = false, size = 240, ani
               <g key={i}>
                 {on && order === 0 && <circle cx={c.x} cy={c.y} r={activeR + 6} className={styles.startRing} />}
                 {on && <circle cx={c.x} cy={c.y} r={activeR + 4} className={styles.activeHalo} />}
-                <circle cx={c.x} cy={c.y} r={on ? activeR : dotR} className={on ? styles.dotOn : styles.dot} fill={on ? `url(#g${uid})` : undefined} />
-                {on && (
-                  <text x={c.x} y={c.y} dy="0.35em" textAnchor="middle" className={styles.num} style={{ fontSize }}>
-                    {order + 1}
+                <circle
+                  cx={c.x}
+                  cy={c.y}
+                  r={on ? activeR : showPos ? activeR * 0.9 : dotR}
+                  className={on ? styles.dotOn : showPos ? styles.dotPos : styles.dot}
+                  fill={on ? `url(#g${uid})` : undefined}
+                />
+                {(on || showPos) && (
+                  <text x={c.x} y={c.y} dy="0.35em" textAnchor="middle" className={on ? styles.num : styles.numPos} style={{ fontSize }}>
+                    {showPos ? i + 1 : order + 1}
                   </text>
                 )}
               </g>

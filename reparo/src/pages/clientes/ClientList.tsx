@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowDownUp, Camera, CircleDollarSign, Download, Grid3x3, KeyRound, PackageCheck, Plus, Search, Smartphone, UserPlus, Users, Wrench } from 'lucide-react';
+import { ArrowDownUp, Check, SlidersHorizontal, Camera, CircleDollarSign, Download, Grid3x3, KeyRound, PackageCheck, Plus, Search, Smartphone, UserPlus, Users, Wrench } from 'lucide-react';
 import { navigate, setQuery, useRoute } from '@/app/router';
 import {
   REPAIR_STATUS_LABEL,
@@ -23,15 +23,19 @@ import {
   EmptyState,
   FilterChips,
   Highlight,
+  IconButton,
   KpiCard,
   MoneyText,
   PageHeader,
   SearchField,
   SegmentedControl,
   Select,
+  Sheet,
   StatusBadge,
   Toolbar,
+  cx,
   toast,
+  useMediaQuery,
   usePrefersReducedMotion,
   type Column,
   type FilterChipOption,
@@ -40,6 +44,12 @@ import { SORTERS, SORT_OPTIONS, TALLER, matchesPay, matchesSearch, matchesStatus
 import styles from './ClientesPage.module.css';
 
 const PAGE = 40;
+
+const PAY_OPTIONS: { value: PayFilter; label: string }[] = [
+  { value: 'todos', label: 'Todos' },
+  { value: 'pagados', label: 'Pagados' },
+  { value: 'saldo', label: 'Con saldo' },
+];
 
 function UnlockIcon({ c }: { c: Client }) {
   if (c.desbloqueoTipo === 'patron' && c.desbloqueoPatron.length)
@@ -96,6 +106,9 @@ export function ClientList() {
   const [sort, setSort] = useState<SortKey>('recientes');
   const [limit, setLimit] = useState(PAGE);
   const sentinel = useRef<HTMLDivElement | null>(null);
+  // Teléfono: un buscador + chips de estado + un botón "Filtros" (pago y orden) en lugar de tres filas.
+  const compact = useMediaQuery('(max-width: 640px)');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const setStatus = (v: StatusFilter) => setQuery({ estado: v === 'todos' ? null : v });
 
@@ -184,7 +197,7 @@ export function ClientList() {
     {
       key: 'folio',
       header: 'Folio',
-      width: 92,
+      width: 84,
       cell: (c) => (
         <span className={styles.folio}>
           <Highlight text={formatFolio(c.folio)} query={dq} />
@@ -225,7 +238,7 @@ export function ClientList() {
       hideBelow: 'lg',
       cell: (c) => <span className={styles.service}>{c.servicio || '—'}</span>,
     },
-    { key: 'estado', header: 'Estado', width: 150, cell: (c) => <StatusBadge status={c.estado} size="sm" short /> },
+    { key: 'estado', header: 'Estado', width: 116, cell: (c) => <StatusBadge status={c.estado} size="sm" short /> },
     {
       key: 'pago',
       header: 'Pago',
@@ -252,8 +265,14 @@ export function ClientList() {
       key: 'fecha',
       header: 'Fecha y hora',
       align: 'right',
-      width: 168,
-      cell: (c) => <DateTimeText value={c.fecha} muted className={styles.date} />,
+      width: 112,
+      // Fecha y hora en dos líneas (como nombre/teléfono): la tabla cabe en tableta sin recortar la columna.
+      cell: (c) => (
+        <span className={styles.dateStack}>
+          <DateTimeText value={c.fecha} variant="date" className={styles.date} />
+          <DateTimeText value={c.fecha} variant="time" muted className={styles.dateTime} />
+        </span>
+      ),
     },
   ];
 
@@ -337,6 +356,33 @@ export function ClientList() {
         }
       />
 
+      {compact ? (
+        <motion.div
+          className={styles.statStrip}
+          initial={reduced ? false : { opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <button type="button" className={cx(styles.stat, status === 'taller' && styles.statOn)} aria-pressed={status === 'taller'} onClick={() => setStatus(status === 'taller' ? 'todos' : 'taller')}>
+            <span className={styles.statLabel}>
+              <Wrench aria-hidden /> En taller
+            </span>
+            <span className={styles.statValue}>{stats ? stats.taller : '—'}</span>
+          </button>
+          <button type="button" className={cx(styles.stat, styles.statListo, status === 'listo' && styles.statOn)} aria-pressed={status === 'listo'} onClick={() => setStatus(status === 'listo' ? 'todos' : 'listo')}>
+            <span className={styles.statLabel}>
+              <PackageCheck aria-hidden /> Listos
+            </span>
+            <span className={styles.statValue}>{stats ? stats.listos : '—'}</span>
+          </button>
+          <button type="button" className={cx(styles.stat, styles.statPend, pay === 'saldo' && styles.statOn)} aria-pressed={pay === 'saldo'} onClick={() => setPay(pay === 'saldo' ? 'todos' : 'saldo')}>
+            <span className={styles.statLabel}>
+              <CircleDollarSign aria-hidden /> Por cobrar
+            </span>
+            <span className={styles.statValue}>{stats ? formatMoney(stats.porCobrar, { decimals: false }) : '—'}</span>
+          </button>
+        </motion.div>
+      ) : (
       <motion.div
         className={styles.kpis}
         initial={reduced ? false : { opacity: 0, y: 6 }}
@@ -374,26 +420,79 @@ export function ClientList() {
           onClick={() => setPay(pay === 'saldo' ? 'todos' : 'saldo')}
         />
       </motion.div>
+      )}
 
       <div className={styles.filters}>
-        <Toolbar aria-label="Filtros de clientes" className={styles.toolbar}>
-          <SearchField value={q} onChange={setQ} placeholder="Buscar cliente, folio, equipo o IMEI…" containerClassName={styles.search} />
-          <SegmentedControl<PayFilter>
-            size="sm"
-            className={styles.paySeg}
-            aria-label="Filtrar por pago"
-            value={pay}
-            onChange={setPay}
-            options={[
-              { value: 'todos', label: 'Todos' },
-              { value: 'pagados', label: 'Pagados' },
-              { value: 'saldo', label: 'Con saldo' },
-            ]}
-          />
-          <Select<SortKey> size="sm" aria-label="Ordenar" value={sort} onChange={setSort} options={SORT_OPTIONS} icon={<ArrowDownUp />} width={170} containerClassName={styles.sortSel} />
-        </Toolbar>
+        {compact ? (
+          <div className={styles.compactBar}>
+            <SearchField value={q} onChange={setQ} placeholder="Buscar cliente, folio o IMEI…" containerClassName={styles.search} />
+            <IconButton
+              icon={<SlidersHorizontal />}
+              label="Filtros y orden"
+              variant="secondary"
+              tooltip={false}
+              badge={(pay !== 'todos' ? 1 : 0) + (sort !== 'recientes' ? 1 : 0)}
+              className={styles.filterBtn}
+              onClick={() => setFiltersOpen(true)}
+            />
+          </div>
+        ) : (
+          <Toolbar aria-label="Filtros de clientes" className={styles.toolbar}>
+            <SearchField value={q} onChange={setQ} placeholder="Buscar cliente, folio, equipo o IMEI…" containerClassName={styles.search} />
+            <SegmentedControl<PayFilter>
+              size="sm"
+              className={styles.paySeg}
+              aria-label="Filtrar por pago"
+              value={pay}
+              onChange={setPay}
+              options={PAY_OPTIONS}
+            />
+            <Select<SortKey> size="sm" aria-label="Ordenar" value={sort} onChange={setSort} options={SORT_OPTIONS} icon={<ArrowDownUp />} width={170} containerClassName={styles.sortSel} />
+          </Toolbar>
+        )}
         <FilterChips<StatusFilter> aria-label="Filtrar por estado" value={status} onChange={setStatus} options={statusOptions} />
       </div>
+
+      {compact && (
+        <Sheet
+          open={filtersOpen}
+          onClose={() => setFiltersOpen(false)}
+          title="Filtros y orden"
+          icon={<SlidersHorizontal />}
+          footer={
+            <>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setPay('todos');
+                  setSort('recientes');
+                }}
+              >
+                Restablecer
+              </Button>
+              <Button variant="primary" onClick={() => setFiltersOpen(false)}>
+                Ver {total} {total === 1 ? 'resultado' : 'resultados'}
+              </Button>
+            </>
+          }
+        >
+          <div className={styles.sheetGroup}>
+            <span className={styles.sheetLabel}>Pago</span>
+            <SegmentedControl<PayFilter> aria-label="Filtrar por pago" value={pay} onChange={setPay} options={PAY_OPTIONS} className={styles.sheetSeg} />
+          </div>
+          <div className={styles.sheetGroup}>
+            <span className={styles.sheetLabel}>Ordenar por</span>
+            <div role="radiogroup" aria-label="Ordenar por" className={styles.sortList}>
+              {SORT_OPTIONS.map((o) => (
+                <button key={o.value} type="button" role="radio" aria-checked={sort === o.value} className={cx(styles.sortItem, sort === o.value && styles.sortOn)} onClick={() => setSort(o.value)}>
+                  {o.label}
+                  {sort === o.value && <Check aria-hidden />}
+                </button>
+              ))}
+            </div>
+          </div>
+        </Sheet>
+      )}
 
       <DataTable
         columns={columns}

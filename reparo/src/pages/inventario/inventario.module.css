@@ -77,29 +77,26 @@
   }
 }
 
+/* Teléfono: rejilla 2×2 sin desplazamiento; el valor del inventario encabeza a todo el ancho. */
 @media (max-width: 767px) {
   .kpis {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-columns: none;
-    grid-auto-columns: minmax(158px, 44%);
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    margin-inline: calc(var(--gutter) * -1);
-    padding: 2px var(--gutter) 6px;
-    scroll-padding-inline: var(--gutter);
-    scrollbar-width: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2-5);
     margin-bottom: var(--space-4);
-  }
-
-  .kpis::-webkit-scrollbar {
-    display: none;
   }
 
   .kpis > *,
   .kpis > :nth-child(n + 4) {
     grid-column: auto;
-    scroll-snap-align: start;
+  }
+
+  .kpis > [class] {
+    min-height: 0;
+  }
+
+  .kpis > :nth-child(3) {
+    grid-column: 1 / -1;
+    order: -1;
   }
 }
 
@@ -114,6 +111,19 @@
 .tabs {
   overflow-x: auto;
   scrollbar-width: none;
+}
+
+/* Teléfono: las cuatro vistas caben en una fila, repartidas a lo ancho. */
+@media (max-width: 639px) {
+  .tabs {
+    gap: 0;
+  }
+  .tabs > [role='tab'] {
+    flex: 1 1 auto;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 4px;
+  }
 }
 
 .toolbar {
@@ -897,12 +907,20 @@
 }
 
 .supplierHead {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 148px 92px 104px 96px;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-4);
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--border);
   background: var(--surface-2);
+}
+
+.supplierId {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
 }
 
 .supplierText {
@@ -921,15 +939,39 @@
 }
 
 .supplierMeta {
-  font-size: var(--text-xs);
-  color: var(--text-3);
+  font-size: var(--text-sm);
+  color: var(--text-2);
   font-variant-numeric: tabular-nums;
+}
+
+.supplierSend {
+  grid-column: 2 / 4;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.supplierTotal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+  font-size: var(--text-md);
+  font-variant-numeric: tabular-nums;
+}
+
+.supplierTotalLabel {
+  font-size: var(--text-xs);
+  color: var(--text-2);
 }
 
 .supplierActions {
   display: flex;
-  align-items: center;
-  gap: 2px;
+  justify-content: flex-end;
+}
+
+.supplierActions > *,
+.lineActions > * {
+  width: 100%;
 }
 
 .lines {
@@ -937,11 +979,10 @@
   flex-direction: column;
 }
 
-/* Columnas fijas: los importes de cada renglón y el subtotal quedan alineados. */
-.line,
-.supplierFoot {
+/* Columnas fijas: cantidades e importes de cada renglón quedan alineados. */
+.line {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 148px 92px 104px 32px;
+  grid-template-columns: minmax(0, 1fr) 148px 92px 104px 96px;
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-2-5) var(--space-4);
@@ -1005,7 +1046,7 @@
   align-items: center;
   gap: var(--space-2);
   font-size: var(--text-xs);
-  color: var(--text-3);
+  color: var(--text-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1030,8 +1071,8 @@
 }
 
 .lineUnit {
-  font-size: var(--text-xs);
-  color: var(--text-3);
+  font-size: var(--text-sm);
+  color: var(--text-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1054,37 +1095,17 @@
   gap: 4px;
 }
 
-.supplierFoot {
-  border-top: 1px solid var(--border);
-  background: var(--surface-2);
-  padding-block: var(--space-2-5);
-}
-
-.supplierFootLabel {
-  grid-column: 1 / 4;
-  text-align: right;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--text-2);
-}
-
-.supplierFootMeta {
-  font-weight: var(--weight-regular);
-  color: var(--text-3);
-  font-variant-numeric: tabular-nums;
-}
-
 @media (max-width: 1023px) and (min-width: 768px) {
-  .line,
-  .supplierFoot {
-    grid-template-columns: minmax(0, 1fr) 148px 84px 96px 32px;
+  .supplierHead,
+  .line {
+    grid-template-columns: minmax(0, 1fr) 148px 84px 96px 96px;
     gap: var(--space-3);
   }
 }
 
 @media (max-width: 767px) {
   .line {
-    grid-template-columns: auto minmax(0, 1fr) auto 32px;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
     grid-template-areas:
       'main main main main'
       'qty . total act';
@@ -1118,22 +1139,20 @@
   }
 
   .supplierHead {
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    gap: var(--space-2) var(--space-3);
     padding: var(--space-3);
   }
 
-  .supplierFoot {
-    display: flex;
-    justify-content: space-between;
-    padding: var(--space-2-5) var(--space-3);
+  .supplierSend {
+    grid-column: auto;
   }
 
-  .supplierFoot > :last-child {
-    display: none;
+  .supplierActions > *,
+  .lineActions > * {
+    width: auto;
   }
 
-  .supplierFootLabel {
-    text-align: left;
-  }
 }
 
 .shopSection {

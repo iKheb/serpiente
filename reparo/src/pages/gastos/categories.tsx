@@ -34,20 +34,29 @@ const CATEGORY_GLYPH: Record<ExpenseCategory, LucideIcon> = {
 const SIZE_PX = { xs: 20, sm: 26, md: 40, lg: 56 } as const;
 
 /**
- * Miniatura de categoría: la pieza 3D (misma que en Inventario) sobre una
- * baldosa teñida con el color de la categoría.
+ * Ícono de categoría: glifo vectorial sobre una baldosa teñida con el color de
+ * la categoría (el mismo de chips, donut y leyendas). Sólo a partir de 48 px
+ * (detalle/encabezados) se muestra la pieza 3D de Inventario; a tamaño de fila
+ * el render 3D se vuelve ruido visual.
  */
 export function CategoryIcon({ categoria, size = 'md', className }: { categoria: ExpenseCategory; size?: keyof typeof SIZE_PX; className?: string }) {
   const px = SIZE_PX[size];
   // Un solo tamaño de sprite (caché del renderizador); se ajusta por CSS.
   const bucket = 48;
   const Glyph = CATEGORY_GLYPH[categoria] ?? Tag;
+  const with3d = px >= 48;
   return (
-    <span className={cx(styles.catIcon, styles[`cat-${size}`], className)} style={{ '--cat': CATEGORY_COLOR[categoria] } as CSSProperties} aria-hidden>
+    <span
+      className={cx(styles.catIcon, styles[`cat-${size}`], !with3d && styles.catFlat, className)}
+      style={{ '--cat': CATEGORY_COLOR[categoria] } as CSSProperties}
+      aria-hidden
+    >
       <Glyph className={styles.catGlyph} />
-      <span className={styles.catArt} style={{ transform: `scale(${(px * 0.96) / bucket})` }}>
-        <PartThumb kind={categoria} size={bucket} label="" />
-      </span>
+      {with3d && (
+        <span className={styles.catArt} style={{ transform: `scale(${(px * 0.96) / bucket})` }}>
+          <PartThumb kind={categoria} size={bucket} label="" />
+        </span>
+      )}
     </span>
   );
 }
