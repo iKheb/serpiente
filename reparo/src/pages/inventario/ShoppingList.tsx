@@ -187,17 +187,10 @@ function SupplierHeader({ group: g, business, cc }: { group: OrderGroup; busines
             disabled={!activeLines.length}
             onClick={() => openWhatsApp(buildOrderText([g], { businessName: business, forSupplier: true }), cc)}
           >
-            <span className={styles.hideSm}>Enviar pedido</span>
-            <span className={styles.showSm}>Enviar</span>
+            Enviar
           </Button>
         </Tooltip>
-      </div>
-      <div className={styles.supplierTotal}>
-        <span className={styles.supplierTotalLabel}>Total</span>
-        <MoneyText cents={g.totalCents} weight="semibold" />
-      </div>
-      <div className={styles.supplierActions}>
-        <Tooltip content={`Marcar ${plural(activeLines.length, 'artículo', 'artículos')} de ${g.proveedor} como pedidos`}>
+        <Tooltip content={`Marcar ${plural(activeLines.length, 'artículo', 'artículos')} de ${g.proveedor} como pedidos (pasan a «En camino»)`}>
           <Button
             size="sm"
             variant="secondary"
@@ -206,9 +199,13 @@ function SupplierHeader({ group: g, business, cc }: { group: OrderGroup; busines
             disabled={!activeLines.length}
             onClick={() => void markManyOrdered(activeLines.map((l) => l.item))}
           >
-            Todo
+            Marcar pedido
           </Button>
         </Tooltip>
+      </div>
+      <div className={styles.supplierTotal}>
+        <span className={styles.supplierTotalLabel}>Total</span>
+        <MoneyText cents={g.totalCents} weight="semibold" />
       </div>
     </header>
   );
@@ -248,18 +245,15 @@ function OrderLineRow({ line, onQty }: { line: OrderLine; onQty: (n: number) => 
       </span>
       <MoneyText cents={qty * i.costoUnitarioCents} weight="semibold" className={styles.lineTotal} tone={qty ? 'neutral' : 'muted'} />
       <div className={styles.lineActions}>
-        <Tooltip content="Marcar como pedido al proveedor (pasa a «En camino»)">
-          <Button
-            size="sm"
-            variant="secondary"
-            iconLeft={<Check />}
-            aria-label={`Marcar ${i.nombre} como pedido`}
-            disabled={qty === 0}
-            onClick={() => void toggleOrdered(i, true)}
-          >
-            Pedido
-          </Button>
-        </Tooltip>
+        <IconButton
+          size="sm"
+          variant="ghost"
+          icon={<Check />}
+          label={`Marcar ${i.nombre} como pedido`}
+          disabled={qty === 0}
+          onClick={() => void toggleOrdered(i, true)}
+          className={styles.lineCheck}
+        />
       </div>
     </li>
   );

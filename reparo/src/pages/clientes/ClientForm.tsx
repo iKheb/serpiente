@@ -601,7 +601,7 @@ function SectionIndex({ formRef }: { formRef: React.RefObject<HTMLFormElement | 
     const scroller = form?.parentElement;
     const el = form?.querySelector<HTMLElement>(`#${id}`);
     if (!scroller || !el) return;
-    const offset = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top - (navRef.current?.offsetHeight ?? 0) - 8;
+    const offset = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top - (navRef.current?.offsetHeight ?? 0) - 16;
     scroller.scrollTo({ top: scroller.scrollTop + offset, behavior: 'smooth' });
     setActive(id);
   };

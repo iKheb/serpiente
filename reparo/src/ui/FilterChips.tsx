@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { cx } from './utils';
 import styles from './FilterChips.module.css';
 
@@ -33,8 +33,19 @@ export function FilterChips<V extends string = string>(props: FilterChipsProps<V
       props.onChange(options.map((o) => o.value).filter((x) => set.has(x)));
     } else props.onChange(v);
   };
+  // Fila desplazable: el chip activo (p. ej. al llegar con ?estado=) siempre queda a la vista.
+  const ref = useRef<HTMLDivElement>(null);
+  const activeKey = props.multiple ? props.value[0] : props.value;
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || el.scrollWidth <= el.clientWidth) return;
+    const on = el.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!on) return;
+    const left = on.getBoundingClientRect().left - el.getBoundingClientRect().left + el.scrollLeft;
+    if (left < el.scrollLeft || left + on.offsetWidth > el.scrollLeft + el.clientWidth - 48) el.scrollLeft = Math.max(0, left - 8);
+  }, [activeKey]);
   return (
-    <div role="group" aria-label={ariaLabel} className={cx(styles.chips, size === 'sm' && styles.sm, className)}>
+    <div ref={ref} role="group" aria-label={ariaLabel} className={cx(styles.chips, size === 'sm' && styles.sm, className)}>
       {options.map((o) => {
         const on = isOn(o.value);
         return (

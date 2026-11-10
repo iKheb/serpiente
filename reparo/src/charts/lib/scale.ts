@@ -38,12 +38,10 @@ export function niceDomain(values: Iterable<number>, count = 4): NiceDomain {
     min = Math.floor(lo / step) * step;
     max = Math.ceil(hi / step) * step;
   }
-  // Excursiones mínimas al otro lado del cero (p. ej. −$200 con pasos de $5k):
-  // en lugar de reservar un paso entero vacío, el dominio se ajusta a los datos
-  // con un margen pequeño y el eje no rotula ese tramo.
-  const pad = (hi - lo) * 0.06;
-  if (lo < 0 && hi > 0 && -lo < step * 0.5) min = lo - pad;
-  if (hi > 0 && lo < 0 && hi < step * 0.5) max = hi + pad;
+  // Todo valor dibujado (barras, líneas y referencias) queda DENTRO de un tramo
+  // rotulado del eje: si hay un negativo, el dominio baja al siguiente paso
+  // completo (p. ej. −$5 k) en lugar de dejar la línea colgando bajo el $0.
+  // Sin negativos, el mínimo es exactamente 0: no se reserva tramo vacío.
   const ticks: number[] = [];
   const first = Math.ceil(roundFloat(min / step)) * step;
   for (let t = first; t <= max + step * 1e-9; t += step) ticks.push(roundFloat(t));

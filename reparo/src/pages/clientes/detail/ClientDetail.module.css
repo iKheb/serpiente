@@ -649,6 +649,9 @@
 
 .ledgerNote {
   margin-top: var(--space-2);
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+  white-space: normal;
   font-size: var(--text-xs);
   color: var(--text-2);
   line-height: 1.5;
@@ -1080,4 +1083,17 @@
 
 .tnum {
   font-variant-numeric: tabular-nums;
+}
+
+.metaBadges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1-5, 6px);
+}
+
+.ledgerNoteDue {
+  display: block;
+  color: var(--pending);
+  font-weight: var(--weight-medium);
 }

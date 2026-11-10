@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowDownUp, Check, SlidersHorizontal, Camera, CircleDollarSign, Download, Grid3x3, KeyRound, PackageCheck, Plus, Search, Smartphone, UserPlus, Users, Wrench } from 'lucide-react';
+import { ArrowDownUp, Check, SlidersHorizontal, Camera, CircleDollarSign, Download, Grid3x3, KeyRound, PackageCheck, Plus, TriangleAlert, Search, Smartphone, UserPlus, Users, Wrench } from 'lucide-react';
 import { navigate, setQuery, useRoute } from '@/app/router';
 import {
   REPAIR_STATUS_LABEL,
@@ -40,7 +40,7 @@ import {
   type Column,
   type FilterChipOption,
 } from '@/ui';
-import { SORTERS, SORT_OPTIONS, TALLER, matchesPay, matchesSearch, matchesStatus, parseStatusFilter, type PayFilter, type SortKey, type StatusFilter } from './lib';
+import { deliveredDebtCents, SORTERS, SORT_OPTIONS, TALLER, matchesPay, matchesSearch, matchesStatus, parseStatusFilter, type PayFilter, type SortKey, type StatusFilter } from './lib';
 import styles from './ClientesPage.module.css';
 
 const PAGE = 40;
@@ -80,7 +80,18 @@ function PhotoIcon({ c }: { c: Client }) {
   );
 }
 
+/** Alerta: equipo entregado sin liquidar. `full` incluye el monto (tarjeta móvil). */
+function DebtBadge({ c, full }: { c: Client; full?: boolean }) {
+  const debt = deliveredDebtCents(c);
+  return (
+    <Badge size="sm" tone="pending" icon={<TriangleAlert />} title={`Entregado con saldo ${formatMoney(debt)}`} className={styles.debtBadge}>
+      {full ? `Entregado con saldo ${formatMoney(debt)}` : 'Entregado con saldo'}
+    </Badge>
+  );
+}
+
 function PayBadge({ c }: { c: Client }) {
+  if (deliveredDebtCents(c) > 0) return <DebtBadge c={c} />;
   const s = paymentStatus(c);
   if (s === 'pagado')
     return (
@@ -242,14 +253,14 @@ export function ClientList() {
     {
       key: 'pago',
       header: 'Pago',
-      width: 130,
+      width: 150,
       hideBelow: 'xl',
       cell: (c) => {
         const s = saldoCents(c);
         return (
           <div className={styles.pay}>
             <PayBadge c={c} />
-            {s > 0 && s < c.cobroCents && c.estado !== 'cancelado' && <span className={styles.saldo}>Saldo {formatMoney(s)}</span>}
+            {s > 0 && (s < c.cobroCents || deliveredDebtCents(c) > 0) && c.estado !== 'cancelado' && <span className={styles.saldo}>Saldo {formatMoney(s)}</span>}
           </div>
         );
       },
@@ -302,13 +313,19 @@ export function ClientList() {
         </div>
         <div className={styles.cardBottom}>
           <div className={styles.cardBadges}>
-            <StatusBadge status={c.estado} size="sm" short />
-            <PayBadge c={c} />
+            {deliveredDebtCents(c) > 0 ? (
+              <DebtBadge c={c} full />
+            ) : (
+              <>
+                <StatusBadge status={c.estado} size="sm" short />
+                <PayBadge c={c} />
+              </>
+            )}
           </div>
           <div className={styles.cardMoney}>
             <MoneyText cents={c.cobroCents} weight="semibold" strike={c.estado === 'cancelado'} tone={c.estado === 'cancelado' ? 'muted' : 'neutral'} />
             {/* Sólo con abono parcial: si no ha pagado nada, el saldo es el mismo total (lo dice la insignia). */}
-            {s > 0 && s < c.cobroCents && c.estado !== 'cancelado' && <span className={styles.saldo}>Saldo {formatMoney(s)}</span>}
+            {s > 0 && s < c.cobroCents && c.estado !== 'cancelado' && deliveredDebtCents(c) === 0 && <span className={styles.saldo}>Saldo {formatMoney(s)}</span>}
           </div>
         </div>
         <DateTimeText value={c.fecha} variant="relative-datetime" muted className={styles.cardDate} />
@@ -344,7 +361,7 @@ export function ClientList() {
     <div className={styles.page}>
       <PageHeader
         title="Clientes"
-        subtitle={clients ? `${clients.length} ${clients.length === 1 ? 'servicio' : 'servicios'} · equipos, reparaciones y cobros` : 'Equipos, reparaciones y cobros'}
+        subtitle={clients ? `${clients.length.toLocaleString('es-MX')} ${clients.length === 1 ? 'cliente' : 'clientes'} · equipos, reparaciones y cobros` : 'Equipos, reparaciones y cobros'}
         actions={
           <>
             <Button variant="ghost" iconLeft={<Download />} onClick={exportar} className={styles.hideMobile}>

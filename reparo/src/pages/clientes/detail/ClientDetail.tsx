@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import {
   ArchiveRestore,
   ArrowLeft,
+  TriangleAlert,
   Ban,
   CalendarClock,
   Camera,
@@ -22,6 +23,7 @@ import {
   deleteClient,
   deviceFullName,
   formatFolio,
+  formatMoney,
   restoreClient,
   useAudit,
   useClient,
@@ -30,6 +32,7 @@ import {
 } from '@/data';
 import {
   Avatar,
+  Badge,
   Button,
   Card,
   DateTimeText,
@@ -45,6 +48,7 @@ import {
   usePrefersReducedMotion,
   type MenuItem,
 } from '@/ui';
+import { deliveredDebtCents } from '../lib';
 import { PhotoGallery } from '../components/PhotoGallery';
 import { ReceiptSheet } from '../receipt/ReceiptSheet';
 import { printReceipt } from '../receipt/receiptPrint';
@@ -76,6 +80,7 @@ function DetailView({ client }: { client: Client }) {
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [sharing, setSharing] = useState(false);
   const folio = formatFolio(client.folio);
+  const debt = deliveredDebtCents(client);
   const device = deviceFullName(client);
   const tel = client.telefono.trim();
   const telHref = tel ? `tel:${tel.replace(/[^\d+]/g, '')}` : undefined;
@@ -136,7 +141,16 @@ function DetailView({ client }: { client: Client }) {
         breadcrumbs={[{ label: 'Clientes', href: '#/clientes' }, { label: folio }]}
         leading={<Avatar name={client.nombre || '?'} size="lg" />}
         title={client.nombre || 'Cliente sin nombre'}
-        meta={<StatusBadge status={client.estado} />}
+        meta={
+          <span className={styles.metaBadges}>
+            <StatusBadge status={client.estado} />
+            {debt > 0 && (
+              <Badge tone="pending" icon={<TriangleAlert />} title="El equipo ya se entregó pero el servicio no está liquidado">
+                Entregado con saldo {formatMoney(debt)}
+              </Badge>
+            )}
+          </span>
+        }
         subtitle={
           <span className={styles.subtitle}>
             <span className={styles.subLine}>

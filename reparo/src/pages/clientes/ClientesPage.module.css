@@ -436,13 +436,23 @@
   }
 }
 
-/* Teléfono: los cinco estados caben en dos filas; nada queda recortado ni escondido. */
+/* Teléfono: una sola fila desplazable (no empuja la lista), con imán por chip y
+   un desvanecido amplio en el borde que anuncia que hay más estados. */
 @media (max-width: 899px) {
   .filters .statusChips {
-    flex-wrap: wrap;
-    overflow: visible;
-    row-gap: 8px;
-    -webkit-mask: none;
-    mask: none;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 2px;
+    padding-right: 40px;
+    -webkit-mask: linear-gradient(90deg, black calc(100% - 64px), transparent calc(100% - 8px));
+    mask: linear-gradient(90deg, black calc(100% - 64px), transparent calc(100% - 8px));
   }
+  .filters .statusChips > * {
+    scroll-snap-align: start;
+  }
+}
+
+.debtBadge {
+  white-space: nowrap;
 }

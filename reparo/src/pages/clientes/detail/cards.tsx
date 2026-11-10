@@ -278,7 +278,7 @@ export function ProfitCard({ client }: { client: Client }) {
             {f.pagadoCents > 0
               ? `Margen ${formatPercent(f.gananciaCents / f.pagadoCents)} sobre lo cobrado.`
               : 'Aún no hay cobros: la ganancia se calcula sobre lo efectivamente cobrado.'}
-            {f.saldoCents > 0 && ` Faltan ${formatMoney(f.saldoCents)} por cobrar.`}
+            {f.saldoCents > 0 && <span className={styles.ledgerNoteDue}>Faltan {formatMoney(f.saldoCents)} por cobrar.</span>}
           </p>
         </>
       )}

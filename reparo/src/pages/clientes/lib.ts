@@ -63,3 +63,8 @@ export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: 'total', label: 'Mayor total' },
   { value: 'nombre', label: 'Nombre (A–Z)' },
 ];
+
+/** Estado contradictorio: el equipo ya se entregó pero aún hay saldo por cobrar. */
+export function deliveredDebtCents(c: Client): number {
+  return c.estado === 'entregado' ? Math.max(0, saldoCents(c)) : 0;
+}

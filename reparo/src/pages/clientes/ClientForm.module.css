@@ -242,6 +242,24 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
+    box-shadow: 0 6px 14px -10px rgba(10, 14, 24, 0.28);
+  }
+  /* Lo que pasa por debajo de la barra se funde en lugar de cortarse en seco. */
+  .sectionIndex::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 1px);
+    height: 22px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, var(--surface-1) 35%, color-mix(in srgb, var(--surface-1) 0%, transparent));
+  }
+  /* Saltos y foco: el campo nunca queda escondido bajo la barra de pestañas. */
+  .form [id^='cf-'],
+  .form :is(input, textarea, select, button[role='radio'], [role='radiogroup']) {
+    scroll-margin-top: 76px;
+    scroll-margin-bottom: 24px;
   }
   .sectionStep {
     display: inline-flex;
