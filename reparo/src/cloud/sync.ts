@@ -116,7 +116,7 @@ export function useCloudStatus(): CloudStatus {
 
 /* ----------------------------- Sincronizar ------------------------------- */
 
-async function runOnce(): Promise<CloudSyncResult> {
+async function runOnce(downloadPhotos = true): Promise<CloudSyncResult> {
   const cfg = await getCloudConfig();
   if (!cfg) throw new CloudError('Conecta tu proyecto de Supabase en Ajustes → Nube.', 'config');
   if (!getOnline()) throw new CloudError('Sin conexión a internet. Se sincronizará al volver la conexión.', 'offline');
@@ -126,7 +126,7 @@ async function runOnce(): Promise<CloudSyncResult> {
   const user = data.session?.user;
   if (!user) throw new CloudError('Inicia sesión para sincronizar.', 'auth');
   try {
-    return await runCloudCycle(client, { projectUrl: cfg.url, userId: user.id }, { onProgress: (p) => setStatus({ photos: p }) });
+    return await runCloudCycle(client, { projectUrl: cfg.url, userId: user.id }, { onProgress: (p) => setStatus({ photos: p }), downloadPhotos });
   } catch (err) {
     throw toCloudError(err, 'No se pudo sincronizar.');
   }
@@ -139,10 +139,10 @@ let queued: Promise<CloudSyncResult> | null = null;
  * Sincroniza ahora (baja, aplica y sube). Si ya hay una en curso, encola UNA
  * más para no perder cambios hechos mientras tanto.
  */
-export function cloudSyncNow(): Promise<CloudSyncResult> {
+export function cloudSyncNow(opts: { downloadPhotos?: boolean } = {}): Promise<CloudSyncResult> {
   if (!current) {
     setStatus({ running: true });
-    current = runOnce()
+    current = runOnce(opts.downloadPhotos !== false)
       .then((r) => {
         setStatus({ running: false, error: null, errorKind: null, lastSyncAt: Date.now(), lastResult: r, photos: null });
         return r;
@@ -162,7 +162,7 @@ export function cloudSyncNow(): Promise<CloudSyncResult> {
       .catch(() => undefined)
       .then(() => {
         queued = null;
-        return cloudSyncNow();
+        return cloudSyncNow(opts);
       });
   }
   return queued;
@@ -173,11 +173,14 @@ export function cloudSyncNow(): Promise<CloudSyncResult> {
 /**
  * Primer inicio en un dispositivo nuevo: baja todo de la nube (con sesión ya
  * iniciada), aplica sin auditar, marca el onboarding como terminado y deja la
- * app lista. Devuelve cuántos registros llegaron.
+ * app lista. Las fotos se siguen descargando en segundo plano (ver
+ * useCloudStatus().photosLabel). Devuelve cuántos registros llegaron.
  */
 export async function restoreFromCloud(): Promise<{ pulled: number; clients: number; expenses: number; inventory: number }> {
   await dbReady();
-  const r = await cloudSyncNow();
+  // Los datos primero (rápido); las fotos se descargan después en segundo plano.
+  const r = await cloudSyncNow({ downloadPhotos: false });
+  void cloudSyncNow().catch(() => undefined);
   await recomputeFolioSequence().catch(() => undefined);
   const saved = await db.transaction('rw', db.settings, async () => {
     const s = withSettingsDefaults(await db.settings.get('settings'));
