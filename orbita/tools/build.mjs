@@ -32,6 +32,19 @@ const result = await esbuild.build({
     setup(b) {
       b.onResolve({ filter: /^three\/addons\// }, (a) => ({ path: join(root, 'vendor/three/addons', a.path.replace('three/addons/', '')) }));
     },
+  }, {
+    // Módulos aún no escritos (build de vista previa): se sustituyen por uno que falla al cargarse,
+    // para que el import() dinámico se rechace y la app use su alternativa.
+    name: 'missing-modules',
+    setup(b) {
+      b.onResolve({ filter: /^\.\.?\// }, (a) => {
+        const p = resolve(a.resolveDir, a.path);
+        if (existsSync(p)) return null;
+        console.warn('  (pendiente) ' + p.replace(root + '/', ''));
+        return { path: p, namespace: 'missing' };
+      });
+      b.onLoad({ filter: /.*/, namespace: 'missing' }, () => ({ contents: "throw new Error('Módulo pendiente');", loader: 'js' }));
+    },
   }],
 });
 const js = 'globalThis.__ORBITA_BUILD__=true;' + result.outputFiles[0].text;
@@ -52,6 +65,16 @@ let out = html
   .replace('</head>', `<link rel="manifest" href="manifest.webmanifest">\n<link rel="icon" href="icons/icon-192.png">\n<link rel="apple-touch-icon" href="icons/icon-192.png">\n<style>${cssMin}</style>\n</head>`)
   .replace(/<script type="module" src="js\/main.js"><\/script>/, () => `<script type="module">${escScript(js)}</script>`);
 writeFileSync(join(dist, 'index.html'), out);
+
+// 4) Variante para Artifact (claude.ai): sin envoltorio html/head/body ni enlaces PWA.
+const art = out
+  .replace(/<!doctype html>\n?/i, '')
+  .replace(/<html[^>]*>\n?/i, '').replace(/<\/html>\n?/i, '')
+  .replace(/<head>\n?/i, '').replace(/<\/head>\n?/i, '')
+  .replace(/<body>\n?/i, '').replace(/<\/body>\n?/i, '')
+  .replace(/<meta charset="utf-8">\n?/i, '').replace(/<meta name="viewport"[^>]*>\n?/i, '')
+  .replace(/<link rel="(manifest|icon|apple-touch-icon)"[^>]*>\n?/g, '');
+writeFileSync(join(dist, 'orbita-artifact.html'), art);
 
 for (const f of ['manifest.webmanifest', 'sw.js']) if (existsSync(join(root, f))) cpSync(join(root, f), join(dist, f));
 if (existsSync(join(root, 'icons'))) cpSync(join(root, 'icons'), join(dist, 'icons'), { recursive: true });

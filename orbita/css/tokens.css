@@ -27,6 +27,7 @@
 }
 
 :root {
+  color-scheme: dark;
   /* Tipografía */
   --font-display: "Outfit", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
