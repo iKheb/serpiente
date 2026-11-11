@@ -1,0 +1,14 @@
+{
+  "id": "tv.orbita.app",
+  "version": "1.0.0",
+  "vendor": "Órbita",
+  "type": "web",
+  "main": "index.html",
+  "title": "Órbita",
+  "icon": "icons/icon-192.png",
+  "largeIcon": "icons/icon-512.png",
+  "bgColor": "#03040a",
+  "resolution": "1920x1080",
+  "disableBackHistoryAPI": true,
+  "handlesRelaunch": false
+}

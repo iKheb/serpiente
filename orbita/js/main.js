@@ -56,6 +56,16 @@ async function boot() {
   await router.start();
 }
 
+// PWA: instalación como app y modo sin conexión (solo build de producción, fuera de iframes)
+function registerSW() {
+  try {
+    if (!globalThis.__ORBITA_BUILD__ || !('serviceWorker' in navigator) || window.top !== window) return;
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') return;
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  } catch { /* entorno sin SW */ }
+}
+registerSW();
+
 boot().catch((e) => {
   console.error(e);
   document.getElementById('view').innerHTML = '<p style="padding:2rem">No se pudo iniciar Órbita. Recarga la página.</p>';

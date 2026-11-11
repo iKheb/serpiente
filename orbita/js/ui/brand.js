@@ -12,17 +12,21 @@ export function markSVG({ size = 32, glow = false } = {}) {
     <radialGradient id="${id}s" cx="24" cy="22" r="26" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="${id}r" x1="4" y1="40" x2="60" y2="24" gradientUnits="userSpaceOnUse">
+    <linearGradient id="${id}r" x1="4" y1="44" x2="60" y2="20" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#ffb35c"/><stop offset=".55" stop-color="#ff5c9d"/><stop offset="1" stop-color="#fff"/>
     </linearGradient>
-    ${glow ? `<filter id="${id}f" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>` : ''}
+    ${glow ? `<filter id="${id}f" x="-16" y="-16" width="96" height="96" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>` : ''}
   </defs>
   <g ${glow ? `filter="url(#${id}f)"` : ''}>
-    <path d="M6.5 41.5c-3.2-5.6 9.4-15.5 28.2-22.1 18.8-6.6 34.4-7.4 37.6-1.8" transform="translate(-6 2)" fill="none" stroke="url(#${id}r)" stroke-width="3.2" stroke-linecap="round" opacity=".55"/>
-    <circle cx="32" cy="32" r="17" fill="url(#${id}g)"/>
-    <circle cx="32" cy="32" r="17" fill="url(#${id}s)"/>
-    <path d="M6.5 41.5c3.2 5.6 18.8 4.8 37.6-1.8 18.8-6.6 31.4-16.5 28.2-22.1" transform="translate(-6 2)" fill="none" stroke="url(#${id}r)" stroke-width="3.2" stroke-linecap="round"/>
-    <circle cx="53.5" cy="16.5" r="3.4" fill="#fff"/>
+    <g transform="rotate(-22 32 32)">
+      <path d="M3.5 32a28.5 8.6 0 0 1 57 0" fill="none" stroke="url(#${id}r)" stroke-width="2.6" stroke-linecap="round" opacity=".5"/>
+    </g>
+    <circle cx="32" cy="32" r="16.5" fill="url(#${id}g)"/>
+    <circle cx="32" cy="32" r="16.5" fill="url(#${id}s)"/>
+    <g transform="rotate(-22 32 32)">
+      <path d="M60.5 32a28.5 8.6 0 0 1 -57 0" fill="none" stroke="url(#${id}r)" stroke-width="2.6" stroke-linecap="round"/>
+      <circle cx="58.6" cy="28.4" r="3.1" fill="#fff"/>
+    </g>
   </g>
 </svg>`;
 }

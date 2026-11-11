@@ -1,0 +1,20 @@
+{
+  "packageId": "tv.orbita.app",
+  "host": "orbita.example",
+  "name": "Órbita",
+  "launcherName": "Órbita",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "themeColor": "#05060d",
+  "navigationColor": "#03040a",
+  "backgroundColor": "#03040a",
+  "startUrl": "/index.html?modo=tv",
+  "iconUrl": "https://orbita.example/icons/icon-512.png",
+  "maskableIconUrl": "https://orbita.example/icons/icon-maskable-512.png",
+  "webManifestUrl": "https://orbita.example/manifest.webmanifest",
+  "enableNotifications": false,
+  "isChromeOSOnly": false,
+  "features": {},
+  "fallbackType": "customtabs",
+  "minSdkVersion": 21
+}
