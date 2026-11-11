@@ -1,1 +1,104 @@
-/* ÓRBITA · broadcast.css — subagente de emisiones (grafismo de canal) */
+/* ==========================================================================
+   ÓRBITA · broadcast.css — grafismo de canal dentro de la emisión (A2)
+   Unidad: --bc-u = 1 % de la altura del contenedor (la pone el motor), así el
+   grafismo escala igual en una miniatura que en una TV de 75".
+   ========================================================================== */
+.bc-root {
+  --bc-u: 10.8px;
+  --bc-sx: calc(var(--bc-u) * 6.4);     /* zona segura horizontal */
+  --bc-sy: calc(var(--bc-u) * 5.2);     /* zona segura vertical */
+  --bc-ink: #f7f8ff;
+  --bc-panel: rgba(8, 10, 22, .78);
+  --bc-panel-2: rgba(16, 20, 40, .9);
+  --bc-line: rgba(255, 255, 255, .14);
+  position: absolute; inset: 0; overflow: hidden;
+  background: #000;
+  contain: strict;
+  font-family: var(--font-display, "Outfit", system-ui, sans-serif);
+  color: var(--bc-ink);
+  -webkit-font-smoothing: antialiased;
+  user-select: none; -webkit-user-select: none;
+}
+.bc-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; image-rendering: auto; }
+.bc-root.bc-nogl { background: radial-gradient(120% 90% at 70% 30%, var(--bc-c2, #3a3f8a) 0%, var(--bc-c1, #0b0f24) 55%, #000 100%); }
+.bc-gfx { position: absolute; inset: 0; pointer-events: none; }
+.bc-gfx * { box-sizing: border-box; }
+.bc-fade { position: absolute; inset: 0; background: #000; opacity: 0; transition: opacity .26s ease; pointer-events: none; }
+.bc-fade.is-on { opacity: 1; }
+
+/* Indicador de carga / rebuffer */
+.bc-root::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: calc(var(--bc-u) * 7); height: calc(var(--bc-u) * 7);
+  margin: calc(var(--bc-u) * -3.5) 0 0 calc(var(--bc-u) * -3.5);
+  border-radius: 50%;
+  border: calc(var(--bc-u) * .45) solid rgba(255,255,255,.16);
+  border-top-color: #fff;
+  opacity: 0; transition: opacity .2s ease .15s;
+  animation: bc-spin .9s linear infinite;
+  pointer-events: none;
+}
+.bc-root.is-buffering::after { opacity: 1; }
+@keyframes bc-spin { to { transform: rotate(360deg); } }
+
+/* Mosca de canal (solo en directo) */
+.bc-bug {
+  position: absolute; top: var(--bc-sy); right: var(--bc-sx);
+  display: flex; align-items: center; gap: calc(var(--bc-u) * .9);
+  opacity: .78; pointer-events: none;
+  filter: drop-shadow(0 calc(var(--bc-u) * .2) calc(var(--bc-u) * .6) rgba(0,0,0,.45));
+}
+.bc-bug[hidden] { display: none; }
+.bc-bug-glyph {
+  display: grid; place-items: center;
+  min-width: calc(var(--bc-u) * 4.4); height: calc(var(--bc-u) * 4.4); padding: 0 calc(var(--bc-u) * .8);
+  border-radius: calc(var(--bc-u) * 1.2);
+  background: linear-gradient(135deg, var(--bc-bug-a), var(--bc-bug-b));
+  font: 800 calc(var(--bc-u) * 2.1)/1 var(--font-display, sans-serif); letter-spacing: -.02em; color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+}
+.bc-bug-name { font: 600 calc(var(--bc-u) * 1.6)/1 var(--font-display, sans-serif); letter-spacing: .02em; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+.bc-small .bc-bug-name { display: none; }
+.bc-root[data-scene="football"] .bc-bug,
+.bc-root[data-scene="racing"] .bc-bug { top: auto; bottom: var(--bc-sy); }
+
+/* Insignia "EN DIRECTO" reutilizable */
+.bc-live {
+  display: inline-flex; align-items: center; gap: .45em;
+  padding: .32em .7em .3em; border-radius: calc(var(--bc-u) * .5);
+  background: #e8223f; color: #fff;
+  font: 800 calc(var(--bc-u) * 1.45)/1 var(--font-display, sans-serif); letter-spacing: .12em; text-transform: uppercase;
+}
+.bc-live::before { content: ""; width: .55em; height: .55em; border-radius: 50%; background: #fff; animation: bc-pulse 1.3s ease-in-out infinite; }
+@keyframes bc-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+
+/* Escena de reserva */
+.bc-fallback {
+  position: absolute; left: var(--bc-sx); bottom: calc(var(--bc-sy) * 1.6);
+  max-width: 60%; opacity: 0;
+}
+.bc-fallback-kicker { font: 600 calc(var(--bc-u) * 1.7)/1 var(--font-body, sans-serif); letter-spacing: .28em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+.bc-fallback-title { margin-top: calc(var(--bc-u) * 1.2); font: 700 calc(var(--bc-u) * 6.2)/1.02 var(--font-display, sans-serif); letter-spacing: -.02em; text-shadow: 0 calc(var(--bc-u) * .4) calc(var(--bc-u) * 3) rgba(0,0,0,.5); }
+
+/* Transición tipo "stinger" (repeticiones, cambios de bloque) */
+.bc-stinger {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+}
+.bc-stinger i {
+  position: absolute; top: -20%; bottom: -20%; width: 70%; left: -90%;
+  transform: skewX(-18deg);
+  background: var(--bc-stinger, linear-gradient(90deg, #6d7cff, #a35bff 50%, #ff5c9d));
+  box-shadow: 0 0 calc(var(--bc-u) * 6) rgba(0,0,0,.5);
+}
+.bc-stinger i:nth-child(2) { background: #0b0d1c; width: 64%; }
+.bc-stinger b {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.6); opacity: 0;
+  font: 900 calc(var(--bc-u) * 6)/1 var(--font-display, sans-serif); letter-spacing: .04em; color: #fff; white-space: nowrap;
+}
+.bc-stinger.is-run i:nth-child(1) { animation: bc-sting 1s cubic-bezier(.7,0,.3,1) forwards; }
+.bc-stinger.is-run i:nth-child(2) { animation: bc-sting 1s cubic-bezier(.7,0,.3,1) .06s forwards; }
+.bc-stinger.is-run b { animation: bc-sting-b 1s ease forwards; }
+@keyframes bc-sting { 0% { left: -90%; } 45%, 55% { left: 15%; } 100% { left: 130%; } }
+@keyframes bc-sting-b { 0%, 25% { opacity: 0; transform: translate(-50%, -50%) scale(.7); } 45%, 58% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 75%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.15); } }
+
+.reduced-motion .bc-stinger { display: none; }
