@@ -1,0 +1,85 @@
+/* ==========================================================================
+   ÓRBITA · Base (compartido — cambios coordinados por el líder)
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  background: var(--bg-1);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;            /* la vista principal gestiona su propio scroll */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+img, svg, canvas, video { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4, h5, p { margin: 0; }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.01em; line-height: 1.08; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+::selection { background: rgba(139, 123, 255, .45); color: #fff; }
+
+/* Scrollbars discretas */
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.14) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Capas raíz */
+#stage { position: fixed; inset: 0; z-index: var(--z-stage); pointer-events: none; }
+#stage canvas { width: 100% !important; height: 100% !important; }
+#app { position: fixed; inset: 0; z-index: var(--z-app); }
+#view {
+  position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden;
+  outline: none;
+  scroll-behavior: auto;
+}
+#overlays { position: fixed; inset: 0; z-index: var(--z-overlay); pointer-events: none; }
+#overlays > * { pointer-events: auto; }
+#toasts { position: fixed; z-index: var(--z-toast); left: 50%; bottom: 2rem; transform: translateX(-50%); display: flex; flex-direction: column; gap: .5rem; align-items: center; pointer-events: none; }
+#splash { position: fixed; inset: 0; z-index: var(--z-splash); background: var(--bg-0); }
+#splash:empty, #splash.done { display: none; }
+
+/* Modo TV / teclado: no mostrar cursor ni outline nativo */
+html.device-tv, html.device-tv * { cursor: none !important; }
+:focus { outline: none; }
+.focusable { outline: none; }
+
+/* Utilidades */
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.hidden { display: none !important; }
+.grad-text { background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ico { flex: none; }
+
+/* Esqueleto de carga (shimmer) */
+.skeleton {
+  background: linear-gradient(100deg, rgba(255,255,255,.04) 20%, rgba(255,255,255,.10) 40%, rgba(255,255,255,.04) 60%) var(--surface-1);
+  background-size: 220% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+@keyframes shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+
+/* Insignias comunes */
+.badge-live {
+  display: inline-flex; align-items: center; gap: .4em;
+  padding: .28em .62em; border-radius: var(--r-xs);
+  background: var(--live); color: #fff;
+  font: 700 var(--fs-2xs)/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase;
+  box-shadow: 0 0 18px var(--live-glow);
+}
+.badge-live::before { content: ""; width: .5em; height: .5em; border-radius: 50%; background: #fff; animation: livepulse 1.4s ease-in-out infinite; }
+@keyframes livepulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
+
+.reduced-motion *, .reduced-motion *::before, .reduced-motion *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+
+/* Marca */
+.brand-logo { display: inline-flex; align-items: center; gap: calc(var(--logo-h) * .28); height: var(--logo-h); color: var(--text-1); }
+.brand-logo .brand-mark { flex: none; overflow: visible; }
+.brand-word { font: 700 calc(var(--logo-h) * .98)/1 var(--font-display); letter-spacing: -.035em; transform: translateY(-.04em); }
